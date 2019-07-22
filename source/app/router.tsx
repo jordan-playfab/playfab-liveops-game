@@ -4,8 +4,10 @@ import { routes } from "./routes";
 
 import Home from "./pages/home";
 import TitleData from "./pages/title-data";
-import Player from "./pages/player";
+import { PlayerPage } from "./pages/player";
+import { PlanetPage } from "./pages/planet";
 import NotFound from "./pages/not-found";
+import { IStringDictionary, ITitleDataPlanets } from "./shared/types";
 
 export interface IRouterProps {
 	titleID: string;
@@ -13,6 +15,9 @@ export interface IRouterProps {
 
 	player: PlayFabClientModels.LoginResult;
 	savePlayer: (player: PlayFabClientModels.LoginResult) => void;
+
+	planets: ITitleDataPlanets;
+	updatePlanets: (data: IStringDictionary) => void;
 }
 
 export class Router extends React.Component<IRouterProps> {
@@ -22,7 +27,8 @@ export class Router extends React.Component<IRouterProps> {
 				<Switch>
 					<Route exact path={routes.Home} render={(props) => <Home {...props} {...this.props} />} />
 					<Route exact path={routes.TitleData} render={(props) => <TitleData {...props} {...this.props} />} />
-					<Route exact path={routes.Player} render={(props) => <Player {...props} {...this.props} />} />
+					<Route exact path={routes.Player} render={(props) => <PlayerPage {...props} {...this.props} />} />
+					<Route exact path={routes.Planet} render={(props) => <PlanetPage {...props} {...this.props} />} />
 					<Route component={NotFound} />
 				</Switch>
 			</HashRouter>

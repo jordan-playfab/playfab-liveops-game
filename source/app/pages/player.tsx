@@ -6,15 +6,16 @@ import { is } from "../shared/is";
 import { Redirect } from "react-router";
 import { routes } from "../routes";
 import { PlayFabHelper } from "../shared/playfab";
+import { RouteComponentProps } from "react-router";
 
-type Props = IRouterProps;
+type Props = IRouterProps & RouteComponentProps;
 
 interface IState {
     playerID: string;
     error: string;
 }
 
-export default class Player extends React.Component<Props, IState> {
+export class PlayerPage extends React.Component<Props, IState> {
     constructor(props: Props) {
         super(props);
 
@@ -62,9 +63,18 @@ export default class Player extends React.Component<Props, IState> {
         return (
             <React.Fragment>
                 <p><strong>You are logged in as:</strong> {this.props.player.PlayFabId}</p>
-                <p>Continue to the Tower (coming soon)</p>
+                <button onClick={this.sendToTower}>Continue to Mars</button>
             </React.Fragment>
         );
+    }
+
+    private sendToTower = (): void => {
+        PlayFabHelper.getTitleData(["Planets"], (data) => {
+            this.props.updatePlanets(data);
+            this.props.history.push(routes.Planet.replace(":name", "Mars"));
+        }, (error) => {
+            // TODO: Something
+        })
     }
 
     private setLocalPlayerID = (_: any, newValue: string): void => {

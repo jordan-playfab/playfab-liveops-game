@@ -1,5 +1,6 @@
 export const routes = {
     Home: "/",
     TitleData: "/title-data",
-    Player: "/player"
+    Player: "/player",
+    Planet: "/planet/:name"
 };
