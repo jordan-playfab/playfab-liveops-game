@@ -1,9 +1,8 @@
 /// <reference path="../../../node_modules/playfab-web-sdk/src/Typings/PlayFab/PlayFabClientApi.d.ts" />
-import "../../../node_modules/playfab-web-sdk/src/PlayFab/PlayFabClientApi";
 import { IRouterProps } from "../router";
 
 function login(props: IRouterProps, customID: string, success: (data: PlayFabClientModels.LoginResult) => void, error: (message: string) => void): void {
-    PlayFabClientSDK.LoginWithCustomID({
+    PlayFab.ClientApi.LoginWithCustomID({
         TitleId: props.titleID,
         CustomId: customID,
         CreateAccount: true,
@@ -17,6 +16,6 @@ function login(props: IRouterProps, customID: string, success: (data: PlayFabCli
     });
 }
 
-export const PlayFab = {
+export const PlayFabHelper = {
     login,
 };

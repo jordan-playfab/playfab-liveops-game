@@ -5,7 +5,7 @@ import { IRouterProps } from "../router";
 import { is } from "../shared/is";
 import { Redirect } from "react-router";
 import { routes } from "../routes";
-import { PlayFab } from "../shared/playfab";
+import { PlayFabHelper } from "../shared/playfab";
 
 type Props = IRouterProps;
 
@@ -78,7 +78,7 @@ export default class Player extends React.Component<Props, IState> {
             error: null,
         });
 
-        PlayFab.login(this.props, this.state.playerID, (player) => {
+        PlayFabHelper.login(this.props, this.state.playerID, (player) => {
             this.props.savePlayer(player);
         }, (message) => {
             this.setState({
