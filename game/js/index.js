@@ -155,6 +155,66 @@
 /************************************************************************/
 /******/ ({
 
+/***/ "./source/app/app.tsx":
+/*!****************************!*\
+  !*** ./source/app/app.tsx ***!
+  \****************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\nObject.defineProperty(exports, \"__esModule\", { value: true });\nconst React = __webpack_require__(/*! react */ \"./node_modules/react/index.js\");\nconst router_1 = __webpack_require__(/*! ./router */ \"./source/app/router.tsx\");\nclass App extends React.Component {\n    render() {\n        return (React.createElement(router_1.Router, Object.assign({}, this.props)));\n    }\n}\nexports.default = App;\n\n\n//# sourceURL=webpack:///./source/app/app.tsx?");
+
+/***/ }),
+
+/***/ "./source/app/pages/home.tsx":
+/*!***********************************!*\
+  !*** ./source/app/pages/home.tsx ***!
+  \***********************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\nObject.defineProperty(exports, \"__esModule\", { value: true });\nconst React = __webpack_require__(/*! react */ \"./node_modules/react/index.js\");\nclass Home extends React.Component {\n    render() {\n        return (React.createElement(React.Fragment, null,\n            React.createElement(\"p\", null, \"This is the home page.\"),\n            React.createElement(\"p\", null, \"Here we need to determine whether you have a title ID already.\"),\n            React.createElement(\"p\", null, \"If you do, proceed to player selection.\"),\n            React.createElement(\"p\", null, \"If not, ask for it.\")));\n    }\n}\nexports.default = Home;\n\n\n//# sourceURL=webpack:///./source/app/pages/home.tsx?");
+
+/***/ }),
+
+/***/ "./source/app/pages/not-found.tsx":
+/*!****************************************!*\
+  !*** ./source/app/pages/not-found.tsx ***!
+  \****************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\nObject.defineProperty(exports, \"__esModule\", { value: true });\nconst React = __webpack_require__(/*! react */ \"./node_modules/react/index.js\");\nclass NotFound extends React.Component {\n    render() {\n        return (React.createElement(\"p\", null, \"Page not found. Sorry! Go back to the root?\"));\n    }\n}\nexports.default = NotFound;\n\n\n//# sourceURL=webpack:///./source/app/pages/not-found.tsx?");
+
+/***/ }),
+
+/***/ "./source/app/router.tsx":
+/*!*******************************!*\
+  !*** ./source/app/router.tsx ***!
+  \*******************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\nObject.defineProperty(exports, \"__esModule\", { value: true });\nconst React = __webpack_require__(/*! react */ \"./node_modules/react/index.js\");\nconst react_router_dom_1 = __webpack_require__(/*! react-router-dom */ \"./node_modules/react-router-dom/esm/react-router-dom.js\");\nconst routes_1 = __webpack_require__(/*! ./routes */ \"./source/app/routes.ts\");\nconst home_1 = __webpack_require__(/*! ./pages/home */ \"./source/app/pages/home.tsx\");\nconst not_found_1 = __webpack_require__(/*! ./pages/not-found */ \"./source/app/pages/not-found.tsx\");\nclass Router extends React.Component {\n    render() {\n        return (React.createElement(react_router_dom_1.HashRouter, null,\n            React.createElement(react_router_dom_1.Switch, null,\n                React.createElement(react_router_dom_1.Route, { exact: true, path: routes_1.routes.Home, component: home_1.default }),\n                React.createElement(react_router_dom_1.Route, { component: not_found_1.default }))));\n    }\n}\nexports.Router = Router;\n;\n\n\n//# sourceURL=webpack:///./source/app/router.tsx?");
+
+/***/ }),
+
+/***/ "./source/app/routes.ts":
+/*!******************************!*\
+  !*** ./source/app/routes.ts ***!
+  \******************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+eval("\nObject.defineProperty(exports, \"__esModule\", { value: true });\nexports.routes = {\n    Home: \"/\",\n    Tower: \"/tower\",\n    Planets: \"/planets\",\n    Mars: \"/planets/mars\",\n};\n\n\n//# sourceURL=webpack:///./source/app/routes.ts?");
+
+/***/ }),
+
 /***/ "./source/index.tsx":
 /*!**************************!*\
   !*** ./source/index.tsx ***!
@@ -163,7 +223,7 @@
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\nObject.defineProperty(exports, \"__esModule\", { value: true });\nconst React = __webpack_require__(/*! react */ \"./node_modules/react/index.js\");\nconst react_dom_1 = __webpack_require__(/*! react-dom */ \"./node_modules/react-dom/index.js\");\nreact_dom_1.render(React.createElement(\"p\", null, \"This is an app\"), document.getElementById(\"app\"));\n\n\n//# sourceURL=webpack:///./source/index.tsx?");
+eval("\nObject.defineProperty(exports, \"__esModule\", { value: true });\nconst React = __webpack_require__(/*! react */ \"./node_modules/react/index.js\");\nconst react_dom_1 = __webpack_require__(/*! react-dom */ \"./node_modules/react-dom/index.js\");\nconst app_1 = __webpack_require__(/*! ./app/app */ \"./source/app/app.tsx\");\nreact_dom_1.render(React.createElement(app_1.default, null), document.getElementById(\"app\"));\n\n\n//# sourceURL=webpack:///./source/index.tsx?");
 
 /***/ })
 

@@ -1,7 +1,8 @@
 import * as React from "react";
 import { render } from "react-dom";
+import App from "./app/app";
 
 render(
-	<p>This is an app</p>,
+	<App />,
 	document.getElementById("app"),
 );
