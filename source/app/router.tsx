@@ -10,6 +10,9 @@ import NotFound from "./pages/not-found";
 export interface IRouterProps {
 	titleID: string;
 	saveTitleID: (titleID: string) => void;
+
+	player: PlayFabClientModels.LoginResult;
+	savePlayer: (player: PlayFabClientModels.LoginResult) => void;
 }
 
 export class Router extends React.Component<IRouterProps> {

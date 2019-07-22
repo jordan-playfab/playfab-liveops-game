@@ -3,6 +3,7 @@ import { Router } from "./router";
 
 interface IState {
     titleID: string;
+    player: PlayFabClientModels.LoginResult;
 }
 
 export default class App extends React.Component<{}, IState> {
@@ -11,6 +12,7 @@ export default class App extends React.Component<{}, IState> {
 
         this.state = {
             titleID: null,
+            player: null,
         };
     }
 
@@ -19,6 +21,8 @@ export default class App extends React.Component<{}, IState> {
             <Router
                 titleID={this.state.titleID}
                 saveTitleID={this.saveTitleID}
+                player={this.state.player}
+                savePlayer={this.savePlayer}
             />
         );
     }
@@ -26,6 +30,12 @@ export default class App extends React.Component<{}, IState> {
     private saveTitleID = (titleID: string): void => {
         this.setState({
             titleID,
+        });
+    }
+
+    private savePlayer = (player: PlayFabClientModels.LoginResult): void => {
+        this.setState({
+            player,
         });
     }
 }

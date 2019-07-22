@@ -37,8 +37,8 @@ export default class Home extends React.Component<Props, IState> {
             <form>
                 <fieldset>
                     <legend>Title ID</legend>
-                    <TextField label="PlayFab title ID" onChange={this.saveTitleId} />
-                    <PrimaryButton text="Save" onClick={this.saveHasTitleId} />
+                    <TextField label="PlayFab title ID" onChange={this.setLocalTitleID} />
+                    <PrimaryButton text="Save" onClick={this.saveTitleID} />
                 </fieldset>
             </form>
         );
@@ -56,16 +56,16 @@ export default class Home extends React.Component<Props, IState> {
                     <li><Link to={routes.Player}>Player selection</Link></li>
                 </ul>
             </React.Fragment>
-        )
+        );
     }
 
-    private saveTitleId = (_: any, newValue: string): void => {
+    private setLocalTitleID = (_: any, newValue: string): void => {
         this.setState({
             titleID: newValue,
         });
     }
 
-    private saveHasTitleId = (): void => {
+    private saveTitleID = (): void => {
         this.props.saveTitleID(this.state.titleID);
     }
 
