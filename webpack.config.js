@@ -42,7 +42,11 @@ module.exports = {
 				test: /\.tsx?$/,
 				include: [sourcePath],
 				loader: ["ts-loader"],
-			}
+			},
+			{
+				test: /PlayFabClientApi\.js$/,
+				use: [ "script-loader" ]
+			  }
 		],
 	},
 };

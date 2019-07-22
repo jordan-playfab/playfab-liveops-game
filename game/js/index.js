@@ -259,7 +259,7 @@ eval("\nObject.defineProperty(exports, \"__esModule\", { value: true });\nfuncti
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\nObject.defineProperty(exports, \"__esModule\", { value: true });\nfunction login(props, customID, success, error) {\n    PlayFab.ClientApi.LoginWithCustomID({\n        TitleId: props.titleID,\n        CustomId: customID,\n        CreateAccount: true,\n    }, (result) => {\n        if (result.code === 200) {\n            success(result.data);\n        }\n        else {\n            error(result.errorMessage);\n        }\n    });\n}\nexports.PlayFabHelper = {\n    login,\n};\n\n\n//# sourceURL=webpack:///./source/app/shared/playfab.ts?");
+eval("\nObject.defineProperty(exports, \"__esModule\", { value: true });\n/// <reference path=\"../../../node_modules/playfab-web-sdk/src/Typings/PlayFab/PlayFabClientApi.d.ts\" />\n__webpack_require__(/*! playfab-web-sdk/src/PlayFab/PlayFabClientApi.js */ \"./node_modules/playfab-web-sdk/src/PlayFab/PlayFabClientApi.js\");\nfunction login(props, customID, success, error) {\n    PlayFab.ClientApi.LoginWithCustomID({\n        TitleId: props.titleID,\n        CustomId: customID,\n        CreateAccount: true,\n    }, (result) => {\n        if (result.code === 200) {\n            success(result.data);\n        }\n        else {\n            error(result.errorMessage);\n        }\n    });\n}\nexports.PlayFabHelper = {\n    login,\n};\n\n\n//# sourceURL=webpack:///./source/app/shared/playfab.ts?");
 
 /***/ }),
 
