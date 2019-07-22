@@ -3,6 +3,8 @@ import { TextField } from 'office-ui-fabric-react/lib/TextField';
 import { PrimaryButton } from 'office-ui-fabric-react';
 import { IRouterProps } from "../router";
 import { is } from "../shared/is";
+import { Link } from "react-router-dom";
+import { routes } from "../routes";
 
 interface IState {
     titleID: string;
@@ -49,7 +51,10 @@ export default class Home extends React.Component<Props, IState> {
                     <strong>Your title ID is:</strong> {this.props.titleID}
                     <button onClick={this.changeTitleId}>Change</button>
                 </p>
-                <p>Next: load title data (optional), or player selection.</p>
+                <ul>
+                    <li><Link to={routes.TitleData}>Load Title Data</Link></li>
+                    <li><Link to={routes.Player}>Player selection</Link></li>
+                </ul>
             </React.Fragment>
         )
     }
