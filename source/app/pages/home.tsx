@@ -1,20 +1,21 @@
 import * as React from "react";
 import { TextField } from 'office-ui-fabric-react/lib/TextField';
 import { PrimaryButton } from 'office-ui-fabric-react';
-
+import { IRouterProps } from "../router";
+import { is } from "../shared/is";
 
 interface IState {
     titleID: string;
-    hasTitleId: boolean;
 }
 
-export default class Home extends React.Component<{}, IState> {
+type Props = IRouterProps;
+
+export default class Home extends React.Component<Props, IState> {
     constructor() {
         super(undefined);
 
         this.state = {
             titleID: null,
-            hasTitleId: false,
         }
     }
 
@@ -22,9 +23,9 @@ export default class Home extends React.Component<{}, IState> {
         return (
             <React.Fragment>
                 <h1>Home page</h1>
-                {this.state.hasTitleId
-                    ? this.renderShowTitleID()
-                    : this.renderAskForTitleID()}
+                {is.null(this.props.titleID)
+                    ? this.renderAskForTitleID()
+                    : this.renderShowTitleID()}
             </React.Fragment>
         );
     }
@@ -45,7 +46,7 @@ export default class Home extends React.Component<{}, IState> {
         return (
             <React.Fragment>
                 <p>
-                    <strong>Your title ID is:</strong> {this.state.titleID}
+                    <strong>Your title ID is:</strong> {this.props.titleID}
                     <button onClick={this.changeTitleId}>Change</button>
                 </p>
                 <p>Next: load title data (optional), or player selection.</p>
@@ -60,15 +61,10 @@ export default class Home extends React.Component<{}, IState> {
     }
 
     private saveHasTitleId = (): void => {
-        this.setState({
-            hasTitleId: true,
-        });
+        this.props.saveTitleID(this.state.titleID);
     }
 
     private changeTitleId = (): void => {
-        this.setState({
-            titleID: null,
-            hasTitleId: false,
-        });
+        this.props.saveTitleID(null);
     }
 }
