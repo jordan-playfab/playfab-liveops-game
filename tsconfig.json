@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "outDir": "./game/",
+        "sourceMap": false,
+        "noImplicitAny": true,
+        "module": "commonjs",
+        "target": "es6",
+        "jsx": "react",
+        "resolveJsonModule": true
+    },
+    "include": [
+        "./source/*",
+        "./source/**/*"
+    ]
+}
