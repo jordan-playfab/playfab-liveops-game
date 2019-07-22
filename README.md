@@ -1,5 +1,7 @@
 # playfab-liveops-game
 
+[![Build Status](https://code4clouds.visualstudio.com/PlayFab%20Hack/_apis/build/status/jordan-playfab.playfab-liveops-game?branchName=master)](https://code4clouds.visualstudio.com/PlayFab%20Hack/_build/latest?definitionId=44&branchName=master)
+
 A sample HTML game to show how PlayFab works
 
 # Game concept
@@ -21,3 +23,16 @@ We'll have a home base with vendors that sell weapons and armor and ammo.
 The game loop is: shoot enemies to get money to buy more guns to shoot enemies.
 
 Also treasure chests using drop tables.
+
+# Try it
+
+- Clone this repository
+- On the shell run the following
+``` bash
+npm install
+npm run build
+```
+- Open your browser and point it to the following location: 
+```
+file:///<source path>/game/index.html
+```
