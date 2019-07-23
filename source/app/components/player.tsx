@@ -23,7 +23,7 @@ export class Player extends React.Component<IProps> {
             return <p>Credits: 0</p>
         }
 
-        const credits = this.props.inventory.VirtualCurrency["credits"] || 0;
+        const credits = this.props.inventory.VirtualCurrency["CR"] || 0;
 
         return (
             <p>Credits: {credits}</p>
