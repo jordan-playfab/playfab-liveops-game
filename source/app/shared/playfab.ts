@@ -4,6 +4,9 @@ import { IRouterProps } from "../router";
 import { IStringDictionary } from "./types";
 import { is } from "./is";
 
+const CatalogVersion = "Main";
+const TitleDataStores = "Stores";
+
 function login(props: IRouterProps, customID: string, success: (data: PlayFabClientModels.LoginResult) => void, error: (message: string) => void): void {
     PlayFab.ClientApi.LoginWithCustomID({
         TitleId: props.titleID,
@@ -93,11 +96,40 @@ function executeCloudScript(functionName: string, args: any, success: (data: Pla
     })
 }
 
+function getStores(success: (data: PlayFabClientModels.GetStoreItemsResult[]) => void, error: (message: string) => void): void {
+    const stores: PlayFabClientModels.GetStoreItemsResult[] = [];
+
+    getTitleData([TitleDataStores], (data) => {
+        const storeNames = JSON.parse(data[TitleDataStores]) as string[];
+
+        storeNames.forEach((storeName) => {
+            PlayFab.ClientApi.GetStoreItems({
+                CatalogVersion,
+                StoreId: storeName,
+            }, (result) => {
+                if(result.code === 200) {
+                    stores.push(result.data);
+
+                    if(stores.length === storeNames.length) {
+                        success(stores);
+                    }
+                }
+                else {
+                    error(result.errorMessage);
+                }
+            });
+        })
+    }, (error) => {
+        // TODO: Nothing
+    });
+}
+
 export const PlayFabHelper = {
     login,
     getTitleData,
     updateStatistic,
     executeCloudScript,
     getStatistics,
-    getInventory
+    getInventory,
+    getStores
 };

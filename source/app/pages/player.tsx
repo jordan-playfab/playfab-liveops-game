@@ -78,11 +78,16 @@ export class PlayerPage extends React.Component<Props, IState> {
 
         return (
             <ul>
+                <li key={"homebase"}><button onClick={this.sendToHomeBase}>Home base</button></li>
                 {Object.keys(this.props.planets).map((name) => (
-                    <li><button onClick={this.sendToPlanet.bind(this, name)}>Fly to {name}</button></li>
+                    <li key={name}><button onClick={this.sendToPlanet.bind(this, name)}>Fly to {name}</button></li>
                 ))}
             </ul>
         )
+    }
+
+    private sendToHomeBase = (): void => {
+        this.props.history.push(routes.HomeBase);
     }
 
     private sendToPlanet = (name: string): void => {

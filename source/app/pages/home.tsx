@@ -6,6 +6,7 @@ import { is } from "../shared/is";
 import { Link } from "react-router-dom";
 import { routes } from "../routes";
 import { Header } from "../components/header";
+import { titleHelper } from "../shared/title-helper";
 
 interface IState {
     titleID: string;
@@ -19,6 +20,12 @@ export default class Home extends React.Component<Props, IState> {
 
         this.state = {
             titleID: null,
+        }
+    }
+
+    public componentDidMount(): void {
+        if(!is.null(titleHelper.get())) {
+            this.props.saveTitleID(titleHelper.get());
         }
     }
 
@@ -49,7 +56,7 @@ export default class Home extends React.Component<Props, IState> {
     private renderShowTitleID(): React.ReactNode {
         return (
             <React.Fragment>
-                <div><button onClick={this.changeTitleId}>Reset title ID</button></div>
+                <div><button onClick={this.clearTitleId}>Reset title ID</button></div>
                 
                 <p>Now that you have a title ID, your first step should be to <strong>load game data</strong> into your title.</p>
                 <p>If you've already done that, select <strong>Play game!</strong> to login as a player and start the game.</p>
@@ -71,7 +78,7 @@ export default class Home extends React.Component<Props, IState> {
         this.props.saveTitleID(this.state.titleID);
     }
 
-    private changeTitleId = (): void => {
-        this.props.saveTitleID(null);
+    private clearTitleId = (): void => {
+        this.props.saveTitleID("");
     }
 }

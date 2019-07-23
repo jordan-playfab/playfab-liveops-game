@@ -3,11 +3,13 @@ import { Router } from "./router";
 import { ITitleDataPlanets, IStringDictionary } from "./shared/types";
 import { is } from "./shared/is";
 import { PlayFabHelper } from "./shared/playfab";
+import { titleHelper } from "./shared/title-helper";
 
 interface IState {
     titleID: string;
     player: PlayFabClientModels.LoginResult;
     inventory: PlayFabClientModels.GetUserInventoryResult;
+    stores: PlayFabClientModels.GetStoreItemsResult[];
     titleData: {
         Planets: ITitleDataPlanets,
     };
@@ -21,6 +23,7 @@ export default class App extends React.Component<{}, IState> {
             titleID: null,
             player: null,
             inventory: null,
+            stores: null,
             titleData: {
                 Planets: null,
             },
@@ -38,6 +41,8 @@ export default class App extends React.Component<{}, IState> {
                 refreshPlanets={this.refreshPlanets}
                 inventory={this.state.inventory}
                 refreshInventory={this.refreshInventory}
+                stores={this.state.stores}
+                refreshStores={this.refreshStores}
             />
         );
     }
@@ -48,6 +53,8 @@ export default class App extends React.Component<{}, IState> {
         });
 
         PlayFab.settings.titleId = titleID;
+
+        titleHelper.set(titleID);
     }
 
     private savePlayer = (player: PlayFabClientModels.LoginResult): void => {
@@ -79,6 +86,20 @@ export default class App extends React.Component<{}, IState> {
         PlayFabHelper.getInventory((inventory) => {
             this.setState({
                 inventory
+            });
+        }, (error) => {
+            // TODO: Something
+        });
+    }
+
+    private refreshStores = (callback?: () => void): void => {
+        PlayFabHelper.getStores((stores) => {
+            this.setState({
+                stores
+            }, () => {
+                if(!is.null(callback)) {
+                    callback();
+                }
             });
         }, (error) => {
             // TODO: Something
