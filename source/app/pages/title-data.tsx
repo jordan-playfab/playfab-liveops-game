@@ -16,8 +16,9 @@ interface IState {
 export default class TitleData extends React.Component<Props, IState> {
 
 
-    constructor() {
-        super(undefined);
+    constructor(props: Props) {
+        super(props);
+        this.uploadTitleData=this.uploadTitleData.bind(this);
 
         this.state = {
             titleDataInput: null,
@@ -37,7 +38,9 @@ export default class TitleData extends React.Component<Props, IState> {
                 <p>Your title ID is {this.props.titleID}</p>
                 <p>This page will help you load the required title data into your title.</p>
                 <p>This page hasn't been built yet.</p>
-                <p>Upload local title data: {this.renderTitleDataKeyInput()} {this.renderUploadTitleDataButton()} </p>
+                <p>Upload local title data: </p>
+                <p>{this.renderTitleDataKeyInput()}</p>
+                <p>{this.renderUploadTitleDataButton()}</p>
             </React.Fragment>
         );
     }
