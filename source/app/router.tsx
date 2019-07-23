@@ -20,7 +20,7 @@ export interface IRouterProps {
 	refreshInventory: () => void;
 
 	planets: ITitleDataPlanets;
-	updatePlanets: (data: IStringDictionary, callback?: () => void) => void;
+	refreshPlanets: (callback?: () => void) => void;
 }
 
 export class Router extends React.Component<IRouterProps> {

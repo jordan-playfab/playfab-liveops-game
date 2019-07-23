@@ -6,6 +6,8 @@ import { RouteComponentProps, Redirect } from "react-router";
 import { IPlanetData, IKilledEnemyResult } from "../shared/types";
 import { routes } from "../routes";
 import { Player } from "../components/player";
+import { Header } from "../components/header";
+import { Link } from "react-router-dom";
 
 interface IState {
     currentArea: string;
@@ -41,17 +43,13 @@ export class PlanetPage extends React.Component<Props, IState> {
             return;
         }
 
-        PlayFabHelper.getTitleData(["Planets"], (data) => {
-            this.props.updatePlanets(data, () => {
-                const planet = this.getPlanetData();
+        this.props.refreshPlanets(() => {
+            const planet = this.getPlanetData();
 
-                this.setState({
-                    isLoading: false,
-                    totalEnemies: planet.EnemyCount,
-                });
+            this.setState({
+                isLoading: false,
+                totalEnemies: planet.EnemyCount,
             });
-        }, (error) => {
-            // TODO: Something
         });
 
         PlayFabHelper.getStatistics(["kills"], (data) => {
@@ -75,6 +73,15 @@ export class PlanetPage extends React.Component<Props, IState> {
             return <Redirect to={routes.Home} />;
         }
 
+        return (
+            <React.Fragment>
+                <Header titleID={this.props.titleID} />
+                {this.renderPlanet()}
+            </React.Fragment>
+        );
+    }
+
+    private renderPlanet(): React.ReactNode {
         if(this.state.isLoading) {
             return (
                 <p>Now loading&hellip;</p>
@@ -84,13 +91,14 @@ export class PlanetPage extends React.Component<Props, IState> {
         return (
             <React.Fragment>
                 <h1>Welcome to {this.getPlanetName()}</h1>
+                <p><Link to={routes.Player}>Back to planet selection</Link></p>
                 <Player
                     inventory={this.props.inventory}
                     player={this.props.player}
                 />
                 {this.renderArea()}
             </React.Fragment>
-        );
+        )
     }
 
     private renderArea(): React.ReactNode {

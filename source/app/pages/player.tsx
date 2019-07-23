@@ -7,6 +7,7 @@ import { Redirect } from "react-router";
 import { routes } from "../routes";
 import { PlayFabHelper } from "../shared/playfab";
 import { RouteComponentProps } from "react-router";
+import { Header } from "../components/header";
 
 type Props = IRouterProps & RouteComponentProps;
 
@@ -32,40 +33,56 @@ export class PlayerPage extends React.Component<Props, IState> {
 
         return (
             <React.Fragment>
-                <h1>Player</h1>
-                <p>Your title ID is {this.props.titleID}</p>
+                <Header titleID={this.props.titleID} />
+                {this.renderTitle()}
                 {!is.null(this.state.error) && (
                     <p>There was an error: {this.state.error}</p>
                 )}
                 <p>Start by entering a player ID. This can be a name (e.g. "James"), a GUID, or any other string.</p>
-                <p>Enter a new player ID to start a new game, or a previous one to load that player's data.</p>
-                <p>This page will let you login a player using Custom ID.</p>
+                <p>Enter a new player ID to start a new game, or a previous one to load that player's data. This login happens using <a href="https://api.playfab.com/documentation/client/method/LoginWithCustomID">Custom ID</a>.</p>
                 {is.null(this.props.player)
                     ? this.renderPlayerLogin()
-                    : this.renderPlayer()}
+                    : this.renderPlanetMenu()}
             </React.Fragment>
         );
     }
 
     private renderPlayerLogin(): React.ReactNode {
         return (
-            <form>
+            <form onSubmit={this.login}>
                 <fieldset>
                     <legend>Player</legend>
-                    <TextField label="Player ID" onChange={this.setLocalPlayerID} />
-                    <PrimaryButton text="Save" onClick={this.login} />
+                    <TextField label="Player ID" onChange={this.setLocalPlayerID} autoFocus />
+                    <PrimaryButton text="Login" onClick={this.login} />
                 </fieldset>
             </form>
         );
     }
 
-    private renderPlayer(): React.ReactNode {
+    private renderTitle(): React.ReactNode {
+        return is.null(this.props.player)
+            ? (
+                <h1>Play Game</h1>
+            )
+            : (
+                <h1>Welcome player {this.props.player.PlayFabId}</h1>
+            );
+    }
+
+    private renderPlanetMenu(): React.ReactNode {
+        if(is.null(this.props.planets)) {
+            return (
+                <p>Loading planets&hellip;</p>
+            );
+        }
+
         return (
-            <React.Fragment>
-                <p><strong>You are logged in as:</strong> {this.props.player.PlayFabId}</p>
-                <button onClick={this.sendToPlanet.bind(this, "Mars")}>Continue to Mars</button>
-            </React.Fragment>
-        );
+            <ul>
+                {Object.keys(this.props.planets).map((name) => (
+                    <li><button onClick={this.sendToPlanet.bind(this, name)}>Fly to {name}</button></li>
+                ))}
+            </ul>
+        )
     }
 
     private sendToPlanet = (name: string): void => {
@@ -85,6 +102,7 @@ export class PlayerPage extends React.Component<Props, IState> {
 
         PlayFabHelper.login(this.props, this.state.playerID, (player) => {
             this.props.savePlayer(player);
+            this.props.refreshPlanets();
         }, (message) => {
             this.setState({
                 error: message,

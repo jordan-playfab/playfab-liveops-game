@@ -14,6 +14,7 @@ export class Player extends React.Component<IProps> {
                 {this.renderCredits()}
                 <p>Items:</p>
                 {this.renderInventory()}
+                <hr />
             </div>
         );
     }

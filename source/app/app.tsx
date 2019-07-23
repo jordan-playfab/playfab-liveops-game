@@ -35,7 +35,7 @@ export default class App extends React.Component<{}, IState> {
                 player={this.state.player}
                 savePlayer={this.savePlayer}
                 planets={this.state.titleData.Planets}
-                updatePlanets={this.updatePlanets}
+                refreshPlanets={this.refreshPlanets}
                 inventory={this.state.inventory}
                 refreshInventory={this.refreshInventory}
             />
@@ -56,18 +56,22 @@ export default class App extends React.Component<{}, IState> {
         });
     }
 
-    private updatePlanets = (data: IStringDictionary, callback?: () => void): void => {
-        this.setState((prevState) => {
-            return {
-                titleData: {
-                    ...prevState.titleData,
-                    Planets: JSON.parse(data["Planets"]),
+    private refreshPlanets = (callback?: () => void): void => {
+        PlayFabHelper.getTitleData(["Planets"], (data) => {
+            this.setState((prevState) => {
+                return {
+                    titleData: {
+                        ...prevState.titleData,
+                        Planets: JSON.parse(data["Planets"]),
+                    }
                 }
-            }
-        }, () => {
-            if(!is.null(callback)) {
-                callback();
-            }
+            }, () => {
+                if(!is.null(callback)) {
+                    callback();
+                }
+            });
+        }, (error) => {
+            // TODO: Something
         });
     }
 

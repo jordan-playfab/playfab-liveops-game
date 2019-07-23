@@ -5,6 +5,7 @@ import { IRouterProps } from "../router";
 import { is } from "../shared/is";
 import { Link } from "react-router-dom";
 import { routes } from "../routes";
+import { Header } from "../components/header";
 
 interface IState {
     titleID: string;
@@ -24,7 +25,7 @@ export default class Home extends React.Component<Props, IState> {
     public render(): React.ReactNode {
         return (
             <React.Fragment>
-                <h1>Home page</h1>
+                <Header titleID={this.props.titleID} />
                 {is.null(this.props.titleID)
                     ? this.renderAskForTitleID()
                     : this.renderShowTitleID()}
@@ -34,10 +35,11 @@ export default class Home extends React.Component<Props, IState> {
 
     private renderAskForTitleID(): React.ReactNode {
         return (
-            <form>
+            <form onSubmit={this.saveTitleID}>
+                <p><a href="https://developer.playfab.com">Create your own PlayFab account</a> and make an empty title. Then find its <strong>title ID</strong> and come back here.</p>
                 <fieldset>
                     <legend>Title ID</legend>
-                    <TextField label="PlayFab title ID" onChange={this.setLocalTitleID} />
+                    <TextField label="PlayFab title ID" onChange={this.setLocalTitleID} autoFocus />
                     <PrimaryButton text="Save" onClick={this.saveTitleID} />
                 </fieldset>
             </form>
@@ -47,13 +49,13 @@ export default class Home extends React.Component<Props, IState> {
     private renderShowTitleID(): React.ReactNode {
         return (
             <React.Fragment>
-                <p>
-                    <strong>Your title ID is:</strong> {this.props.titleID}
-                    <button onClick={this.changeTitleId}>Change</button>
-                </p>
+                <div><button onClick={this.changeTitleId}>Reset title ID</button></div>
+                
+                <p>Now that you have a title ID, your first step should be to <strong>load game data</strong> into your title.</p>
+                <p>If you've already done that, select <strong>Play game!</strong> to login as a player and start the game.</p>
                 <ul>
-                    <li><Link to={routes.TitleData}>Load Title Data</Link></li>
-                    <li><Link to={routes.Player}>Player selection</Link></li>
+                    <li><Link to={routes.TitleData}>Load game data</Link></li>
+                    <li><Link to={routes.Player}>Play game!</Link></li>
                 </ul>
             </React.Fragment>
         );
