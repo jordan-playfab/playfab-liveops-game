@@ -14,7 +14,6 @@ export interface IPlanetData {
 
 export interface IKilledEnemyResult {
     kills: number;
-    shouldUpdateInventory: boolean;
     itemGranted: string;
 }
 

@@ -174,7 +174,7 @@ export class PlanetPage extends React.Component<Props, IState> {
                 };
             });
 
-            if(result.shouldUpdateInventory) {
+            if(!is.null(result.itemGranted)) {
                 this.props.refreshInventory();
             }
         }, (error) => {
