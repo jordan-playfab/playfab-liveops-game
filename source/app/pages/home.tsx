@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import { routes } from "../routes";
 import { Header } from "../components/header";
 import { titleHelper } from "../shared/title-helper";
+import { Page } from "../components/page";
 
 interface IState {
     titleID: string;
@@ -31,12 +32,11 @@ export default class Home extends React.Component<Props, IState> {
 
     public render(): React.ReactNode {
         return (
-            <React.Fragment>
-                <Header titleID={this.props.titleID} />
+            <Page {...this.props}>
                 {is.null(this.props.titleID)
                     ? this.renderAskForTitleID()
                     : this.renderShowTitleID()}
-            </React.Fragment>
+            </Page>
         );
     }
 

@@ -8,6 +8,7 @@ import { routes } from "../routes";
 import { PlayFabHelper } from "../shared/playfab";
 import { RouteComponentProps } from "react-router";
 import { Header } from "../components/header";
+import { Page } from "../components/page";
 
 type Props = IRouterProps & RouteComponentProps;
 
@@ -32,8 +33,7 @@ export class PlayerPage extends React.Component<Props, IState> {
         }
 
         return (
-            <React.Fragment>
-                <Header titleID={this.props.titleID} />
+            <Page {...this.props}>
                 {this.renderTitle()}
                 {!is.null(this.state.error) && (
                     <p>There was an error: {this.state.error}</p>
@@ -41,7 +41,7 @@ export class PlayerPage extends React.Component<Props, IState> {
                 {is.null(this.props.player)
                     ? this.renderPlayerLogin()
                     : this.renderPlanetMenu()}
-            </React.Fragment>
+            </Page>
         );
     }
 

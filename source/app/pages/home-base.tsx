@@ -8,6 +8,7 @@ import { routes } from "../routes";
 import { Store } from "../components/store";
 import { PlayFabHelper } from "../shared/playfab";
 import { Link } from "react-router-dom";
+import { Page } from "../components/page";
 
 type Props = IRouterProps;
 
@@ -40,13 +41,11 @@ export class HomeBasePage extends React.Component<Props, IState> {
         }
 
         return (
-            <React.Fragment>
-                <Header titleID={this.props.titleID} />
-                <Player inventory={this.props.inventory} player={this.props.player} />
+            <Page {...this.props}>
                 <h1>Welcome to Home Base</h1>
                 <p><Link to={routes.Player}>Back to planet selection</Link></p>
                 {this.renderStores()}
-            </React.Fragment>
+            </Page>
         );
     }
 

@@ -8,6 +8,7 @@ import { routes } from "../routes";
 import { Player } from "../components/player";
 import { Header } from "../components/header";
 import { Link } from "react-router-dom";
+import { Page } from "../components/page";
 
 interface IState {
     currentArea: string;
@@ -74,10 +75,9 @@ export class PlanetPage extends React.Component<Props, IState> {
         }
 
         return (
-            <React.Fragment>
-                <Header titleID={this.props.titleID} />
+            <Page {...this.props}>
                 {this.renderPlanet()}
-            </React.Fragment>
+            </Page>
         );
     }
 

@@ -4,6 +4,7 @@ import { ITitleDataPlanets } from "./shared/types";
 import { is } from "./shared/is";
 import { PlayFabHelper } from "./shared/playfab";
 import { titleHelper } from "./shared/title-helper";
+import { GlobalStyle, defaultTheme, ThemeProvider } from "./styles";
 
 interface IState {
     titleID: string;
@@ -34,20 +35,25 @@ export default class App extends React.Component<{}, IState> {
 
     public render(): React.ReactNode {
         return (
-            <Router
-                titleID={this.state.titleID}
-                saveTitleID={this.saveTitleID}
-                player={this.state.player}
-                savePlayer={this.savePlayer}
-                planets={this.state.titleData.Planets}
-                refreshPlanets={this.refreshPlanets}
-                inventory={this.state.inventory}
-                refreshInventory={this.refreshInventory}
-                stores={this.state.stores}
-                refreshStores={this.refreshStores}
-                catalog={this.state.catalog}
-                refreshCatalog={this.refreshCatalog}
-            />
+            <ThemeProvider theme={defaultTheme}>
+                <React.Fragment>
+                    <GlobalStyle />
+                    <Router
+                        titleID={this.state.titleID}
+                        saveTitleID={this.saveTitleID}
+                        player={this.state.player}
+                        savePlayer={this.savePlayer}
+                        planets={this.state.titleData.Planets}
+                        refreshPlanets={this.refreshPlanets}
+                        inventory={this.state.inventory}
+                        refreshInventory={this.refreshInventory}
+                        stores={this.state.stores}
+                        refreshStores={this.refreshStores}
+                        catalog={this.state.catalog}
+                        refreshCatalog={this.refreshCatalog}
+                    />
+                </React.Fragment>
+            </ThemeProvider>
         );
     }
 
