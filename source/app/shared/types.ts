@@ -10,6 +10,14 @@ export interface IPlanetData {
     EnemyCount: number;
 }
 
+// ----- Cloud Script results ----- //
+
+export interface IKilledEnemyResult {
+    kills: number;
+    shouldUpdateInventory: boolean;
+    itemGranted: string;
+}
+
 // ----- App interfaces ----- //
 
 export interface IStringDictionary {

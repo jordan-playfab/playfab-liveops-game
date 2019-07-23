@@ -19,6 +19,19 @@ function login(props: IRouterProps, customID: string, success: (data: PlayFabCli
     });
 }
 
+function getInventory(success: (data: PlayFabClientModels.GetUserInventoryResult) => void, error: (message: string) => void) {
+    PlayFab.ClientApi.GetUserInventory({},
+        (result) => {
+            if(result.code === 200) {
+                success(result.data);
+            }
+            else {
+                error(result.errorMessage);
+            }
+        }
+    );
+}
+
 function getTitleData(keys: string[], success: (data: IStringDictionary) => void, error: (message: string) => void): void {
     PlayFab.ClientApi.GetTitleData({
         Keys: keys,
@@ -85,5 +98,6 @@ export const PlayFabHelper = {
     getTitleData,
     updateStatistic,
     executeCloudScript,
-    getStatistics
+    getStatistics,
+    getInventory
 };

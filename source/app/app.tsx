@@ -2,10 +2,12 @@ import * as React from "react";
 import { Router } from "./router";
 import { ITitleDataPlanets, IStringDictionary } from "./shared/types";
 import { is } from "./shared/is";
+import { PlayFabHelper } from "./shared/playfab";
 
 interface IState {
     titleID: string;
     player: PlayFabClientModels.LoginResult;
+    inventory: PlayFabClientModels.GetUserInventoryResult;
     titleData: {
         Planets: ITitleDataPlanets,
     };
@@ -18,6 +20,7 @@ export default class App extends React.Component<{}, IState> {
         this.state = {
             titleID: null,
             player: null,
+            inventory: null,
             titleData: {
                 Planets: null,
             },
@@ -33,6 +36,8 @@ export default class App extends React.Component<{}, IState> {
                 savePlayer={this.savePlayer}
                 planets={this.state.titleData.Planets}
                 updatePlanets={this.updatePlanets}
+                inventory={this.state.inventory}
+                refreshInventory={this.refreshInventory}
             />
         );
     }
@@ -63,6 +68,16 @@ export default class App extends React.Component<{}, IState> {
             if(!is.null(callback)) {
                 callback();
             }
+        });
+    }
+
+    private refreshInventory = (): void => {
+        PlayFabHelper.getInventory((inventory) => {
+            this.setState({
+                inventory
+            });
+        }, (error) => {
+            // TODO: Something
         });
     }
 }

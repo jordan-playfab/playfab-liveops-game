@@ -16,6 +16,9 @@ export interface IRouterProps {
 	player: PlayFabClientModels.LoginResult;
 	savePlayer: (player: PlayFabClientModels.LoginResult) => void;
 
+	inventory: PlayFabClientModels.GetUserInventoryResult;
+	refreshInventory: () => void;
+
 	planets: ITitleDataPlanets;
 	updatePlanets: (data: IStringDictionary, callback?: () => void) => void;
 }

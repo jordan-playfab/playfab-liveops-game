@@ -3,8 +3,9 @@ import { IRouterProps } from "../router";
 import { is } from "../shared/is";
 import { PlayFabHelper } from "../shared/playfab";
 import { RouteComponentProps, Redirect } from "react-router";
-import { IPlanetData } from "../shared/types";
+import { IPlanetData, IKilledEnemyResult } from "../shared/types";
 import { routes } from "../routes";
+import { Player } from "../components/player";
 
 interface IState {
     currentArea: string;
@@ -12,6 +13,7 @@ interface IState {
     totalKills: number;
     totalEnemies: number;
     isShooting: boolean;
+    itemGranted: string;
 }
 
 interface IPlanetPageRouteProps {
@@ -30,6 +32,7 @@ export class PlanetPage extends React.Component<Props, IState> {
             currentArea: null,
             totalKills: 0,
             totalEnemies: 0,
+            itemGranted: null,
         }
     }
 
@@ -63,6 +66,8 @@ export class PlanetPage extends React.Component<Props, IState> {
         }, (error) => {
             // TODO: Something
         });
+
+        this.props.refreshInventory();
     }
 
     public render(): React.ReactNode {
@@ -79,6 +84,10 @@ export class PlanetPage extends React.Component<Props, IState> {
         return (
             <React.Fragment>
                 <h1>Welcome to {this.getPlanetName()}</h1>
+                <Player
+                    inventory={this.props.inventory}
+                    player={this.props.player}
+                />
                 {this.renderArea()}
             </React.Fragment>
         );
@@ -106,6 +115,9 @@ export class PlanetPage extends React.Component<Props, IState> {
                 <p>There are {this.state.totalEnemies} enemies here.</p>
                 <p>Your total kills: {this.state.totalKills}.</p>
                 {this.renderShootButton()}
+                {!is.null(this.state.itemGranted) && (
+                    <p>You just got a {this.state.itemGranted}</p>
+                )}
             </React.Fragment>
         );
     }
@@ -113,7 +125,7 @@ export class PlanetPage extends React.Component<Props, IState> {
     private renderShootButton(): React.ReactNode {
         if(this.state.totalEnemies === 0) {
             return (
-                <p>No more enemies to shoot</p>
+                <p>No more enemies to shoot.</p>
             );
         }
 
@@ -139,16 +151,24 @@ export class PlanetPage extends React.Component<Props, IState> {
     private shootEnemy = (): void => {
         this.setState({
             isShooting: true,
+            itemGranted: null,
         });
 
         PlayFabHelper.executeCloudScript("killedEnemy", null, (data) => {
+            const result = data.FunctionResult as IKilledEnemyResult;
+
             this.setState((prevState) => {
                 return {
-                    totalKills: data.FunctionResult.kills,
+                    totalKills: result.kills,
                     totalEnemies: prevState.totalEnemies - 1,
                     isShooting: false,
+                    itemGranted: result.itemGranted,
                 };
             });
+
+            if(result.shouldUpdateInventory) {
+                this.props.refreshInventory();
+            }
         }, (error) => {
             // TODO: Something
             this.setState({
