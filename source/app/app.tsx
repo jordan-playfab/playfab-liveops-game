@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Router } from "./router";
 import { ITitleDataPlanets, IStringDictionary } from "./shared/types";
+import { is } from "./shared/is";
 
 interface IState {
     titleID: string;
@@ -50,7 +51,7 @@ export default class App extends React.Component<{}, IState> {
         });
     }
 
-    private updatePlanets = (data: IStringDictionary): void => {
+    private updatePlanets = (data: IStringDictionary, callback?: () => void): void => {
         this.setState((prevState) => {
             return {
                 titleData: {
@@ -58,6 +59,10 @@ export default class App extends React.Component<{}, IState> {
                     Planets: JSON.parse(data["Planets"]),
                 }
             }
-        })
+        }, () => {
+            if(!is.null(callback)) {
+                callback();
+            }
+        });
     }
 }

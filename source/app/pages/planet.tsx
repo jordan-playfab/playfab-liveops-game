@@ -9,6 +9,9 @@ import { routes } from "../routes";
 interface IState {
     currentArea: string;
     isLoading: boolean;
+    totalKills: number;
+    totalEnemies: number;
+    isShooting: boolean;
 }
 
 interface IPlanetPageRouteProps {
@@ -23,7 +26,10 @@ export class PlanetPage extends React.Component<Props, IState> {
 
         this.state = {
             isLoading: true,
+            isShooting: false,
             currentArea: null,
+            totalKills: 0,
+            totalEnemies: 0,
         }
     }
 
@@ -33,13 +39,30 @@ export class PlanetPage extends React.Component<Props, IState> {
         }
 
         PlayFabHelper.getTitleData(["Planets"], (data) => {
-            this.props.updatePlanets(data);
-            this.setState({
-                isLoading: false,
+            this.props.updatePlanets(data, () => {
+                const planet = this.getPlanetData();
+
+                this.setState({
+                    isLoading: false,
+                    totalEnemies: planet.EnemyCount,
+                });
             });
         }, (error) => {
             // TODO: Something
-        })
+        });
+
+        PlayFabHelper.getStatistics(["kills"], (data) => {
+            if(is.null(data)) {
+                // No kills yet
+                return;
+            }
+
+            this.setState({
+                totalKills: data[0].Value,
+            });
+        }, (error) => {
+            // TODO: Something
+        });
     }
 
     public render(): React.ReactNode {
@@ -80,13 +103,30 @@ export class PlanetPage extends React.Component<Props, IState> {
         return (
             <React.Fragment>
                 <h2>The {this.state.currentArea} area <button onClick={this.setArea.bind(this, null)}>(clear)</button></h2>
-                <p>There are {planet.EnemyCount} enemies here.</p>
-                {planet.EnemyCount > 0 && (
-                    <div>
-                        <button onClick={this.shootEnemy}>Shoot enemy</button>
-                    </div>
-                )}
+                <p>There are {this.state.totalEnemies} enemies here.</p>
+                <p>Your total kills: {this.state.totalKills}.</p>
+                {this.renderShootButton()}
             </React.Fragment>
+        );
+    }
+
+    private renderShootButton(): React.ReactNode {
+        if(this.state.totalEnemies === 0) {
+            return (
+                <p>No more enemies to shoot</p>
+            );
+        }
+
+        if(this.state.isShooting) {
+            return (
+                <p>Firing!</p>
+            );
+        }
+
+        return (
+            <div>
+                <button onClick={this.shootEnemy}>Shoot enemy</button>
+            </div>
         );
     }
 
@@ -97,7 +137,24 @@ export class PlanetPage extends React.Component<Props, IState> {
     }
 
     private shootEnemy = (): void => {
-        alert("boom");
+        this.setState({
+            isShooting: true,
+        });
+
+        PlayFabHelper.executeCloudScript("killedEnemy", null, (data) => {
+            this.setState((prevState) => {
+                return {
+                    totalKills: data.FunctionResult.kills,
+                    totalEnemies: prevState.totalEnemies - 1,
+                    isShooting: false,
+                };
+            });
+        }, (error) => {
+            // TODO: Something
+            this.setState({
+                isShooting: false,
+            });
+        })
     }
 
     private isValid(): boolean {

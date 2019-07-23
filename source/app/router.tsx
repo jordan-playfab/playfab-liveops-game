@@ -17,7 +17,7 @@ export interface IRouterProps {
 	savePlayer: (player: PlayFabClientModels.LoginResult) => void;
 
 	planets: ITitleDataPlanets;
-	updatePlanets: (data: IStringDictionary) => void;
+	updatePlanets: (data: IStringDictionary, callback?: () => void) => void;
 }
 
 export class Router extends React.Component<IRouterProps> {
