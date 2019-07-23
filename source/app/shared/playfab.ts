@@ -51,6 +51,8 @@ function updateStatistic(statistic: string, amount: number, success: (data: Play
 
 function uploadTitleData(titleDataKey: string, titleDataValue: string, success: (data: PlayFabAdminModels.SetTitleDataResult) => void, error: (message: string) => void) : void{
     console.log("uploading title data");
+
+    // This should probably be set from a config somewhere.
     PlayFab.settings.developerSecretKey = "QQAUQREGUQ5P5AC89JO4RRGHSWMJ1TG9WGJAS1YKO9GG1XBCEE";
     PlayFab.AdminApi.SetTitleData({
         Key: titleDataKey,
