@@ -21,6 +21,7 @@ export class Store extends React.Component<IStoreProps> {
                 <ul>
                     {this.props.store.Store.map((item, index) => (
                         <StoreItem
+                            key={index}
                             storeItem={item}
                             catalogItem={this.props.catalogItems.find(c => c.ItemId === item.ItemId)}
                             playerWallet={this.props.playerWallet}
