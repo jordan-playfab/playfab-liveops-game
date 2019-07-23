@@ -7,9 +7,8 @@ import { IPlanetData } from "../shared/types";
 import { routes } from "../routes";
 
 interface IState {
-    name: string;
     currentArea: string;
-    planet: IPlanetData;
+    isLoading: boolean;
 }
 
 interface IPlanetPageRouteProps {
@@ -22,37 +21,55 @@ export class PlanetPage extends React.Component<Props, IState> {
     constructor(props: Props) {
         super(props);
 
-        const planet = is.null(this.props.planets)
-            ? null
-            : this.props.planets[this.props.match.params.name];
-
         this.state = {
-            name: this.props.match.params.name,
+            isLoading: true,
             currentArea: null,
-            planet,
         }
     }
 
+    public componentDidMount(): void {
+        if(!this.isValid()) {
+            return;
+        }
+
+        PlayFabHelper.getTitleData(["Planets"], (data) => {
+            this.props.updatePlanets(data);
+            this.setState({
+                isLoading: false,
+            });
+        }, (error) => {
+            // TODO: Something
+        })
+    }
+
     public render(): React.ReactNode {
-        if(is.null(this.props.titleID) || is.null(this.props.player)) {
+        if(!this.isValid()) {
             return <Redirect to={routes.Home} />;
+        }
+
+        if(this.state.isLoading) {
+            return (
+                <p>Now loading&hellip;</p>
+            );
         }
 
         return (
             <React.Fragment>
-                <h1>Welcome to {this.state.name}</h1>
+                <h1>Welcome to {this.getPlanetName()}</h1>
                 {this.renderArea()}
             </React.Fragment>
         );
     }
 
     private renderArea(): React.ReactNode {
+        const planet = this.getPlanetData();
+
         if(is.null(this.state.currentArea)) {
             return (
                 <React.Fragment>
                     <h2>Choose an area to fight in:</h2>
                     <ul>
-                        {this.state.planet.Areas.map((areaName) => (
+                        {planet.Areas.map((areaName) => (
                             <li key={areaName}><button onClick={this.setArea.bind(this, areaName)}>{areaName}</button></li>
                         ))}
                     </ul>
@@ -63,8 +80,8 @@ export class PlanetPage extends React.Component<Props, IState> {
         return (
             <React.Fragment>
                 <h2>The {this.state.currentArea} area <button onClick={this.setArea.bind(this, null)}>(clear)</button></h2>
-                <p>There are {this.state.planet.EnemyCount} enemies here.</p>
-                {this.state.planet.EnemyCount > 0 && (
+                <p>There are {planet.EnemyCount} enemies here.</p>
+                {planet.EnemyCount > 0 && (
                     <div>
                         <button onClick={this.shootEnemy}>Shoot enemy</button>
                     </div>
@@ -80,21 +97,20 @@ export class PlanetPage extends React.Component<Props, IState> {
     }
 
     private shootEnemy = (): void => {
-        this.setState((prevState) => {
-            return {
-                planet: {
-                    ...prevState.planet,
-                    EnemyCount: Math.max(0, prevState.planet.EnemyCount - 1),
-                }
-            }
-        }, () => {
-            PlayFabHelper.updateStatistic("kills", 1,
-            (_) => {
-                // Not interested yet
-            },
-            (error) => {
-                console.log(error);
-            })
-        });
+        alert("boom");
+    }
+
+    private isValid(): boolean {
+        return !is.null(this.props.titleID) && !is.null(this.props.player);
+    }
+
+    private getPlanetData(): IPlanetData {
+        return is.null(this.props.planets)
+            ? null
+            : this.props.planets[this.getPlanetName()];
+    }
+
+    private getPlanetName(): string {
+        return this.props.match.params.name;
     }
 }

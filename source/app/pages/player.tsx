@@ -63,18 +63,13 @@ export class PlayerPage extends React.Component<Props, IState> {
         return (
             <React.Fragment>
                 <p><strong>You are logged in as:</strong> {this.props.player.PlayFabId}</p>
-                <button onClick={this.sendToTower}>Continue to Mars</button>
+                <button onClick={this.sendToPlanet.bind(this, "Mars")}>Continue to Mars</button>
             </React.Fragment>
         );
     }
 
-    private sendToTower = (): void => {
-        PlayFabHelper.getTitleData(["Planets"], (data) => {
-            this.props.updatePlanets(data);
-            this.props.history.push(routes.Planet.replace(":name", "Mars"));
-        }, (error) => {
-            // TODO: Something
-        })
+    private sendToPlanet = (name: string): void => {
+        this.props.history.push(routes.Planet.replace(":name", name));
     }
 
     private setLocalPlayerID = (_: any, newValue: string): void => {
