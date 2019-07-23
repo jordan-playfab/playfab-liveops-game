@@ -2,7 +2,11 @@
 
 [![Build Status](https://code4clouds.visualstudio.com/PlayFab%20Hack/_apis/build/status/jordan-playfab.playfab-liveops-game?branchName=master)](https://code4clouds.visualstudio.com/PlayFab%20Hack/_build/latest?definitionId=44&branchName=master)
 
-A sample HTML game to show how PlayFab works
+A sample HTML game to show how PlayFab works.
+
+# Live demo
+
+Try it online at [https://playfabhack.azurewebsites.net](https://playfabhack.azurewebsites.net)
 
 # Game concept
 

@@ -38,8 +38,6 @@ export class PlayerPage extends React.Component<Props, IState> {
                 {!is.null(this.state.error) && (
                     <p>There was an error: {this.state.error}</p>
                 )}
-                <p>Start by entering a player ID. This can be a name (e.g. "James"), a GUID, or any other string.</p>
-                <p>Enter a new player ID to start a new game, or a previous one to load that player's data. This login happens using <a href="https://api.playfab.com/documentation/client/method/LoginWithCustomID">Custom ID</a>.</p>
                 {is.null(this.props.player)
                     ? this.renderPlayerLogin()
                     : this.renderPlanetMenu()}
@@ -50,6 +48,8 @@ export class PlayerPage extends React.Component<Props, IState> {
     private renderPlayerLogin(): React.ReactNode {
         return (
             <form onSubmit={this.login}>
+                <p>Start by entering a player ID. This can be a name (e.g. "James"), a GUID, or any other string.</p>
+                <p>Enter a new player ID to start a new game, or a previous one to load that player's data. This login happens using <a href="https://api.playfab.com/documentation/client/method/LoginWithCustomID">Custom ID</a>.</p>
                 <fieldset>
                     <legend>Player</legend>
                     <TextField label="Player ID" onChange={this.setLocalPlayerID} autoFocus />
