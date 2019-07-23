@@ -25,6 +25,9 @@ export interface IRouterProps {
 
 	stores: PlayFabClientModels.GetStoreItemsResult[];
 	refreshStores: (callback?: () => void) => void;
+
+	catalog: PlayFabClientModels.CatalogItem[];
+	refreshCatalog: (callback?: () => void) => void;
 }
 
 export class Router extends React.Component<IRouterProps> {

@@ -1,14 +1,16 @@
 import * as React from "react";
 import { is } from "../shared/is";
-import { VC_CREDITS } from "../shared/types";
+import { VC_CREDITS, IStringDictionary, INumberDictionary } from "../shared/types";
 
-interface IProps {
+interface IStoreProps {
     store: PlayFabClientModels.GetStoreItemsResult;
     buyResult: string;
+    catalogItems: PlayFabClientModels.CatalogItem[];
+    playerWallet: INumberDictionary;
     onBuy: (itemID: string, currency: string, price: number) => void;
 }
 
-export class Store extends React.Component<IProps> {
+export class Store extends React.Component<IStoreProps> {
     public render(): React.ReactNode {
         return (
             <React.Fragment>
@@ -18,14 +20,43 @@ export class Store extends React.Component<IProps> {
                 )}
                 <ul>
                     {this.props.store.Store.map((item, index) => (
-                        <li key={index}>
-                            <strong>{item.ItemId}</strong>
-                            ({item.VirtualCurrencyPrices[VC_CREDITS]} credits)
-                            <button onClick={this.props.onBuy.bind(this, item.ItemId, VC_CREDITS, item.VirtualCurrencyPrices[VC_CREDITS])}>Buy</button>
-                        </li>
+                        <StoreItem
+                            storeItem={item}
+                            catalogItem={this.props.catalogItems.find(c => c.ItemId === item.ItemId)}
+                            playerWallet={this.props.playerWallet}
+                            onBuy={this.props.onBuy}
+                        />
                     ))}
                 </ul>
             </React.Fragment>
+        );
+    }
+}
+
+interface IStoreItemProps {
+    storeItem: PlayFabClientModels.StoreItem;
+    catalogItem: PlayFabClientModels.CatalogItem;
+    playerWallet: INumberDictionary;
+    onBuy: (itemID: string, currency: string, price: number) => void;
+}
+
+class StoreItem extends React.Component<IStoreItemProps> {
+    public render(): React.ReactNode {
+        const price = this.props.storeItem.VirtualCurrencyPrices[VC_CREDITS];
+        const displayName = is.null(this.props.catalogItem.DisplayName)
+            ? this.props.catalogItem.ItemId
+            : this.props.catalogItem.DisplayName;
+        const canBuy = !is.null(this.props.playerWallet) && !is.null(this.props.playerWallet[VC_CREDITS])
+            && this.props.playerWallet[VC_CREDITS] >= price;
+
+        return (
+            <li>
+                <strong>{displayName}</strong>
+                ({price} credits)
+                {canBuy && (
+                    <button onClick={this.props.onBuy.bind(this, this.props.storeItem.ItemId, VC_CREDITS, price)}>Buy</button>
+                )}
+            </li>
         )
     }
 }

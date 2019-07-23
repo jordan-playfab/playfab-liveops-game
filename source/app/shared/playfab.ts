@@ -146,6 +146,19 @@ function buyFromStore(storeID: string, itemID: string, currency: string, price: 
     })
 }
 
+function getCatalog(success: (data: PlayFabClientModels.CatalogItem[]) => void, error: (message: string) => void): void {
+    PlayFab.ClientApi.GetCatalogItems({
+        CatalogVersion,
+    }, (result) => {
+        if(result.code === 200) {
+            success(result.data.Catalog);
+        }
+        else {
+            error(result.errorMessage);
+        }
+    })
+}
+
 export const PlayFabHelper = {
     login,
     getTitleData,
@@ -154,5 +167,6 @@ export const PlayFabHelper = {
     getStatistics,
     getInventory,
     getStores,
-    buyFromStore
+    buyFromStore,
+    getCatalog,
 };

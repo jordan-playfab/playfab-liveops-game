@@ -8,6 +8,7 @@ import { titleHelper } from "./shared/title-helper";
 interface IState {
     titleID: string;
     player: PlayFabClientModels.LoginResult;
+    catalog: PlayFabClientModels.CatalogItem[];
     inventory: PlayFabClientModels.GetUserInventoryResult;
     stores: PlayFabClientModels.GetStoreItemsResult[];
     titleData: {
@@ -22,6 +23,7 @@ export default class App extends React.Component<{}, IState> {
         this.state = {
             titleID: null,
             player: null,
+            catalog: null,
             inventory: null,
             stores: null,
             titleData: {
@@ -43,6 +45,8 @@ export default class App extends React.Component<{}, IState> {
                 refreshInventory={this.refreshInventory}
                 stores={this.state.stores}
                 refreshStores={this.refreshStores}
+                catalog={this.state.catalog}
+                refreshCatalog={this.refreshCatalog}
             />
         );
     }
@@ -96,6 +100,20 @@ export default class App extends React.Component<{}, IState> {
         PlayFabHelper.getStores((stores) => {
             this.setState({
                 stores
+            }, () => {
+                if(!is.null(callback)) {
+                    callback();
+                }
+            });
+        }, (error) => {
+            // TODO: Something
+        });
+    }
+
+    private refreshCatalog = (callback?: () => void): void => {
+        PlayFabHelper.getCatalog((catalog) => {
+            this.setState({
+                catalog
             }, () => {
                 if(!is.null(callback)) {
                     callback();

@@ -25,3 +25,7 @@ export const VC_CREDITS = "CR";
 export interface IStringDictionary {
     [key: string]: string;
 }
+
+export interface INumberDictionary {
+    [key: string]: number;
+}

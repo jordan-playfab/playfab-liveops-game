@@ -7,6 +7,7 @@ import { Redirect } from "react-router";
 import { routes } from "../routes";
 import { Store } from "../components/store";
 import { PlayFabHelper } from "../shared/playfab";
+import { Link } from "react-router-dom";
 
 type Props = IRouterProps;
 
@@ -43,6 +44,7 @@ export class HomeBasePage extends React.Component<Props, IState> {
                 <Header titleID={this.props.titleID} />
                 <Player inventory={this.props.inventory} player={this.props.player} />
                 <h1>Welcome to Home Base</h1>
+                <p><Link to={routes.Player}>Back to planet selection</Link></p>
                 {this.renderStores()}
             </React.Fragment>
         );
@@ -77,6 +79,8 @@ export class HomeBasePage extends React.Component<Props, IState> {
                     store={openedStore}
                     onBuy={this.onBuyFromStore}
                     buyResult={this.state.buyResult}
+                    catalogItems={this.props.catalog}
+                    playerWallet={this.props.inventory.VirtualCurrency}
                 />
             </React.Fragment>
         )

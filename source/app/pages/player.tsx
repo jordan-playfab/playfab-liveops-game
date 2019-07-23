@@ -109,6 +109,7 @@ export class PlayerPage extends React.Component<Props, IState> {
             this.props.savePlayer(player);
             this.props.refreshPlanets();
             this.props.refreshInventory();
+            this.props.refreshCatalog();
         }, (message) => {
             this.setState({
                 error: message,
