@@ -20,6 +20,8 @@ export interface IKilledEnemyResult {
 
 // ----- App interfaces ----- //
 
+export const VC_CREDITS = "CR";
+
 export interface IStringDictionary {
     [key: string]: string;
 }

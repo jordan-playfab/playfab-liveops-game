@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Router } from "./router";
-import { ITitleDataPlanets, IStringDictionary } from "./shared/types";
+import { ITitleDataPlanets } from "./shared/types";
 import { is } from "./shared/is";
 import { PlayFabHelper } from "./shared/playfab";
 import { titleHelper } from "./shared/title-helper";

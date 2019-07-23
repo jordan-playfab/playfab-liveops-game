@@ -108,6 +108,7 @@ export class PlayerPage extends React.Component<Props, IState> {
         PlayFabHelper.login(this.props, this.state.playerID, (player) => {
             this.props.savePlayer(player);
             this.props.refreshPlanets();
+            this.props.refreshInventory();
         }, (message) => {
             this.setState({
                 error: message,

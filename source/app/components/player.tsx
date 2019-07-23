@@ -1,5 +1,6 @@
 import * as React from "react";
 import { is } from "../shared/is";
+import { VC_CREDITS } from "../shared/types";
 
 interface IProps {
     player: PlayFabClientModels.LoginResult;
@@ -24,7 +25,7 @@ export class Player extends React.Component<IProps> {
             return <p>Credits: 0</p>
         }
 
-        const credits = this.props.inventory.VirtualCurrency["CR"] || 0;
+        const credits = this.props.inventory.VirtualCurrency[VC_CREDITS] || 0;
 
         return (
             <p>Credits: {credits}</p>

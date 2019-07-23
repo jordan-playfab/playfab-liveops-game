@@ -124,6 +124,28 @@ function getStores(success: (data: PlayFabClientModels.GetStoreItemsResult[]) =>
     });
 }
 
+function buyFromStore(storeID: string, itemID: string, currency: string, price: number, success: (data: PlayFabClientModels.PurchaseItemResult) => void, error: (message: string) => void): void {
+    PlayFab.ClientApi.PurchaseItem({
+        CatalogVersion,
+        ItemId: itemID,
+        Price: price,
+        StoreId: storeID,
+        VirtualCurrency: currency,
+    }, (result, errorResult) => {
+        if(is.null(result)) {
+            error(errorResult.errorMessage);
+            return;
+        }
+
+        if(result.code === 200) {
+            success(result.data);
+        }
+        else {
+            error(result.errorMessage);
+        }
+    })
+}
+
 export const PlayFabHelper = {
     login,
     getTitleData,
@@ -131,5 +153,6 @@ export const PlayFabHelper = {
     executeCloudScript,
     getStatistics,
     getInventory,
-    getStores
+    getStores,
+    buyFromStore
 };
