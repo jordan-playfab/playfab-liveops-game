@@ -1,0 +1,20 @@
+{
+  "grunt": {
+    "hp": 50,
+    "speed": 10,
+    "damage": 5,
+    "defense": 0
+  },
+  "ogre": {
+    "hp": 200,
+    "speed": 5,
+    "damage": 50,
+    "defense": 20
+  },
+  "goblin": {
+    "hp": 150,
+    "speed": 25,
+    "damage": 25,
+    "defense": 10
+  }
+}

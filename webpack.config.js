@@ -49,4 +49,17 @@ module.exports = {
 			  }
 		],
 	},
+	module: {
+		rules: [
+			{
+				test: /\.tsx?$/,
+				include: [sourcePath],
+				loader: ["ts-loader"],
+			},
+			{
+				test: /PlayFabAdminApi\.js$/,
+				use: [ "script-loader" ]
+			  }
+		],
+	},
 };

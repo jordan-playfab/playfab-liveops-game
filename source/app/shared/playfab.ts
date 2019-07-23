@@ -1,5 +1,7 @@
 /// <reference path="../../../node_modules/playfab-web-sdk/src/Typings/PlayFab/PlayFabClientApi.d.ts" />
+/// <reference path="../../../node_modules/playfab-web-sdk/src/Typings/PlayFab/PlayFabAdminApi.d.ts" />
 import "playfab-web-sdk/src/PlayFab/PlayFabClientApi.js";
+import "playfab-web-sdk/src/PlayFab/PlayFabAdminApi.js";
 import { IRouterProps } from "../router";
 import { IStringDictionary } from "./types";
 
@@ -48,17 +50,20 @@ function updateStatistic(statistic: string, amount: number, success: (data: Play
 }
 
 function uploadTitleData(titleDataKey: string, titleDataValue: string, success: (data: PlayFabAdminModels.SetTitleDataResult) => void, error: (message: string) => void) : void{
+    console.log("uploading title data");
     PlayFab.AdminApi.SetTitleData({
         Key: titleDataKey,
         Value: titleDataValue
     }, (result) => {
         if (result.code === 200) {
+            alert("success upload");
             success(result.data);
         }
         else {
+            alert("there was an error uploading");
             error(result.errorMessage);
         }
-    })
+    });
 }
 
 
