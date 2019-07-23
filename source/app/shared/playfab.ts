@@ -47,8 +47,24 @@ function updateStatistic(statistic: string, amount: number, success: (data: Play
     })
 }
 
+function uploadTitleData(titleDataKey: string, titleDataValue: string, success: (data: PlayFabAdminModels.SetTitleDataResult) => void, error: (message: string) => void) : void{
+    PlayFab.AdminApi.SetTitleData({
+        Key: titleDataKey,
+        Value: titleDataValue
+    }, (result) => {
+        if (result.code === 200) {
+            success(result.data);
+        }
+        else {
+            error(result.errorMessage);
+        }
+    })
+}
+
+
 export const PlayFabHelper = {
     login,
     getTitleData,
     updateStatistic,
+    uploadTitleData
 };
