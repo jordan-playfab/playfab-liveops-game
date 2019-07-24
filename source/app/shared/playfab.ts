@@ -363,7 +363,7 @@ function adminListVirtualCurrency(secretKey: string, success: (data: PlayFabAdmi
         }
 
         if(result.code === 200) {
-            success(result);
+            success(result.data);
         }
         else {
             error(result.errorMessage);
@@ -385,7 +385,7 @@ function adminGetCatalogItems(secretKey: string, catalogVersion: string, success
         }
 
         if(result.code === 200) {
-            success(result);
+            success(result.data);
         }
         else {
             error(result.errorMessage);
@@ -407,7 +407,7 @@ function adminGetRandomResultTables(secretKey: string, catalogVersion: string, s
         }
 
         if(result.code === 200) {
-            success(result);
+            success(result.data);
         }
         else {
             error(result.errorMessage);
@@ -430,7 +430,7 @@ function adminGetStores(secretKey: string, catalogVersion: string, storeID: stri
         }
 
         if(result.code === 200) {
-            success(result);
+            success(result.data);
         }
         else {
             error(result.errorMessage);
@@ -443,6 +443,29 @@ function adminGetTitleData(secretKey: string, keys: string[], success: (data: Pl
 
     PlayFab.AdminApi.GetTitleData({
         Keys: keys
+    },
+    (result, problem) => {
+        PlayFab.settings.developerSecretKey = undefined;
+
+        if(!is.null(problem)) {
+            return error(problem.errorMessage);
+        }
+
+        if(result.code === 200) {
+            success(result.data);
+        }
+        else {
+            error(result.errorMessage);
+        }
+    });
+}
+
+function adminGetCloudScriptRevision(secretKey: string, version: number, revision: number, success: (data: PlayFabAdminModels.GetCloudScriptRevisionResult) => void, error: (message: string) => void): void {
+    PlayFab.settings.developerSecretKey = secretKey;
+
+    PlayFab.AdminApi.GetCloudScriptRevision({
+        Version: version,
+        Revision: revision,
     },
     (result, problem) => {
         PlayFab.settings.developerSecretKey = undefined;
@@ -480,5 +503,6 @@ export const PlayFabHelper = {
     adminGetCatalogItems,
     adminGetRandomResultTables,
     adminGetStores,
-    adminGetTitleData
+    adminGetTitleData,
+    adminGetCloudScriptRevision
 };

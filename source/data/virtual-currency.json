@@ -1,11 +1,11 @@
 {
-	"data":[
-		{
-			"CurrencyCode":"CR",
-			"DisplayName":"Credits",
-			"InitialDeposit":0,
-			"RechargeRate":0,
-			"RechargeMax":0
-		}
-	]
+    "VirtualCurrencies": [
+        {
+            "CurrencyCode": "CR",
+            "DisplayName": "Credits",
+            "InitialDeposit": 0,
+            "RechargeRate": 0,
+            "RechargeMax": 0
+        }
+    ]
 }

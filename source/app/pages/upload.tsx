@@ -128,26 +128,30 @@ export class UploadPage extends React.Component<Props, IState> {
 
         switch(PROGRESS_STAGES[this.state.uploadProgress].key) {
             case "currency":
-                PlayFabHelper.adminAddVirtualCurrencies(this.state.secretKey, VirtualCurrencies.data, this.advanceUpload, this.loadError);
+                PlayFabHelper.adminAddVirtualCurrencies(this.state.secretKey, VirtualCurrencies.VirtualCurrencies, this.advanceUpload, this.loadError);
                 break;
             case "catalog":
-                PlayFabHelper.adminSetCatalogItems(this.state.secretKey, Catalogs.data, CATALOG_VERSION, true, this.advanceUpload, this.loadError);
+                PlayFabHelper.adminSetCatalogItems(this.state.secretKey, Catalogs.Catalog, CATALOG_VERSION, true, this.advanceUpload, this.loadError);
                 break;
             case "droptable":
-                PlayFabHelper.adminUpdateDropTables(this.state.secretKey, this.mapDropTable(DropTables.data as any), CATALOG_VERSION, this.advanceUpload, this.loadError);
+                PlayFabHelper.adminUpdateDropTables(this.state.secretKey, this.mapDropTable(DropTables as any), CATALOG_VERSION, this.advanceUpload, this.loadError);
                 break;
             case "store":
-                Stores.data.forEach(s => {
-                    PlayFabHelper.adminSetStoreItems(this.state.secretKey, s.StoreId, s.Store, s.MarketingData, CATALOG_VERSION, this.advanceStoreCounter, this.loadError);
+                Stores.data.forEach((s, index) => {
+                    window.setTimeout(() => {
+                        PlayFabHelper.adminSetStoreItems(this.state.secretKey, s.StoreId, s.Store, s.MarketingData, CATALOG_VERSION, this.advanceStoreCounter, this.loadError);
+                    }, index * 500);
                 });
                 break;
             case "titledata":
-                Object.keys(TitleData.data).forEach(key => {
-                    PlayFabHelper.adminSetTitleData(this.state.secretKey, key, (TitleData.data as IStringDictionary)[key], this.advanceTitleDataCounter, this.loadError);
+                Object.keys(TitleData.Data).forEach((key, index) => {
+                    window.setTimeout(() => {
+                        PlayFabHelper.adminSetTitleData(this.state.secretKey, key, (TitleData.Data as IStringDictionary)[key], this.advanceTitleDataCounter, this.loadError);
+                    }, index * 500);
                 });
                 break;
             case "cloudscript":
-                PlayFabHelper.adminUpdateCloudScript(this.state.secretKey, CloudScript.data.FileContents, true, this.advanceUpload, this.loadError);
+                PlayFabHelper.adminUpdateCloudScript(this.state.secretKey, CloudScript.Files[0].FileContents, true, this.advanceUpload, this.loadError);
                 break;
         }
     }
@@ -170,7 +174,7 @@ export class UploadPage extends React.Component<Props, IState> {
                     error: null,
                 }
             });
-        }, 1000);
+        }, 500);
     }
 
     private advanceStoreCounter = (): void => {
@@ -191,7 +195,7 @@ export class UploadPage extends React.Component<Props, IState> {
                 titleDataCounter: prevState.titleDataCounter + 1,
             }
         }, () => {
-            if(this.state.titleDataCounter >= Object.keys(TitleData.data).length) {
+            if(this.state.titleDataCounter >= Object.keys(TitleData.Data).length) {
                 this.advanceUpload();
             }
         });

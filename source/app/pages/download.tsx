@@ -89,8 +89,12 @@ export class DownloadPage extends React.Component<Props, IState> {
         const percentComplete = Math.min(1, (this.state.downloadProgress / PROGRESS_STAGES.length) + 0.1);
         return (
             <React.Fragment>
-                {percentComplete < 1 && (
+                {percentComplete < 1
+                ? (
                     <ProgressIndicator label={this.getProgressTitle()} percentComplete={percentComplete} />
+                )
+                : (
+                    <p>Save these text fields to the .JSON files inside <strong>/source/data</strong>.</p>
                 )}
                 {this.renderDownloadContent()}
             </React.Fragment>
@@ -156,7 +160,17 @@ export class DownloadPage extends React.Component<Props, IState> {
                             this.advanceStoreCounter();
                         }, this.loadError);
                     })
-                }, () => {});
+                }, this.loadError);
+                break;
+            case "titledata":
+                PlayFabHelper.adminGetTitleData(this.state.secretKey, null, (data) => {
+                    this.advanceDownload(title, data);
+                }, this.loadError)
+                break;
+            case "cloudscript":
+                PlayFabHelper.adminGetCloudScriptRevision(this.state.secretKey, null, null, (data) => {
+                    this.advanceDownload(title, data);
+                }, this.loadError);
                 break;
         }
     }
