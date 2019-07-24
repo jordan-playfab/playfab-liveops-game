@@ -58,6 +58,11 @@ export default class App extends React.Component<{}, IState> {
     }
 
     private saveTitleID = (titleID: string): void => {
+        if(is.null(titleID)) {
+            titleID = "";
+            this.savePlayer(null);
+        }
+
         this.setState({
             titleID,
         });

@@ -9,6 +9,7 @@ import { PlayFabHelper } from "../shared/playfab";
 import { RouteComponentProps } from "react-router";
 import { Header } from "../components/header";
 import { Page } from "../components/page";
+import { DivConfirm } from "../styles";
 
 type Props = IRouterProps & RouteComponentProps;
 
@@ -49,11 +50,14 @@ export class PlayerPage extends React.Component<Props, IState> {
         return (
             <form onSubmit={this.login}>
                 <p>Start by entering a player ID. This can be a name (e.g. "James"), a GUID, or any other string.</p>
-                <p>Enter a new player ID to start a new game, or a previous one to load that player's data. This login happens using <a href="https://api.playfab.com/documentation/client/method/LoginWithCustomID">Custom ID</a>.</p>
+                <p>Type a player ID you've used before to load that player's data, or enter a new one to start over.</p>
+                <p>This login happens using <a href="https://api.playfab.com/documentation/client/method/LoginWithCustomID">Custom ID</a>.</p>
                 <fieldset>
                     <legend>Player</legend>
                     <TextField label="Player ID" onChange={this.setLocalPlayerID} autoFocus />
-                    <PrimaryButton text="Login" onClick={this.login} />
+                    <DivConfirm>
+                        <PrimaryButton text="Login" onClick={this.login} />
+                    </DivConfirm>
                 </fieldset>
             </form>
         );

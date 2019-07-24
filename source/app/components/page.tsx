@@ -10,8 +10,12 @@ const MainTag = styled.main`
     margin: 2em auto;
     padding: 1em;
     background-color: ${s => s.theme.colorBackground000};
-    border: 1px solid ${s => s.theme.colorBorder200};
+    border: 4px solid ${s => s.theme.colorBorder200};
     border-radius: 0.5em;
+`;
+
+const DivPage = styled.div`
+    margin-top: 1em;
 `;
 
 type Props = IRouterProps;
@@ -20,10 +24,16 @@ export class Page extends React.PureComponent<Props> {
     public render(): React.ReactNode {
         return (
             <MainTag>
-                <Header titleID={this.props.titleID} />
+                <Header titleID={this.props.titleID} resetTitleID={this.resetTitleID} />
                 <Player inventory={this.props.inventory} player={this.props.player} />
-                {this.props.children}
+                <DivPage>
+                    {this.props.children}
+                </DivPage>
             </MainTag>
         );
+    }
+
+    private resetTitleID = (): void => {
+        this.props.saveTitleID(null);
     }
 }

@@ -9,6 +9,10 @@ interface IProps {
 
 export class Player extends React.Component<IProps> {
     public render(): React.ReactNode {
+        if(is.null(this.props.player)) {
+            return null;
+        }
+
         return (
             <div>
                 <h3>Player</h3>
