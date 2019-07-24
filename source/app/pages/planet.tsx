@@ -158,7 +158,7 @@ export class PlanetPage extends React.Component<Props, IState> {
 
             this.setState((prevState) => {
                 return {
-                    totalKills: result.kills,
+                    totalKills: prevState.totalKills + 1,
                     totalEnemies: prevState.totalEnemies - 1,
                     isShooting: false,
                     itemGranted: result.itemGranted,
