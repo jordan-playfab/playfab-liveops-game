@@ -130,7 +130,7 @@ export class UploadPage extends React.Component<Props, IState> {
     }
 
     private renderUpload(): React.ReactNode {
-        if(this.state.uploadProgress === progressStages.length) {
+        if(this.state.uploadProgress >= progressStages.length - 1) {
             return (
                 <React.Fragment>
                     <h2>All done!</h2>
@@ -153,7 +153,7 @@ export class UploadPage extends React.Component<Props, IState> {
     }
 
     private runUpload(): void {
-        if(!this.state.hasSecretKey || this.state.uploadProgress > progressStages.length) {
+        if(!this.state.hasSecretKey || this.state.uploadProgress > progressStages.length - 1) {
             return;
         }
 
