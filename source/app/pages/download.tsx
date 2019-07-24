@@ -6,7 +6,7 @@ import { MessageBar, MessageBarType, TextField, PrimaryButton, ProgressIndicator
 import { is } from "../shared/is";
 import { DivConfirm, UlNull } from "../styles";
 import { routes } from "../routes";
-import { PROGRESS_STAGES, CATALOG_VERSION } from "../shared/types";
+import { PROGRESS_STAGES, CATALOG_VERSION, TITLE_DATA_STORES } from "../shared/types";
 import { PlayFabHelper } from "../shared/playfab";
 
 type Props = IRouterProps & RouteComponentProps;
@@ -16,6 +16,8 @@ interface IState {
     hasSecretKey: boolean;
     error: string;
     downloadProgress: number;
+    storeCounter: number;
+    titleDataCounter: number;
     downloadContent: IDownloadContent[];
 }
 
@@ -25,6 +27,9 @@ interface IDownloadContent {
 }
 
 export class DownloadPage extends React.Component<Props, IState> {
+    private storeCount = 0;
+    private storeContent: any[] = [];
+
     constructor(props: Props) {
         super(props);
 
@@ -33,6 +38,8 @@ export class DownloadPage extends React.Component<Props, IState> {
             hasSecretKey: false,
             error: null,
             downloadProgress: 0,
+            storeCounter: 0,
+            titleDataCounter: 0,
             downloadContent: [],
         };
     }
@@ -97,8 +104,8 @@ export class DownloadPage extends React.Component<Props, IState> {
 
         return (
             <UlNull>
-                {this.state.downloadContent.map(d => (
-                    <li>
+                {this.state.downloadContent.map((d, index) => (
+                    <li key={index}>
                         <label>{d.title}</label>
                         <TextField multiline value={d.content} rows={10} />
                     </li>
@@ -133,6 +140,24 @@ export class DownloadPage extends React.Component<Props, IState> {
                     this.advanceDownload(title, data);
                 }, this.loadError);
                 break;
+            case "droptable":
+                PlayFabHelper.adminGetRandomResultTables(this.state.secretKey, CATALOG_VERSION, (data) => {
+                    this.advanceDownload(title, data);
+                }, this.loadError);
+                break;
+            case "store":
+                PlayFabHelper.adminGetTitleData(this.state.secretKey, [TITLE_DATA_STORES], (titleData) => {
+                    const storeNames = (JSON.parse(titleData.Data[TITLE_DATA_STORES]) as string[]);
+                    this.storeCount = storeNames.length;
+
+                    storeNames.forEach(name => {
+                        PlayFabHelper.adminGetStores(this.state.secretKey, CATALOG_VERSION, name, (storeData) => {
+                            this.storeContent.push(storeData);
+                            this.advanceStoreCounter();
+                        }, this.loadError);
+                    })
+                }, () => {});
+                break;
         }
     }
 
@@ -163,18 +188,29 @@ export class DownloadPage extends React.Component<Props, IState> {
     }
 
     private advanceDownload = (title: string, data: any): void => {
-        // Can't let the system go too fast
-        window.setTimeout(() => {
-            this.setState((prevState) => {
-                return {
-                    downloadProgress: prevState.downloadProgress + 1,
-                    downloadContent: prevState.downloadContent.concat([{
-                        title,
-                        content: JSON.stringify(data, null, 4),
-                    }]),
-                    error: null,
-                }
-            });
-        }, 1000);
+        this.setState((prevState) => {
+            return {
+                downloadProgress: prevState.downloadProgress + 1,
+                downloadContent: prevState.downloadContent.concat([{
+                    title,
+                    content: JSON.stringify(data, null, 4),
+                }]),
+                error: null,
+            }
+        });
+    }
+
+    private advanceStoreCounter = (): void => {
+        this.setState((prevState) => {
+            return {
+                storeCounter: prevState.storeCounter + 1,
+            }
+        }, () => {
+            if(this.state.storeCounter >= this.storeCount) {
+                this.advanceDownload("Store", {
+                    "data": this.storeContent
+                });
+            }
+        });
     }
 }

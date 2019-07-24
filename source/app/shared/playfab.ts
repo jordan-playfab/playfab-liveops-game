@@ -3,11 +3,9 @@
 import "playfab-web-sdk/src/PlayFab/PlayFabClientApi.js";
 import "playfab-web-sdk/src/PlayFab/PlayFabAdminApi.js";
 import { IRouterProps } from "../router";
-import { IStringDictionary } from "./types";
+import { IStringDictionary, CATALOG_VERSION, TITLE_DATA_STORES } from "./types";
 import { is } from "./is";
 
-const CatalogVersion = "Main";
-const TitleDataStores = "Stores";
 
 function login(props: IRouterProps, customID: string, success: (data: PlayFabClientModels.LoginResult) => void, error: (message: string) => void): void {
     PlayFab.ClientApi.LoginWithCustomID({
@@ -147,12 +145,12 @@ function executeCloudScript(functionName: string, args: any, success: (data: Pla
 function getStores(success: (data: PlayFabClientModels.GetStoreItemsResult[]) => void, error: (message: string) => void): void {
     const stores: PlayFabClientModels.GetStoreItemsResult[] = [];
 
-    getTitleData([TitleDataStores], (data) => {
-        const storeNames = JSON.parse(data[TitleDataStores]) as string[];
+    getTitleData([TITLE_DATA_STORES], (data) => {
+        const storeNames = JSON.parse(data[TITLE_DATA_STORES]) as string[];
 
         storeNames.forEach((storeName) => {
             PlayFab.ClientApi.GetStoreItems({
-                CatalogVersion,
+                CatalogVersion: CATALOG_VERSION,
                 StoreId: storeName,
             }, (result, problem) => {
                 if(!is.null(problem)) {
@@ -178,7 +176,7 @@ function getStores(success: (data: PlayFabClientModels.GetStoreItemsResult[]) =>
 
 function buyFromStore(storeID: string, itemID: string, currency: string, price: number, success: (data: PlayFabClientModels.PurchaseItemResult) => void, error: (message: string) => void): void {
     PlayFab.ClientApi.PurchaseItem({
-        CatalogVersion,
+        CatalogVersion: CATALOG_VERSION,
         ItemId: itemID,
         Price: price,
         StoreId: storeID,
@@ -200,7 +198,7 @@ function buyFromStore(storeID: string, itemID: string, currency: string, price: 
 
 function getCatalog(success: (data: PlayFabClientModels.CatalogItem[]) => void, error: (message: string) => void): void {
     PlayFab.ClientApi.GetCatalogItems({
-        CatalogVersion,
+        CatalogVersion: CATALOG_VERSION,
     }, (result, problem) => {
         if(!is.null(problem)) {
             return error(problem.errorMessage);
@@ -395,6 +393,73 @@ function adminGetCatalogItems(secretKey: string, catalogVersion: string, success
     });
 }
 
+function adminGetRandomResultTables(secretKey: string, catalogVersion: string, success: (data: PlayFabAdminModels.GetRandomResultTablesResult) => void, error: (message: string) => void): void {
+    PlayFab.settings.developerSecretKey = secretKey;
+
+    PlayFab.AdminApi.GetRandomResultTables({
+        CatalogVersion: catalogVersion,
+    },
+    (result, problem) => {
+        PlayFab.settings.developerSecretKey = undefined;
+
+        if(!is.null(problem)) {
+            return error(problem.errorMessage);
+        }
+
+        if(result.code === 200) {
+            success(result);
+        }
+        else {
+            error(result.errorMessage);
+        }
+    });
+}
+
+function adminGetStores(secretKey: string, catalogVersion: string, storeID: string, success: (data: PlayFabAdminModels.GetStoreItemsResult) => void, error: (message: string) => void): void {
+    PlayFab.settings.developerSecretKey = secretKey;
+
+    PlayFab.AdminApi.GetStoreItems({
+        CatalogVersion: catalogVersion,
+        StoreId: storeID,
+    },
+    (result, problem) => {
+        PlayFab.settings.developerSecretKey = undefined;
+
+        if(!is.null(problem)) {
+            return error(problem.errorMessage);
+        }
+
+        if(result.code === 200) {
+            success(result);
+        }
+        else {
+            error(result.errorMessage);
+        }
+    });
+}
+
+function adminGetTitleData(secretKey: string, keys: string[], success: (data: PlayFabAdminModels.GetTitleDataResult) => void, error: (message: string) => void): void {
+    PlayFab.settings.developerSecretKey = secretKey;
+
+    PlayFab.AdminApi.GetTitleData({
+        Keys: keys
+    },
+    (result, problem) => {
+        PlayFab.settings.developerSecretKey = undefined;
+
+        if(!is.null(problem)) {
+            return error(problem.errorMessage);
+        }
+
+        if(result.code === 200) {
+            success(result.data);
+        }
+        else {
+            error(result.errorMessage);
+        }
+    });
+}
+
 export const PlayFabHelper = {
     login,
     getTitleData,
@@ -412,5 +477,8 @@ export const PlayFabHelper = {
     adminUpdateCloudScript,
     adminUpdateDropTables,
     adminListVirtualCurrency,
-    adminGetCatalogItems
+    adminGetCatalogItems,
+    adminGetRandomResultTables,
+    adminGetStores,
+    adminGetTitleData
 };
