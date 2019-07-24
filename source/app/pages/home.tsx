@@ -48,7 +48,7 @@ export class HomePage extends React.Component<Props, IState> {
     private renderAskForTitleID(): React.ReactNode {
         return (
             <form onSubmit={this.saveTitleID}>
-                <p><a href="https://developer.playfab.com">Create a PlayFab account</a> and make an empty title. Then find its <strong>title ID</strong> (4+ alphanumeric characters) and enter it here.</p>
+                <p><a href="https://developer.playfab.com" target="_blank">Create a PlayFab account</a> and make an empty title. Then find its <strong>title ID</strong> (4+ alphanumeric characters) and enter it here.</p>
                 <fieldset>
                     <legend>PlayFab title ID</legend>
                     <TextField label="Title ID" onChange={this.setLocalTitleID} autoFocus />

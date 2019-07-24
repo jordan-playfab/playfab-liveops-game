@@ -97,10 +97,9 @@ export class UploadPage extends React.Component<Props, IState> {
     private renderSecretKey(): React.ReactNode {
         return (
             <form onSubmit={this.setHasSecretKey}>
-                <p>In order to play the game, you must populate it with game data.</p>
-                <p>This page will create the title data, currencies, catalogs, stores, and Cloud Script for you.</p>
-                <p>Get the <strong>secret key</strong> for your game by going to Settings &gt; Secret Keys.</p>
-                <p>This page does not store nor transmit your secret key to anyone, but it's a good idea to make a new key just in case.</p>
+                <p>In order to play the game, you must populate it with game data. This page will create the title data, currencies, catalogs, stores, and Cloud Script for you.</p>
+                <p>Get the <strong>secret key</strong> for your game by going to <strong>Settings &gt; Secret Keys</strong>.</p>
+                <p>This page does not store nor transmit your secret key to anyone except PlayFab, but it's a good idea to make a new key just in case.</p>
                 <fieldset>
                     <legend>Secret key</legend>
 
