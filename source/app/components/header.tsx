@@ -51,7 +51,7 @@ export class Header extends React.PureComponent<IProps> {
                         <div><ButtonReset text="Reset" onClick={this.props.resetTitleID} /></div>
                     </DivTitleID>
                 )}
-                <PTagline>A looter shooter game simulation using <a href="https://playfab.com">PlayFab</a></PTagline>
+                <PTagline>A looter shooter game simulation using <a href="https://playfab.com/" target="_blank">PlayFab</a></PTagline>
             </HeaderWrapper>
         );
     }
