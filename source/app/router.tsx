@@ -3,7 +3,6 @@ import { Switch, Route, HashRouter } from "react-router-dom";
 import { routes } from "./routes";
 
 import { HomePage } from "./pages/home";
-import TitleData from "./pages/title-data";
 import { PlayerPage } from "./pages/player";
 import { PlanetPage } from "./pages/planet";
 import NotFound from "./pages/not-found";
@@ -38,7 +37,6 @@ export class Router extends React.Component<IRouterProps> {
 			<HashRouter>
 				<Switch>
 					<Route exact path={routes.Home} render={(props) => <HomePage {...props} {...this.props} />} />
-					<Route exact path={routes.TitleData} render={(props) => <TitleData {...props} {...this.props} />} />
 					<Route exact path={routes.Player} render={(props) => <PlayerPage {...props} {...this.props} />} />
 					<Route exact path={routes.Planet} render={(props) => <PlanetPage {...props} {...this.props} />} />
 					<Route exact path={routes.HomeBase} render={(props) => <HomeBasePage {...props} {...this.props} />} />
