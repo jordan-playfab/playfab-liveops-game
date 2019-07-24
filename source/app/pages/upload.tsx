@@ -7,10 +7,13 @@ import { MessageBar, MessageBarType, TextField, PrimaryButton, ProgressIndicator
 import { DivConfirm } from "../styles";
 import { PlayFabHelper } from "../shared/playfab";
 import { routes } from "../routes";
+import { IStringDictionary } from "../shared/types";
 
 import VirtualCurrencies from "../../data/virtual-currency.json";
 import Catalogs from "../../data/catalogs.json";
 import Stores from "../../data/stores.json";
+import TitleData from "../../data/title-data.json";
+import CloudScript from "../../data/cloud-script.json";
 
 type Props = IRouterProps & RouteComponentProps;
 
@@ -19,6 +22,8 @@ interface IState {
     hasSecretKey: boolean;
     error: string;
     uploadProgress: number;
+    storeCounter: number;
+    titleDataCounter: number;
 }
 
 interface IProgressStage {
@@ -47,6 +52,8 @@ const progressStages: IProgressStage[] = [{
     title: "Cloud Script",
 }];
 
+const catalogVersion = "Main";
+
 export class UploadPage extends React.Component<Props, IState> {
     constructor(props: Props) {
         super(props);
@@ -56,6 +63,8 @@ export class UploadPage extends React.Component<Props, IState> {
             hasSecretKey: false,
             error: null,
             uploadProgress: 0,
+            storeCounter: 0,
+            titleDataCounter: 0,
         };
     }
 
@@ -136,15 +145,53 @@ export class UploadPage extends React.Component<Props, IState> {
                 PlayFabHelper.adminAddVirtualCurrencies(this.state.secretKey, VirtualCurrencies.data, this.advanceUpload, this.loadError);
                 break;
             case "catalog":
-
+                PlayFabHelper.adminSetCatalogItems(this.state.secretKey, Catalogs.data, catalogVersion, this.advanceUpload, this.loadError);
+                break;
+            case "store":
+                Stores.data.forEach(s => {
+                    PlayFabHelper.adminSetStoreItems(this.state.secretKey, s.StoreId, s.Store, s.MarketingData, catalogVersion, this.advanceStoreCounter, this.loadError);
+                })
+                break;
+            case "titledata":
+                Object.keys(TitleData.data).forEach(key => {
+                    PlayFabHelper.adminSetTitleData(this.state.secretKey, key, (TitleData.data as IStringDictionary)[key], this.advanceTitleDataCounter, this.loadError);
+                })
+                break;
+            case "cloudscript":
+                PlayFabHelper.adminUpdateCloudScript(this.state.secretKey, CloudScript.data.FileContents, true, this.advanceUpload, this.loadError);
+                break;
         }
     }
 
-    private advanceUpload(): void {
+    private advanceUpload = (): void => {
         this.setState((prevState) => {
             return {
                 uploadProgress: prevState.uploadProgress + 1,
                 error: null,
+            }
+        });
+    }
+
+    private advanceStoreCounter = (): void => {
+        this.setState((prevState) => {
+            return {
+                storeCounter: prevState.storeCounter + 1,
+            }
+        }, () => {
+            if(this.state.storeCounter >= Stores.data.length) {
+                this.advanceUpload();
+            }
+        });
+    }
+
+    private advanceTitleDataCounter = (): void => {
+        this.setState((prevState) => {
+            return {
+                titleDataCounter: prevState.titleDataCounter + 1,
+            }
+        }, () => {
+            if(this.state.titleDataCounter >= Object.keys(TitleData.data).length) {
+                this.advanceUpload();
             }
         });
     }

@@ -216,6 +216,45 @@ function adminSetStoreItems(secretKey: string, storeID: string, store: PlayFabAd
     });
 }
 
+function adminSetTitleData(secretKey: string, key: string, value: string, success: () => void, error: (message: string) => void): void {
+    PlayFab.settings.developerSecretKey = secretKey;
+
+    PlayFab.AdminApi.SetTitleData({
+        Key: key,
+        Value: value,
+    }, (result) => {
+        PlayFab.settings.developerSecretKey = undefined;
+
+        if(result.code === 200) {
+            success();
+        }
+        else {
+            error(result.errorMessage);
+        }
+    });
+}
+
+function adminUpdateCloudScript(secretKey: string, file: string, publish: boolean, success: () => void, error: (message: string) => void): void {
+    PlayFab.settings.developerSecretKey = secretKey;
+
+    PlayFab.AdminApi.UpdateCloudScript({
+        Files: [{
+            FileContents: file,
+            Filename: "main.js"
+        }],
+        Publish: publish,
+    }, (result) => {
+        PlayFab.settings.developerSecretKey = undefined;
+
+        if(result.code === 200) {
+            success();
+        }
+        else {
+            error(result.errorMessage);
+        }
+    });
+}
+
 export const PlayFabHelper = {
     login,
     getTitleData,
@@ -229,4 +268,6 @@ export const PlayFabHelper = {
     adminAddVirtualCurrencies,
     adminSetCatalogItems,
     adminSetStoreItems,
+    adminSetTitleData,
+    adminUpdateCloudScript
 };

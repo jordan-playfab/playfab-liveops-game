@@ -1,0 +1,7 @@
+{
+	"data":{
+		"Enemies":"{   \"grunt\": {     \"hp\": 50,     \"speed\": 10,     \"damage\": 5,     \"defense\": 0   },   \"ogre\": {     \"hp\": 200,     \"speed\": 5,     \"damage\": 50,     \"defense\": 20   },   \"goblin\": {     \"hp\": 150,     \"speed\": 25,     \"damage\": 25,     \"defense\": 10   } }",
+		"Planets":"{\"Earth\":{\"Areas\":[\"Canada\",\"Redmond\",\"Red Rock\",\"Yosemite\"],\"TreasureChestCount\":10,\"EnemyCount\":50},\"Mars\":{\"Areas\":[\"Elysium\",\"Argyre Basin\",\"Tharsis Rise\",\"Tempe Terra\"],\"TreasureChestCount\":10,\"EnemyCount\":50},\"Venus\":{\"Areas\":[\"Freyja Montes\",\"Akna\",\"Ishtar Terra\"],\"TreasureChestCount\":10,\"EnemyCount\":50},\"Pluto\":{\"Areas\":[\"Macula\",\"Balrog\",\"Cthulhu\"],\"TreasureChestCount\":10,\"EnemyCount\":50}}",
+		"Stores":"[\"Weapons\", \"Armor\"]"
+	}
+}
