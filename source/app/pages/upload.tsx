@@ -68,6 +68,10 @@ export class UploadPage extends React.Component<Props, IState> {
         };
     }
 
+    public componentDidUpdate(): void {
+        this.runUpload();
+    }
+
     public render(): React.ReactNode {
         if(!this.isValid()) {
             return <Redirect to={routes.Home} />;
@@ -126,7 +130,7 @@ export class UploadPage extends React.Component<Props, IState> {
     private setHasSecretKey = (): void => {
         this.setState({
             hasSecretKey: true,
-        }, this.beginUpload);
+        }, this.runUpload);
     }
 
     private renderUpload(): React.ReactNode {
@@ -139,7 +143,11 @@ export class UploadPage extends React.Component<Props, IState> {
         return progressStages[this.state.uploadProgress].title;
     }
 
-    private beginUpload(): void {
+    private runUpload(): void {
+        if(!this.state.hasSecretKey || this.state.uploadProgress > progressStages.length) {
+            return;
+        }
+
         switch(progressStages[this.state.uploadProgress].key) {
             case "currency":
                 PlayFabHelper.adminAddVirtualCurrencies(this.state.secretKey, VirtualCurrencies.data, this.advanceUpload, this.loadError);

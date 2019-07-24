@@ -14,7 +14,11 @@ function login(props: IRouterProps, customID: string, success: (data: PlayFabCli
         TitleId: props.titleID,
         CustomId: customID,
         CreateAccount: true,
-    }, (result) => {
+    }, (result, problem) => {
+        if(!is.null(problem)) {
+            return error(problem.errorMessage);
+        }
+        
         if(result.code === 200) {
             success(result.data);
         }
@@ -26,7 +30,11 @@ function login(props: IRouterProps, customID: string, success: (data: PlayFabCli
 
 function getInventory(success: (data: PlayFabClientModels.GetUserInventoryResult) => void, error: (message: string) => void) {
     PlayFab.ClientApi.GetUserInventory({},
-        (result) => {
+        (result, problem) => {
+            if(!is.null(problem)) {
+                return error(problem.errorMessage);
+            }
+
             if(result.code === 200) {
                 success(result.data);
             }
@@ -40,7 +48,11 @@ function getInventory(success: (data: PlayFabClientModels.GetUserInventoryResult
 function getTitleData(keys: string[], success: (data: IStringDictionary) => void, error: (message: string) => void): void {
     PlayFab.ClientApi.GetTitleData({
         Keys: keys,
-    }, (result) => {
+    }, (result, problem) => {
+        if(!is.null(problem)) {
+            return error(problem.errorMessage);
+        }
+
         if(result.code === 200) {
             success(result.data.Data);
         }
@@ -53,7 +65,11 @@ function getTitleData(keys: string[], success: (data: IStringDictionary) => void
 function getStatistics(keys: string[], success: (data: PlayFabClientModels.StatisticValue[]) => void, error: (message: string) => void): void {
     PlayFab.ClientApi.GetPlayerStatistics({
         StatisticNames: keys,
-    }, (result) => {
+    }, (result, problem) => {
+        if(!is.null(problem)) {
+            return error(problem.errorMessage);
+        }
+
         if(result.code === 200) {
             success(result.data.Statistics);
         }
@@ -69,7 +85,11 @@ function updateStatistic(statistic: string, amount: number, success: (data: Play
             StatisticName: statistic,
             Value: amount,
         }],
-    }, (result) => {
+    }, (result, problem) => {
+        if(!is.null(problem)) {
+            return error(problem.errorMessage);
+        }
+
         if(result.code === 200) {
             success(result.data);
         }
@@ -83,7 +103,11 @@ function executeCloudScript(functionName: string, args: any, success: (data: Pla
     PlayFab.ClientApi.ExecuteCloudScript({
         FunctionName: functionName,
         FunctionParameter: args,
-    }, (result) => {
+    }, (result, problem) => {
+        if(!is.null(problem)) {
+            return error(problem.errorMessage);
+        }
+
         if(result.code === 200 && is.null(result.data.Error)) {
             success(result.data);
         }
@@ -108,7 +132,11 @@ function getStores(success: (data: PlayFabClientModels.GetStoreItemsResult[]) =>
             PlayFab.ClientApi.GetStoreItems({
                 CatalogVersion,
                 StoreId: storeName,
-            }, (result) => {
+            }, (result, problem) => {
+                if(!is.null(problem)) {
+                    return error(problem.errorMessage);
+                }
+
                 if(result.code === 200) {
                     stores.push(result.data);
 
@@ -151,7 +179,11 @@ function buyFromStore(storeID: string, itemID: string, currency: string, price: 
 function getCatalog(success: (data: PlayFabClientModels.CatalogItem[]) => void, error: (message: string) => void): void {
     PlayFab.ClientApi.GetCatalogItems({
         CatalogVersion,
-    }, (result) => {
+    }, (result, problem) => {
+        if(!is.null(problem)) {
+            return error(problem.errorMessage);
+        }
+
         if(result.code === 200) {
             success(result.data.Catalog);
         }
@@ -166,8 +198,12 @@ function adminAddVirtualCurrencies(secretKey: string, currencies: PlayFabAdminMo
 
     PlayFab.AdminApi.AddVirtualCurrencyTypes({
         VirtualCurrencies: currencies,
-    }, (result) => {
+    }, (result, problem) => {
         PlayFab.settings.developerSecretKey = undefined;
+
+        if(!is.null(problem)) {
+            return error(problem.errorMessage);
+        }
 
         if(result.code === 200) {
             success();
@@ -184,8 +220,12 @@ function adminSetCatalogItems(secretKey: string, items: PlayFabAdminModels.Catal
     PlayFab.AdminApi.SetCatalogItems({
         Catalog: items,
         CatalogVersion: catalogVersion,
-    }, (result) => {
+    }, (result, problem) => {
         PlayFab.settings.developerSecretKey = undefined;
+
+        if(!is.null(problem)) {
+            return error(problem.errorMessage);
+        }
 
         if(result.code === 200) {
             success();
@@ -204,8 +244,12 @@ function adminSetStoreItems(secretKey: string, storeID: string, store: PlayFabAd
         MarketingData: storeMarketing,
         StoreId: storeID,
         CatalogVersion: catalogVersion,
-    }, (result) => {
+    }, (result, problem) => {
         PlayFab.settings.developerSecretKey = undefined;
+
+        if(!is.null(problem)) {
+            return error(problem.errorMessage);
+        }
 
         if(result.code === 200) {
             success();
@@ -222,8 +266,12 @@ function adminSetTitleData(secretKey: string, key: string, value: string, succes
     PlayFab.AdminApi.SetTitleData({
         Key: key,
         Value: value,
-    }, (result) => {
+    }, (result, problem) => {
         PlayFab.settings.developerSecretKey = undefined;
+
+        if(!is.null(problem)) {
+            return error(problem.errorMessage);
+        }
 
         if(result.code === 200) {
             success();
@@ -243,8 +291,12 @@ function adminUpdateCloudScript(secretKey: string, file: string, publish: boolea
             Filename: "main.js"
         }],
         Publish: publish,
-    }, (result) => {
+    }, (result, problem) => {
         PlayFab.settings.developerSecretKey = undefined;
+
+        if(!is.null(problem)) {
+            return error(problem.errorMessage);
+        }
 
         if(result.code === 200) {
             success();
