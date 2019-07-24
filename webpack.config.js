@@ -46,7 +46,11 @@ module.exports = {
 			{
 				test: /PlayFabClientApi\.js$/,
 				use: [ "script-loader" ]
-			  }
+			},
+			{
+				test: /PlayFabAdminApi\.js$/,
+				use: [ "script-loader" ]
+			},
 		],
 	},
 };

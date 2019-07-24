@@ -28,7 +28,7 @@ export class PlayerPage extends React.Component<Props, IState> {
     }
 
     public render(): React.ReactNode {
-        if(is.null(this.props.titleID)) {
+        if(!this.isValid()) {
             return <Redirect to={routes.Home} />;
         }
 
@@ -112,5 +112,9 @@ export class PlayerPage extends React.Component<Props, IState> {
                 error: message,
             })
         });
+    }
+
+    private isValid(): boolean {
+        return !is.null(this.props.titleID);
     }
 }

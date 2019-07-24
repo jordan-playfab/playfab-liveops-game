@@ -67,7 +67,7 @@ export class HomePage extends React.Component<Props, IState> {
                 <p>If you've already done that, select <strong>Play game</strong> to login as a player and start the game.</p>
                 <UlInline>
                     <li><PrimaryButton text="Play game" onClick={this.goToPage.bind(this, routes.Player)} /></li>
-                    <li><DefaultButton text="Load initial data" onClick={this.goToPage.bind(this, routes.TitleData)} /></li>
+                    <li><DefaultButton text="Load initial data" onClick={this.goToPage.bind(this, routes.Upload)} /></li>
                 </UlInline>
             </React.Fragment>
         );

@@ -9,6 +9,7 @@ import { PlanetPage } from "./pages/planet";
 import NotFound from "./pages/not-found";
 import { ITitleDataPlanets } from "./shared/types";
 import { HomeBasePage } from "./pages/home-base";
+import { UploadPage } from "./pages/upload";
 
 export interface IRouterProps {
 	titleID: string;
@@ -41,6 +42,7 @@ export class Router extends React.Component<IRouterProps> {
 					<Route exact path={routes.Player} render={(props) => <PlayerPage {...props} {...this.props} />} />
 					<Route exact path={routes.Planet} render={(props) => <PlanetPage {...props} {...this.props} />} />
 					<Route exact path={routes.HomeBase} render={(props) => <HomeBasePage {...props} {...this.props} />} />
+					<Route exact path={routes.Upload} render={(props) => <UploadPage {...props} {...this.props} />} />
 					<Route component={NotFound} />
 				</Switch>
 			</HashRouter>

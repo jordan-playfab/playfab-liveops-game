@@ -3,5 +3,6 @@ export const routes = {
     TitleData: "/title-data",
     Player: "/player",
     Planet: "/planet/:name",
-    HomeBase: "/home-base"
+    HomeBase: "/home-base",
+    Upload: "/upload"
 };

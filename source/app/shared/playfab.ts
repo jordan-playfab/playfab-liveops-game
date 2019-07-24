@@ -1,5 +1,7 @@
 /// <reference path="../../../node_modules/playfab-web-sdk/src/Typings/PlayFab/PlayFabClientApi.d.ts" />
+/// <reference path="../../../node_modules/playfab-web-sdk/src/Typings/PlayFab/PlayFabAdminApi.d.ts" />
 import "playfab-web-sdk/src/PlayFab/PlayFabClientApi.js";
+import "playfab-web-sdk/src/PlayFab/PlayFabAdminApi.js";
 import { IRouterProps } from "../router";
 import { IStringDictionary } from "./types";
 import { is } from "./is";
@@ -159,6 +161,61 @@ function getCatalog(success: (data: PlayFabClientModels.CatalogItem[]) => void, 
     })
 }
 
+function adminAddVirtualCurrencies(secretKey: string, currencies: PlayFabAdminModels.VirtualCurrencyData[], success: () => void, error: (message: string) => void): void {
+    PlayFab.settings.developerSecretKey = secretKey;
+
+    PlayFab.AdminApi.AddVirtualCurrencyTypes({
+        VirtualCurrencies: currencies,
+    }, (result) => {
+        PlayFab.settings.developerSecretKey = undefined;
+
+        if(result.code === 200) {
+            success();
+        }
+        else {
+            error(result.errorMessage);
+        }
+    });
+}
+
+function adminSetCatalogItems(secretKey: string, items: PlayFabAdminModels.CatalogItem[], catalogVersion: string, success: () => void, error: (message: string) => void): void {
+    PlayFab.settings.developerSecretKey = secretKey;
+
+    PlayFab.AdminApi.SetCatalogItems({
+        Catalog: items,
+        CatalogVersion: catalogVersion,
+    }, (result) => {
+        PlayFab.settings.developerSecretKey = undefined;
+
+        if(result.code === 200) {
+            success();
+        }
+        else {
+            error(result.errorMessage);
+        }
+    });
+}
+
+function adminSetStoreItems(secretKey: string, storeID: string, store: PlayFabAdminModels.StoreItem[], storeMarketing: PlayFabAdminModels.StoreMarketingModel, catalogVersion: string, success: () => void, error: (message: string) => void): void {
+    PlayFab.settings.developerSecretKey = secretKey;
+
+    PlayFab.AdminApi.SetStoreItems({
+        Store: store,
+        MarketingData: storeMarketing,
+        StoreId: storeID,
+        CatalogVersion: catalogVersion,
+    }, (result) => {
+        PlayFab.settings.developerSecretKey = undefined;
+
+        if(result.code === 200) {
+            success();
+        }
+        else {
+            error(result.errorMessage);
+        }
+    });
+}
+
 export const PlayFabHelper = {
     login,
     getTitleData,
@@ -169,4 +226,7 @@ export const PlayFabHelper = {
     getStores,
     buyFromStore,
     getCatalog,
+    adminAddVirtualCurrencies,
+    adminSetCatalogItems,
+    adminSetStoreItems,
 };
