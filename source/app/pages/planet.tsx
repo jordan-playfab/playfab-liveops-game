@@ -10,7 +10,7 @@ import { Header } from "../components/header";
 import { Link } from "react-router-dom";
 import { Page, IBreadcrumbRoute } from "../components/page";
 import { UlInline } from "../styles";
-import { PrimaryButton, DefaultButton } from "office-ui-fabric-react";
+import { PrimaryButton, DefaultButton, Spinner } from "office-ui-fabric-react";
 
 interface IState {
     currentArea: string;
@@ -132,7 +132,7 @@ export class PlanetPage extends React.Component<Props, IState> {
 
         if(this.state.isShooting) {
             return (
-                <DefaultButton text="Firing!" />
+                <Spinner label="Firing!" />
             );
         }
 

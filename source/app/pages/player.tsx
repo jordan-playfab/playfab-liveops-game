@@ -1,6 +1,6 @@
 import * as React from "react";
 import { TextField } from 'office-ui-fabric-react/lib/TextField';
-import { PrimaryButton } from 'office-ui-fabric-react';
+import { PrimaryButton, MessageBar, MessageBarType, Spinner } from 'office-ui-fabric-react';
 import { IRouterProps } from "../router";
 import { is } from "../shared/is";
 import { Redirect } from "react-router";
@@ -15,6 +15,7 @@ type Props = IRouterProps & RouteComponentProps;
 interface IState {
     playerID: string;
     error: string;
+    isLoggingIn: boolean;
 }
 
 export class PlayerPage extends React.Component<Props, IState> {
@@ -23,7 +24,8 @@ export class PlayerPage extends React.Component<Props, IState> {
 
         this.state = {
             playerID: null,
-            error: null
+            error: null,
+            isLoggingIn: false,
         };
     }
 
@@ -40,7 +42,7 @@ export class PlayerPage extends React.Component<Props, IState> {
                         : "Choose Your Destination"}
                 </h2>
                 {!is.null(this.state.error) && (
-                    <p>There was an error: {this.state.error}</p>
+                    <MessageBar messageBarType={MessageBarType.error}>{this.state.error}</MessageBar>
                 )}
                 {is.null(this.props.player)
                     ? this.renderPlayerLogin()
@@ -59,7 +61,9 @@ export class PlayerPage extends React.Component<Props, IState> {
                     <legend>Player</legend>
                     <TextField label="Player ID" onChange={this.setLocalPlayerID} autoFocus />
                     <DivConfirm>
-                        <PrimaryButton text="Login" onClick={this.login} />
+                        {this.state.isLoggingIn
+                            ? <Spinner label="Logging in" />
+                            : <PrimaryButton text="Login" onClick={this.login} />}
                     </DivConfirm>
                 </fieldset>
             </form>
@@ -68,9 +72,7 @@ export class PlayerPage extends React.Component<Props, IState> {
 
     private renderPlanetMenu(): React.ReactNode {
         if(is.null(this.props.planets)) {
-            return (
-                <p>Loading planets&hellip;</p>
-            );
+            return <Spinner label="Loading planets" />;
         }
 
         return (
@@ -100,6 +102,7 @@ export class PlayerPage extends React.Component<Props, IState> {
     private login = (): void => {
         this.setState({
             error: null,
+            isLoggingIn: true,
         });
 
         PlayFabHelper.login(this.props, this.state.playerID, (player) => {
@@ -107,6 +110,9 @@ export class PlayerPage extends React.Component<Props, IState> {
             this.props.refreshPlanets();
             this.props.refreshInventory();
             this.props.refreshCatalog();
+            this.setState({
+                isLoggingIn: false,
+            });
         }, (message) => {
             this.setState({
                 error: message,
