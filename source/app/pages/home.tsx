@@ -68,6 +68,7 @@ export class HomePage extends React.Component<Props, IState> {
                 <UlInline>
                     <li><PrimaryButton text="Play game" onClick={this.goToPage.bind(this, routes.Player)} /></li>
                     <li><DefaultButton text="Load initial data" onClick={this.goToPage.bind(this, routes.Upload)} /></li>
+                    <li><DefaultButton text="Download data from title" onClick={this.goToPage.bind(this, routes.Download)} /></li>
                 </UlInline>
             </React.Fragment>
         );

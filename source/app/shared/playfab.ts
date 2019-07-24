@@ -352,6 +352,49 @@ function adminUpdateDropTables(secretKey: string, tables: PlayFabAdminModels.Ran
     });
 }
 
+function adminListVirtualCurrency(secretKey: string, success: (data: PlayFabAdminModels.ListVirtualCurrencyTypesResult) => void, error: (message: string) => void): void {
+    PlayFab.settings.developerSecretKey = secretKey;
+
+    PlayFab.AdminApi.ListVirtualCurrencyTypes({
+    },
+    (result, problem) => {
+        PlayFab.settings.developerSecretKey = undefined;
+
+        if(!is.null(problem)) {
+            return error(problem.errorMessage);
+        }
+
+        if(result.code === 200) {
+            success(result);
+        }
+        else {
+            error(result.errorMessage);
+        }
+    });
+}
+
+function adminGetCatalogItems(secretKey: string, catalogVersion: string, success: (data: PlayFabAdminModels.GetCatalogItemsResult) => void, error: (message: string) => void): void {
+    PlayFab.settings.developerSecretKey = secretKey;
+
+    PlayFab.AdminApi.GetCatalogItems({
+        CatalogVersion: catalogVersion,
+    },
+    (result, problem) => {
+        PlayFab.settings.developerSecretKey = undefined;
+
+        if(!is.null(problem)) {
+            return error(problem.errorMessage);
+        }
+
+        if(result.code === 200) {
+            success(result);
+        }
+        else {
+            error(result.errorMessage);
+        }
+    });
+}
+
 export const PlayFabHelper = {
     login,
     getTitleData,
@@ -367,5 +410,7 @@ export const PlayFabHelper = {
     adminSetStoreItems,
     adminSetTitleData,
     adminUpdateCloudScript,
-    adminUpdateDropTables
+    adminUpdateDropTables,
+    adminListVirtualCurrency,
+    adminGetCatalogItems
 };

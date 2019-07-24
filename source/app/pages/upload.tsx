@@ -7,7 +7,7 @@ import { MessageBar, MessageBarType, TextField, PrimaryButton, ProgressIndicator
 import { DivConfirm } from "../styles";
 import { PlayFabHelper } from "../shared/playfab";
 import { routes } from "../routes";
-import { IStringDictionary } from "../shared/types";
+import { IStringDictionary, PROGRESS_STAGES, CATALOG_VERSION } from "../shared/types";
 
 import VirtualCurrencies from "../../data/virtual-currency.json";
 import Catalogs from "../../data/catalogs.json";
@@ -27,38 +27,6 @@ interface IState {
     titleDataCounter: number;
 }
 
-interface IProgressStage {
-    key: string;
-    title: string;
-}
-
-const progressStages: IProgressStage[] = [{
-    key: "currency",
-    title: "Currency",
-},
-{
-    key: "catalog",
-    title: "Catalog",
-},
-{
-    key: "droptable",
-    title: "Drop tables",
-},
-{
-    key: "store",
-    title: "Store",
-},
-{
-    key: "titledata",
-    title: "Title data"
-},
-{
-    key: "cloudscript",
-    title: "Cloud Script",
-}];
-
-const catalogVersion = "Main";
-
 export class UploadPage extends React.Component<Props, IState> {
     constructor(props: Props) {
         super(props);
@@ -73,8 +41,10 @@ export class UploadPage extends React.Component<Props, IState> {
         };
     }
 
-    public componentDidUpdate(): void {
-        this.runUpload();
+    public componentDidUpdate(_: Props, prevState: IState): void {
+        if(this.state.uploadProgress !== prevState.uploadProgress) {
+            this.runUpload();
+        }
     }
 
     public render(): React.ReactNode {
@@ -129,7 +99,7 @@ export class UploadPage extends React.Component<Props, IState> {
     }
 
     private renderUpload(): React.ReactNode {
-        if(this.state.uploadProgress >= progressStages.length - 1) {
+        if(this.state.uploadProgress >= PROGRESS_STAGES.length - 1) {
             return (
                 <React.Fragment>
                     <h2>All done!</h2>
@@ -139,36 +109,36 @@ export class UploadPage extends React.Component<Props, IState> {
         }
 
         return (
-            <ProgressIndicator label={this.getProgressTitle()} percentComplete={Math.min(1, (this.state.uploadProgress / progressStages.length) + 0.1)} />
+            <ProgressIndicator label={this.getProgressTitle()} percentComplete={Math.min(1, (this.state.uploadProgress / PROGRESS_STAGES.length) + 0.1)} />
         );
     }
 
     private getProgressTitle(): string {
-        if(this.state.uploadProgress > progressStages.length - 1) {
+        if(this.state.uploadProgress > PROGRESS_STAGES.length - 1) {
             return null;
         }
 
-        return progressStages[this.state.uploadProgress].title;
+        return PROGRESS_STAGES[this.state.uploadProgress].title;
     }
 
     private runUpload(): void {
-        if(!this.state.hasSecretKey || this.state.uploadProgress > progressStages.length - 1) {
+        if(!this.state.hasSecretKey || this.state.uploadProgress > PROGRESS_STAGES.length - 1) {
             return;
         }
 
-        switch(progressStages[this.state.uploadProgress].key) {
+        switch(PROGRESS_STAGES[this.state.uploadProgress].key) {
             case "currency":
                 PlayFabHelper.adminAddVirtualCurrencies(this.state.secretKey, VirtualCurrencies.data, this.advanceUpload, this.loadError);
                 break;
             case "catalog":
-                PlayFabHelper.adminSetCatalogItems(this.state.secretKey, Catalogs.data, catalogVersion, true, this.advanceUpload, this.loadError);
+                PlayFabHelper.adminSetCatalogItems(this.state.secretKey, Catalogs.data, CATALOG_VERSION, true, this.advanceUpload, this.loadError);
                 break;
             case "droptable":
-                PlayFabHelper.adminUpdateDropTables(this.state.secretKey, this.mapDropTable(DropTables.data as any), catalogVersion, this.advanceUpload, this.loadError);
+                PlayFabHelper.adminUpdateDropTables(this.state.secretKey, this.mapDropTable(DropTables.data as any), CATALOG_VERSION, this.advanceUpload, this.loadError);
                 break;
             case "store":
                 Stores.data.forEach(s => {
-                    PlayFabHelper.adminSetStoreItems(this.state.secretKey, s.StoreId, s.Store, s.MarketingData, catalogVersion, this.advanceStoreCounter, this.loadError);
+                    PlayFabHelper.adminSetStoreItems(this.state.secretKey, s.StoreId, s.Store, s.MarketingData, CATALOG_VERSION, this.advanceStoreCounter, this.loadError);
                 });
                 break;
             case "titledata":

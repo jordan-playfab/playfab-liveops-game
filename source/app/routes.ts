@@ -4,5 +4,6 @@ export const routes = {
     Player: "/player",
     Planet: "/planet/:name",
     HomeBase: "/home-base",
-    Upload: "/upload"
+    Upload: "/upload",
+    Download: "/download"
 };
