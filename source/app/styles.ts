@@ -59,8 +59,12 @@ const GlobalStyle = createGlobalStyle`
         font-size: 1.536em;
     }
 
+    form {
+        margin: 1em 0 0 0;
+    }
+
     fieldset {
-        margin: 2em 0 0 0;
+        margin: 1em 0 0 0;
         padding: 0;
         max-width: 20em;
         border: 0;
@@ -82,6 +86,19 @@ const UlNull = styled.ul`
     list-style: none;
 `;
 
+const UlInline = styled(UlNull)`
+    margin-top: 1em;
+
+    > li {
+        margin-left: 1em;
+        display: inline-block;
+
+        &:first-child {
+            margin-left: 0;
+        }
+    }
+`;
+
 export {
     css,
     keyframes,
@@ -92,5 +109,6 @@ export {
     GlobalStyle,
     DivConfirm,
     UlNull,
+    UlInline,
 };
 export default styled;

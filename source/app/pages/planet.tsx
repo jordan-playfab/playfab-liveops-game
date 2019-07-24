@@ -92,10 +92,6 @@ export class PlanetPage extends React.Component<Props, IState> {
             <React.Fragment>
                 <h1>Welcome to {this.getPlanetName()}</h1>
                 <p><Link to={routes.Player}>Back to planet selection</Link></p>
-                <Player
-                    inventory={this.props.inventory}
-                    player={this.props.player}
-                />
                 {this.renderArea()}
             </React.Fragment>
         )

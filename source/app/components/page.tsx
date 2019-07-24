@@ -25,7 +25,7 @@ export class Page extends React.PureComponent<Props> {
         return (
             <MainTag>
                 <Header titleID={this.props.titleID} resetTitleID={this.resetTitleID} />
-                <Player inventory={this.props.inventory} player={this.props.player} />
+                <Player inventory={this.props.inventory} playerName={this.props.playerName} />
                 <DivPage>
                     {this.props.children}
                 </DivPage>

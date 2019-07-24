@@ -15,7 +15,8 @@ export interface IRouterProps {
 	saveTitleID: (titleID: string) => void;
 
 	player: PlayFabClientModels.LoginResult;
-	savePlayer: (player: PlayFabClientModels.LoginResult) => void;
+	playerName: string;
+	savePlayer: (player: PlayFabClientModels.LoginResult, playerName: string) => void;
 
 	inventory: PlayFabClientModels.GetUserInventoryResult;
 	refreshInventory: () => void;

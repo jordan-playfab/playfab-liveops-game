@@ -9,6 +9,7 @@ import { GlobalStyle, defaultTheme, ThemeProvider } from "./styles";
 interface IState {
     titleID: string;
     player: PlayFabClientModels.LoginResult;
+    playerName: string;
     catalog: PlayFabClientModels.CatalogItem[];
     inventory: PlayFabClientModels.GetUserInventoryResult;
     stores: PlayFabClientModels.GetStoreItemsResult[];
@@ -24,6 +25,7 @@ export default class App extends React.Component<{}, IState> {
         this.state = {
             titleID: null,
             player: null,
+            playerName: null,
             catalog: null,
             inventory: null,
             stores: null,
@@ -42,6 +44,7 @@ export default class App extends React.Component<{}, IState> {
                         titleID={this.state.titleID}
                         saveTitleID={this.saveTitleID}
                         player={this.state.player}
+                        playerName={this.state.playerName}
                         savePlayer={this.savePlayer}
                         planets={this.state.titleData.Planets}
                         refreshPlanets={this.refreshPlanets}
@@ -60,7 +63,7 @@ export default class App extends React.Component<{}, IState> {
     private saveTitleID = (titleID: string): void => {
         if(is.null(titleID)) {
             titleID = "";
-            this.savePlayer(null);
+            this.savePlayer(null, null);
         }
 
         this.setState({
@@ -72,9 +75,10 @@ export default class App extends React.Component<{}, IState> {
         titleHelper.set(titleID);
     }
 
-    private savePlayer = (player: PlayFabClientModels.LoginResult): void => {
+    private savePlayer = (player: PlayFabClientModels.LoginResult, playerName: string): void => {
         this.setState({
             player,
+            playerName,
         });
     }
 

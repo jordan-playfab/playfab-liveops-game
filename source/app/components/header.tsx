@@ -17,7 +17,7 @@ const H1Tag = styled.h1`
     text-align: center;
 `;
 
-const PTitleID = styled.p`
+const DivTitleID = styled.div`
     position: absolute;
     top: 0.5em;
     right: 0.5em;
@@ -45,11 +45,11 @@ export class Header extends React.PureComponent<IProps> {
             <HeaderWrapper>
                 <H1Tag>Vanguard Outrider</H1Tag>
                 {!is.null(this.props.titleID) && (
-                    <PTitleID>
+                    <DivTitleID>
                         <div><strong>Title ID</strong></div>
                         <div>{this.props.titleID}</div>
                         <div><ButtonReset text="Reset" onClick={this.props.resetTitleID} /></div>
-                    </PTitleID>
+                    </DivTitleID>
                 )}
                 <PTagline>A looter shooter game simulation using <a href="https://playfab.com">PlayFab</a></PTagline>
             </HeaderWrapper>

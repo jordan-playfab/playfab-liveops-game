@@ -7,20 +7,11 @@ import { RouteComponentProps } from "react-router-dom";
 import { routes } from "../routes";
 import { titleHelper } from "../shared/title-helper";
 import { Page } from "../components/page";
-import styled, { DivConfirm, UlNull } from "../styles";
+import styled, { DivConfirm, UlNull, UlInline } from "../styles";
 
 interface IState {
     titleID: string;
 }
-
-const UlButtons = styled(UlNull)`
-    margin-top: 2em;
-
-    > li {
-        display: inline-block;
-        margin-right: 2em;
-    }
-`;
 
 type Props = IRouterProps & RouteComponentProps;
 
@@ -69,12 +60,12 @@ export class HomePage extends React.Component<Props, IState> {
         return (
             <React.Fragment>
                 <h2>Title ID set</h2>
-                <p>Your first step should be to <strong>load game data</strong> into your title.</p>
+                <p>Your first step should be to <strong>load initial data</strong> into your title.</p>
                 <p>If you've already done that, select <strong>Play game</strong> to login as a player and start the game.</p>
-                <UlButtons>
-                    <li><DefaultButton text="Load game data" onClick={this.goToPage.bind(this, routes.TitleData)} /></li>
+                <UlInline>
                     <li><PrimaryButton text="Play game" onClick={this.goToPage.bind(this, routes.Player)} /></li>
-                </UlButtons>
+                    <li><DefaultButton text="Load initial data" onClick={this.goToPage.bind(this, routes.TitleData)} /></li>
+                </UlInline>
             </React.Fragment>
         );
     }

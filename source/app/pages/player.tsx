@@ -9,7 +9,7 @@ import { PlayFabHelper } from "../shared/playfab";
 import { RouteComponentProps } from "react-router";
 import { Header } from "../components/header";
 import { Page } from "../components/page";
-import { DivConfirm } from "../styles";
+import { DivConfirm, UlInline } from "../styles";
 
 type Props = IRouterProps & RouteComponentProps;
 
@@ -35,7 +35,11 @@ export class PlayerPage extends React.Component<Props, IState> {
 
         return (
             <Page {...this.props}>
-                {this.renderTitle()}
+                <h2>
+                    {is.null(this.props.playerName)
+                        ? "Play Game"
+                        : "Choose Your Destination"}
+                </h2>
                 {!is.null(this.state.error) && (
                     <p>There was an error: {this.state.error}</p>
                 )}
@@ -63,16 +67,6 @@ export class PlayerPage extends React.Component<Props, IState> {
         );
     }
 
-    private renderTitle(): React.ReactNode {
-        return is.null(this.props.player)
-            ? (
-                <h1>Play Game</h1>
-            )
-            : (
-                <h1>Welcome player {this.props.player.PlayFabId}</h1>
-            );
-    }
-
     private renderPlanetMenu(): React.ReactNode {
         if(is.null(this.props.planets)) {
             return (
@@ -81,12 +75,12 @@ export class PlayerPage extends React.Component<Props, IState> {
         }
 
         return (
-            <ul>
-                <li key={"homebase"}><button onClick={this.sendToHomeBase}>Home base</button></li>
+            <UlInline>
+                <li key={"homebase"}><PrimaryButton text="Home base" onClick={this.sendToHomeBase} /></li>
                 {Object.keys(this.props.planets).map((name) => (
-                    <li key={name}><button onClick={this.sendToPlanet.bind(this, name)}>Fly to {name}</button></li>
+                    <li key={name}><PrimaryButton text={`Fly to ${name}`} onClick={this.sendToPlanet.bind(this, name)} /></li>
                 ))}
-            </ul>
+            </UlInline>
         )
     }
 
@@ -110,7 +104,7 @@ export class PlayerPage extends React.Component<Props, IState> {
         });
 
         PlayFabHelper.login(this.props, this.state.playerID, (player) => {
-            this.props.savePlayer(player);
+            this.props.savePlayer(player, this.state.playerID);
             this.props.refreshPlanets();
             this.props.refreshInventory();
             this.props.refreshCatalog();
