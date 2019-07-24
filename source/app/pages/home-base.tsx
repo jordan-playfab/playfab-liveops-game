@@ -56,9 +56,7 @@ export class HomeBasePage extends React.Component<Props, IState> {
 
     public renderStores(): React.ReactNode {
         if(is.null(this.props.stores)) {
-            return (
-                <p>Loading stores&hellip;</p>
-            );
+            return null;
         }
 
         if(is.null(this.state.selectedStore)) {

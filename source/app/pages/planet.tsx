@@ -8,7 +8,9 @@ import { routes } from "../routes";
 import { Player } from "../components/player";
 import { Header } from "../components/header";
 import { Link } from "react-router-dom";
-import { Page } from "../components/page";
+import { Page, IBreadcrumbRoute } from "../components/page";
+import { UlInline } from "../styles";
+import { PrimaryButton, DefaultButton } from "office-ui-fabric-react";
 
 interface IState {
     currentArea: string;
@@ -77,9 +79,8 @@ export class PlanetPage extends React.Component<Props, IState> {
         return (
             <Page
                 {...this.props}
-                title={this.state.isLoading
-                    ? "Loading..."
-                    : `Welcome to ${this.getPlanetName()}`}
+                title={this.getPageTitle()}
+                breadcrumbs={this.getBreadcrumbs()}
             >
                 {this.renderPlanet()}
             </Page>
@@ -91,12 +92,7 @@ export class PlanetPage extends React.Component<Props, IState> {
             return null;
         }
 
-        return (
-            <React.Fragment>
-                <p><Link to={routes.Player}>Back to planet selection</Link></p>
-                {this.renderArea()}
-            </React.Fragment>
-        )
+        return this.renderArea();
     }
 
     private renderArea(): React.ReactNode {
@@ -105,19 +101,18 @@ export class PlanetPage extends React.Component<Props, IState> {
         if(is.null(this.state.currentArea)) {
             return (
                 <React.Fragment>
-                    <h3>Choose an area to fight in:</h3>
-                    <ul>
+                    <h3>Choose a region to fight in:</h3>
+                    <UlInline>
                         {planet.Areas.map((areaName) => (
-                            <li key={areaName}><button onClick={this.setArea.bind(this, areaName)}>{areaName}</button></li>
+                            <li key={areaName}><PrimaryButton text={areaName} onClick={this.setArea.bind(this, areaName)} /></li>
                         ))}
-                    </ul>
+                    </UlInline>
                 </React.Fragment>
             );
         }
 
         return (
             <React.Fragment>
-                <h4>The {this.state.currentArea} area <button onClick={this.setArea.bind(this, null)}>(clear)</button></h4>
                 <p>There are {this.state.totalEnemies} enemies here.</p>
                 <p>Your total kills: {this.state.totalKills}.</p>
                 {this.renderShootButton()}
@@ -137,14 +132,12 @@ export class PlanetPage extends React.Component<Props, IState> {
 
         if(this.state.isShooting) {
             return (
-                <p>Firing!</p>
+                <DefaultButton text="Firing!" />
             );
         }
 
         return (
-            <div>
-                <button onClick={this.shootEnemy}>Shoot enemy</button>
-            </div>
+            <PrimaryButton text="Shoot enemy" onClick={this.shootEnemy} />
         );
     }
 
@@ -195,5 +188,44 @@ export class PlanetPage extends React.Component<Props, IState> {
 
     private getPlanetName(): string {
         return this.props.match.params.name;
+    }
+
+    private getPageTitle(): string {
+        if(this.state.isLoading) {
+            return "Loading...";
+        }
+
+        if(!is.null(this.state.currentArea)) {
+            return `${this.state.currentArea} Region`;
+        }
+
+        return `Welcome to ${this.getPlanetName()}`;
+    }
+
+    private getBreadcrumbs(): IBreadcrumbRoute[] {
+        const planetName = this.getPlanetName();
+
+        if(is.null(planetName)) {
+            return null;
+        }
+
+        const breadcrumbs: IBreadcrumbRoute[] = [{
+            text: planetName,
+            href: routes.Planet.replace(":name", planetName),
+            onClick: is.null(this.state.currentArea)
+                ? null
+                : () => {
+                    this.setArea(null);
+                }
+        }];
+
+        if(!is.null(this.state.currentArea)) {
+            breadcrumbs.push({
+                text: this.state.currentArea,
+                href: ""
+            });
+        }
+
+        return breadcrumbs;
     }
 }
