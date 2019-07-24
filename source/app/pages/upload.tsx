@@ -14,6 +14,7 @@ import Catalogs from "../../data/catalogs.json";
 import Stores from "../../data/stores.json";
 import TitleData from "../../data/title-data.json";
 import CloudScript from "../../data/cloud-script.json";
+import DropTables from "../../data/drop-tables.json";
 
 type Props = IRouterProps & RouteComponentProps;
 
@@ -38,6 +39,10 @@ const progressStages: IProgressStage[] = [{
 {
     key: "catalog",
     title: "Catalog",
+},
+{
+    key: "droptable",
+    title: "Drop tables",
 },
 {
     key: "store",
@@ -90,17 +95,8 @@ export class UploadPage extends React.Component<Props, IState> {
     }
 
     private renderSecretKey(): React.ReactNode {
-        if(this.state.uploadProgress === progressStages.length) {
-            return (
-                <React.Fragment>
-                    <h2>All done!</h2>
-                    <PrimaryButton text="Play game" onClick={this.goToPage.bind(this, routes.Player)} />
-                </React.Fragment>
-            );
-        }
-
         return (
-            <form>
+            <form onSubmit={this.setHasSecretKey}>
                 <p>In order to play the game, you must populate it with game data.</p>
                 <p>This page will create the title data, currencies, catalogs, stores, and Cloud Script for you.</p>
                 <p>Get the <strong>secret key</strong> for your game by going to Settings &gt; Secret Keys.</p>
@@ -134,12 +130,25 @@ export class UploadPage extends React.Component<Props, IState> {
     }
 
     private renderUpload(): React.ReactNode {
+        if(this.state.uploadProgress === progressStages.length) {
+            return (
+                <React.Fragment>
+                    <h2>All done!</h2>
+                    <PrimaryButton text="Play game" onClick={this.goToPage.bind(this, routes.Player)} />
+                </React.Fragment>
+            );
+        }
+
         return (
             <ProgressIndicator label={this.getProgressTitle()} percentComplete={Math.min(1, (this.state.uploadProgress / progressStages.length) + 0.1)} />
         );
     }
 
     private getProgressTitle(): string {
+        if(this.state.uploadProgress > progressStages.length - 1) {
+            return null;
+        }
+
         return progressStages[this.state.uploadProgress].title;
     }
 
@@ -155,6 +164,9 @@ export class UploadPage extends React.Component<Props, IState> {
             case "catalog":
                 PlayFabHelper.adminSetCatalogItems(this.state.secretKey, Catalogs.data, catalogVersion, this.advanceUpload, this.loadError);
                 break;
+            case "droptable":
+                PlayFabHelper.adminUpdateDropTables(this.state.secretKey, this.mapDropTable(DropTables.data as any), catalogVersion, this.advanceUpload, this.loadError);
+                break;
             case "store":
                 Stores.data.forEach(s => {
                     PlayFabHelper.adminSetStoreItems(this.state.secretKey, s.StoreId, s.Store, s.MarketingData, catalogVersion, this.advanceStoreCounter, this.loadError);
@@ -169,6 +181,15 @@ export class UploadPage extends React.Component<Props, IState> {
                 PlayFabHelper.adminUpdateCloudScript(this.state.secretKey, CloudScript.data.FileContents, true, this.advanceUpload, this.loadError);
                 break;
         }
+    }
+
+    private mapDropTable(tableData: PlayFabAdminModels.GetRandomResultTablesResult): PlayFabAdminModels.RandomResultTable[] {
+        return Object.keys(tableData.Tables).map(key => {
+            return {
+                TableId: tableData.Tables[key].TableId,
+                Nodes: tableData.Tables[key].Nodes,
+            }
+        });
     }
 
     private advanceUpload = (): void => {

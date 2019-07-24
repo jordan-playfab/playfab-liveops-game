@@ -1,0 +1,22 @@
+{
+	"data":{
+		"Tables":{
+			"KilledEnemy":{
+				"CatalogVersion":"Main",
+				"TableId":"KilledEnemy",
+				"Nodes":[
+					{
+						"ResultItemType":"ItemId",
+						"ResultItem":"CreditPack",
+						"Weight":5
+					},
+					{
+						"ResultItemType":"ItemId",
+						"ResultItem":"BigCreditPack",
+						"Weight":2
+					}
+				]
+			}
+		}
+	}
+}

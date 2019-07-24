@@ -18,7 +18,7 @@ function login(props: IRouterProps, customID: string, success: (data: PlayFabCli
         if(!is.null(problem)) {
             return error(problem.errorMessage);
         }
-        
+
         if(result.code === 200) {
             success(result.data);
         }
@@ -307,6 +307,28 @@ function adminUpdateCloudScript(secretKey: string, file: string, publish: boolea
     });
 }
 
+function adminUpdateDropTables(secretKey: string, tables: PlayFabAdminModels.RandomResultTable[], catalogVersion: string, success: () => void, error: (message: string) => void): void {
+    PlayFab.settings.developerSecretKey = secretKey;
+
+    PlayFab.AdminApi.UpdateRandomResultTables({
+        CatalogVersion: catalogVersion,
+        Tables: tables,
+    }, (result, problem) => {
+        PlayFab.settings.developerSecretKey = undefined;
+
+        if(!is.null(problem)) {
+            return error(problem.errorMessage);
+        }
+
+        if(result.code === 200) {
+            success();
+        }
+        else {
+            error(result.errorMessage);
+        }
+    });
+}
+
 export const PlayFabHelper = {
     login,
     getTitleData,
@@ -321,5 +343,6 @@ export const PlayFabHelper = {
     adminSetCatalogItems,
     adminSetStoreItems,
     adminSetTitleData,
-    adminUpdateCloudScript
+    adminUpdateCloudScript,
+    adminUpdateDropTables
 };
