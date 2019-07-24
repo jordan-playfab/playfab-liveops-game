@@ -171,7 +171,6 @@ function uploadTitleData(titleDataKey: string, titleDataValue: string, success: 
         Value: titleDataValue
     }, (result) => {
         if (result.code === 200) {
-            alert("success upload");
             success(result.data);
         }
         else {
