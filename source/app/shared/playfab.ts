@@ -1,5 +1,7 @@
 /// <reference path="../../../node_modules/playfab-web-sdk/src/Typings/PlayFab/PlayFabClientApi.d.ts" />
+/// <reference path="../../../node_modules/playfab-web-sdk/src/Typings/PlayFab/PlayFabAdminApi.d.ts" />
 import "playfab-web-sdk/src/PlayFab/PlayFabClientApi.js";
+import "playfab-web-sdk/src/PlayFab/PlayFabAdminApi.js";
 import { IRouterProps } from "../router";
 import { IStringDictionary } from "./types";
 import { is } from "./is";
@@ -159,14 +161,35 @@ function getCatalog(success: (data: PlayFabClientModels.CatalogItem[]) => void, 
     })
 }
 
+function uploadTitleData(titleDataKey: string, titleDataValue: string, success: (data: PlayFabAdminModels.SetTitleDataResult) => void, error: (message: string) => void) : void{
+    console.log("uploading title data");
+
+    // This should probably be set from a config somewhere.
+    PlayFab.settings.developerSecretKey = "QQAUQREGUQ5P5AC89JO4RRGHSWMJ1TG9WGJAS1YKO9GG1XBCEE";
+    PlayFab.AdminApi.SetTitleData({
+        Key: titleDataKey,
+        Value: titleDataValue
+    }, (result) => {
+        if (result.code === 200) {
+            success(result.data);
+        }
+        else {
+            alert("there was an error uploading");
+            error(result.errorMessage);
+        }
+    });
+}
+
+
 export const PlayFabHelper = {
     login,
     getTitleData,
     updateStatistic,
+    uploadTitleData,
     executeCloudScript,
     getStatistics,
     getInventory,
     getStores,
     buyFromStore,
-    getCatalog,
+    getCatalog
 };
