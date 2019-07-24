@@ -161,7 +161,7 @@ export class UploadPage extends React.Component<Props, IState> {
                 PlayFabHelper.adminAddVirtualCurrencies(this.state.secretKey, VirtualCurrencies.data, this.advanceUpload, this.loadError);
                 break;
             case "catalog":
-                PlayFabHelper.adminSetCatalogItems(this.state.secretKey, Catalogs.data, catalogVersion, this.advanceUpload, this.loadError);
+                PlayFabHelper.adminSetCatalogItems(this.state.secretKey, Catalogs.data, catalogVersion, true, this.advanceUpload, this.loadError);
                 break;
             case "droptable":
                 PlayFabHelper.adminUpdateDropTables(this.state.secretKey, this.mapDropTable(DropTables.data as any), catalogVersion, this.advanceUpload, this.loadError);
@@ -169,12 +169,12 @@ export class UploadPage extends React.Component<Props, IState> {
             case "store":
                 Stores.data.forEach(s => {
                     PlayFabHelper.adminSetStoreItems(this.state.secretKey, s.StoreId, s.Store, s.MarketingData, catalogVersion, this.advanceStoreCounter, this.loadError);
-                })
+                });
                 break;
             case "titledata":
                 Object.keys(TitleData.data).forEach(key => {
                     PlayFabHelper.adminSetTitleData(this.state.secretKey, key, (TitleData.data as IStringDictionary)[key], this.advanceTitleDataCounter, this.loadError);
-                })
+                });
                 break;
             case "cloudscript":
                 PlayFabHelper.adminUpdateCloudScript(this.state.secretKey, CloudScript.data.FileContents, true, this.advanceUpload, this.loadError);
@@ -192,12 +192,15 @@ export class UploadPage extends React.Component<Props, IState> {
     }
 
     private advanceUpload = (): void => {
-        this.setState((prevState) => {
-            return {
-                uploadProgress: prevState.uploadProgress + 1,
-                error: null,
-            }
-        });
+        // Can't let the system go too fast
+        window.setTimeout(() => {
+            this.setState((prevState) => {
+                return {
+                    uploadProgress: prevState.uploadProgress + 1,
+                    error: null,
+                }
+            });
+        }, 1000);
     }
 
     private advanceStoreCounter = (): void => {

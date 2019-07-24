@@ -236,12 +236,13 @@ function adminAddVirtualCurrencies(secretKey: string, currencies: PlayFabAdminMo
     });
 }
 
-function adminSetCatalogItems(secretKey: string, items: PlayFabAdminModels.CatalogItem[], catalogVersion: string, success: () => void, error: (message: string) => void): void {
+function adminSetCatalogItems(secretKey: string, items: PlayFabAdminModels.CatalogItem[], catalogVersion: string, setAsDefault: boolean, success: () => void, error: (message: string) => void): void {
     PlayFab.settings.developerSecretKey = secretKey;
 
     PlayFab.AdminApi.SetCatalogItems({
         Catalog: items,
         CatalogVersion: catalogVersion,
+        SetAsDefaultCatalog: setAsDefault,
     }, (result, problem) => {
         PlayFab.settings.developerSecretKey = undefined;
 
