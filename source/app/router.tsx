@@ -2,22 +2,33 @@ import * as React from "react";
 import { Switch, Route, HashRouter } from "react-router-dom";
 import { routes } from "./routes";
 
-import Home from "./pages/home";
+import { HomePage } from "./pages/home";
 import TitleData from "./pages/title-data";
 import { PlayerPage } from "./pages/player";
 import { PlanetPage } from "./pages/planet";
 import NotFound from "./pages/not-found";
-import { IStringDictionary, ITitleDataPlanets } from "./shared/types";
+import { ITitleDataPlanets } from "./shared/types";
+import { HomeBasePage } from "./pages/home-base";
 
 export interface IRouterProps {
 	titleID: string;
 	saveTitleID: (titleID: string) => void;
 
 	player: PlayFabClientModels.LoginResult;
-	savePlayer: (player: PlayFabClientModels.LoginResult) => void;
+	playerName: string;
+	savePlayer: (player: PlayFabClientModels.LoginResult, playerName: string) => void;
+
+	inventory: PlayFabClientModels.GetUserInventoryResult;
+	refreshInventory: () => void;
 
 	planets: ITitleDataPlanets;
-	updatePlanets: (data: IStringDictionary) => void;
+	refreshPlanets: (callback?: () => void) => void;
+
+	stores: PlayFabClientModels.GetStoreItemsResult[];
+	refreshStores: (callback?: () => void) => void;
+
+	catalog: PlayFabClientModels.CatalogItem[];
+	refreshCatalog: (callback?: () => void) => void;
 }
 
 export class Router extends React.Component<IRouterProps> {
@@ -25,10 +36,11 @@ export class Router extends React.Component<IRouterProps> {
 		return (
 			<HashRouter>
 				<Switch>
-					<Route exact path={routes.Home} render={(props) => <Home {...props} {...this.props} />} />
+					<Route exact path={routes.Home} render={(props) => <HomePage {...props} {...this.props} />} />
 					<Route exact path={routes.TitleData} render={(props) => <TitleData {...props} {...this.props} />} />
 					<Route exact path={routes.Player} render={(props) => <PlayerPage {...props} {...this.props} />} />
 					<Route exact path={routes.Planet} render={(props) => <PlanetPage {...props} {...this.props} />} />
+					<Route exact path={routes.HomeBase} render={(props) => <HomeBasePage {...props} {...this.props} />} />
 					<Route component={NotFound} />
 				</Switch>
 			</HashRouter>

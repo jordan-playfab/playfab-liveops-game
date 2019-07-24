@@ -1,16 +1,18 @@
 import * as React from "react";
 import { IRouterProps } from "../router";
 import { is } from "../shared/is";
-import { Redirect } from "react-router";
+import { Redirect, RouteComponentProps } from "react-router";
 import { routes } from "../routes";
 import { PrimaryButton } from 'office-ui-fabric-react';
 import { PlayFabHelper } from "../shared/playfab";
 
-type Props = IRouterProps;
 interface IState {
     titleDataInput: string;
     titleDataFilePath: string;
 }
+import { Page } from "../components/page";
+
+type Props = IRouterProps & RouteComponentProps;
 
 
 export default class TitleData extends React.Component<Props, IState> {
@@ -33,7 +35,10 @@ export default class TitleData extends React.Component<Props, IState> {
         }
         console.log("redning title data page");
         return (
-            <React.Fragment>
+            <Page
+                {...this.props}
+                title="Title Data"
+            >
                 <h1>Title Data</h1>
                 <p>Your title ID is {this.props.titleID}</p>
                 <p>This page will help you load the required title data into your title.</p>
@@ -41,7 +46,7 @@ export default class TitleData extends React.Component<Props, IState> {
                 <p>Upload local title data: </p>
                 <p>{this.renderTitleDataKeyInput()}</p>
                 <p>{this.renderUploadTitleDataButton()}</p>
-            </React.Fragment>
+            </Page>
         );
     }
 

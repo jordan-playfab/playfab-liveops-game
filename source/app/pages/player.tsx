@@ -7,6 +7,8 @@ import { Redirect } from "react-router";
 import { routes } from "../routes";
 import { PlayFabHelper } from "../shared/playfab";
 import { RouteComponentProps } from "react-router";
+import { Page } from "../components/page";
+import { DivConfirm, UlInline } from "../styles";
 
 type Props = IRouterProps & RouteComponentProps;
 
@@ -31,41 +33,58 @@ export class PlayerPage extends React.Component<Props, IState> {
         }
 
         return (
-            <React.Fragment>
-                <h1>Player</h1>
-                <p>Your title ID is {this.props.titleID}</p>
+            <Page {...this.props}>
+                <h2>
+                    {is.null(this.props.playerName)
+                        ? "Play Game"
+                        : "Choose Your Destination"}
+                </h2>
                 {!is.null(this.state.error) && (
                     <p>There was an error: {this.state.error}</p>
                 )}
-                <p>Start by entering a player ID. This can be a name (e.g. "James"), a GUID, or any other string.</p>
-                <p>Enter a new player ID to start a new game, or a previous one to load that player's data.</p>
-                <p>This page will let you login a player using Custom ID.</p>
                 {is.null(this.props.player)
                     ? this.renderPlayerLogin()
-                    : this.renderPlayer()}
-            </React.Fragment>
+                    : this.renderPlanetMenu()}
+            </Page>
         );
     }
 
     private renderPlayerLogin(): React.ReactNode {
         return (
-            <form>
+            <form onSubmit={this.login}>
+                <p>Start by entering a player ID. This can be a name (e.g. "James"), a GUID, or any other string.</p>
+                <p>Type a player ID you've used before to load that player's data, or enter a new one to start over.</p>
+                <p>This login happens using <a href="https://api.playfab.com/documentation/client/method/LoginWithCustomID">Custom ID</a>.</p>
                 <fieldset>
                     <legend>Player</legend>
-                    <TextField label="Player ID" onChange={this.setLocalPlayerID} />
-                    <PrimaryButton text="Save" onClick={this.login} />
+                    <TextField label="Player ID" onChange={this.setLocalPlayerID} autoFocus />
+                    <DivConfirm>
+                        <PrimaryButton text="Login" onClick={this.login} />
+                    </DivConfirm>
                 </fieldset>
             </form>
         );
     }
 
-    private renderPlayer(): React.ReactNode {
+    private renderPlanetMenu(): React.ReactNode {
+        if(is.null(this.props.planets)) {
+            return (
+                <p>Loading planets&hellip;</p>
+            );
+        }
+
         return (
-            <React.Fragment>
-                <p><strong>You are logged in as:</strong> {this.props.player.PlayFabId}</p>
-                <button onClick={this.sendToPlanet.bind(this, "Mars")}>Continue to Mars</button>
-            </React.Fragment>
-        );
+            <UlInline>
+                <li key={"homebase"}><PrimaryButton text="Home base" onClick={this.sendToHomeBase} /></li>
+                {Object.keys(this.props.planets).map((name) => (
+                    <li key={name}><PrimaryButton text={`Fly to ${name}`} onClick={this.sendToPlanet.bind(this, name)} /></li>
+                ))}
+            </UlInline>
+        )
+    }
+
+    private sendToHomeBase = (): void => {
+        this.props.history.push(routes.HomeBase);
     }
 
     private sendToPlanet = (name: string): void => {
@@ -84,7 +103,10 @@ export class PlayerPage extends React.Component<Props, IState> {
         });
 
         PlayFabHelper.login(this.props, this.state.playerID, (player) => {
-            this.props.savePlayer(player);
+            this.props.savePlayer(player, this.state.playerID);
+            this.props.refreshPlanets();
+            this.props.refreshInventory();
+            this.props.refreshCatalog();
         }, (message) => {
             this.setState({
                 error: message,
