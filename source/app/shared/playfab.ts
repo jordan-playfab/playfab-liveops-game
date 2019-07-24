@@ -20,12 +20,34 @@ function login(props: IRouterProps, customID: string, success: (data: PlayFabCli
         }
 
         if(result.code === 200) {
+            if(result.data.NewlyCreated) {
+                // Doesn't matter if it succeeds or fails
+                updateDisplayName(customID, () => {}, () => {});
+            }
+
             success(result.data);
         }
         else {
             error(result.errorMessage);
         }
     });
+}
+
+function updateDisplayName(customID: string, success: (data: PlayFabClientModels.UpdateUserTitleDisplayNameResult) => void, error: (message: string) => void): void {
+    PlayFab.ClientApi.UpdateUserTitleDisplayName({
+        DisplayName: customID,
+    }, (result, problem) => {
+        if(!is.null(problem)) {
+            return error(problem.errorMessage);
+        }
+
+        if(result.code === 200) {
+            success(result.data);
+        }
+        else {
+            error(result.errorMessage);
+        }
+    })
 }
 
 function getInventory(success: (data: PlayFabClientModels.GetUserInventoryResult) => void, error: (message: string) => void) {
