@@ -75,7 +75,12 @@ export class PlanetPage extends React.Component<Props, IState> {
         }
 
         return (
-            <Page {...this.props}>
+            <Page
+                {...this.props}
+                title={this.state.isLoading
+                    ? "Loading..."
+                    : `Welcome to ${this.getPlanetName()}`}
+            >
                 {this.renderPlanet()}
             </Page>
         );
@@ -83,14 +88,11 @@ export class PlanetPage extends React.Component<Props, IState> {
 
     private renderPlanet(): React.ReactNode {
         if(this.state.isLoading) {
-            return (
-                <p>Now loading&hellip;</p>
-            );
+            return null;
         }
 
         return (
             <React.Fragment>
-                <h1>Welcome to {this.getPlanetName()}</h1>
                 <p><Link to={routes.Player}>Back to planet selection</Link></p>
                 {this.renderArea()}
             </React.Fragment>
@@ -103,7 +105,7 @@ export class PlanetPage extends React.Component<Props, IState> {
         if(is.null(this.state.currentArea)) {
             return (
                 <React.Fragment>
-                    <h2>Choose an area to fight in:</h2>
+                    <h3>Choose an area to fight in:</h3>
                     <ul>
                         {planet.Areas.map((areaName) => (
                             <li key={areaName}><button onClick={this.setArea.bind(this, areaName)}>{areaName}</button></li>
@@ -115,7 +117,7 @@ export class PlanetPage extends React.Component<Props, IState> {
 
         return (
             <React.Fragment>
-                <h2>The {this.state.currentArea} area <button onClick={this.setArea.bind(this, null)}>(clear)</button></h2>
+                <h4>The {this.state.currentArea} area <button onClick={this.setArea.bind(this, null)}>(clear)</button></h4>
                 <p>There are {this.state.totalEnemies} enemies here.</p>
                 <p>Your total kills: {this.state.totalKills}.</p>
                 {this.renderShootButton()}

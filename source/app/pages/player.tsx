@@ -7,7 +7,6 @@ import { Redirect } from "react-router";
 import { routes } from "../routes";
 import { PlayFabHelper } from "../shared/playfab";
 import { RouteComponentProps } from "react-router";
-import { Header } from "../components/header";
 import { Page } from "../components/page";
 import { DivConfirm, UlInline } from "../styles";
 

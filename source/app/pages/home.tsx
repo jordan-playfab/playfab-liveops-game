@@ -32,7 +32,12 @@ export class HomePage extends React.Component<Props, IState> {
 
     public render(): React.ReactNode {
         return (
-            <Page {...this.props}>
+            <Page
+                {...this.props}
+                title={is.null(this.props.titleID)
+                    ? "Instructions"
+                    : "Ready To Go"}
+            >
                 {is.null(this.props.titleID)
                     ? this.renderAskForTitleID()
                     : this.renderShowTitleID()}
@@ -43,7 +48,6 @@ export class HomePage extends React.Component<Props, IState> {
     private renderAskForTitleID(): React.ReactNode {
         return (
             <form onSubmit={this.saveTitleID}>
-                <h2>Instructions</h2>
                 <p><a href="https://developer.playfab.com">Create a PlayFab account</a> and make an empty title. Then find its <strong>title ID</strong> (4+ alphanumeric characters) and enter it here.</p>
                 <fieldset>
                     <legend>PlayFab title ID</legend>
@@ -59,7 +63,6 @@ export class HomePage extends React.Component<Props, IState> {
     private renderShowTitleID(): React.ReactNode {
         return (
             <React.Fragment>
-                <h2>Title ID set</h2>
                 <p>Your first step should be to <strong>load initial data</strong> into your title.</p>
                 <p>If you've already done that, select <strong>Play game</strong> to login as a player and start the game.</p>
                 <UlInline>

@@ -1,16 +1,15 @@
 import * as React from "react";
 import { IRouterProps } from "../router";
-import { Header } from "../components/header";
 import { is } from "../shared/is";
-import { Player } from "../components/player";
-import { Redirect } from "react-router";
+import { Redirect, RouteComponentProps } from "react-router";
 import { routes } from "../routes";
 import { Store } from "../components/store";
 import { PlayFabHelper } from "../shared/playfab";
-import { Link } from "react-router-dom";
-import { Page } from "../components/page";
+import { Page, IBreadcrumbRoute } from "../components/page";
+import { UlInline } from "../styles";
+import { PrimaryButton } from "office-ui-fabric-react";
 
-type Props = IRouterProps;
+type Props = IRouterProps & RouteComponentProps;
 
 interface IState {
     selectedStore: string;
@@ -40,10 +39,16 @@ export class HomeBasePage extends React.Component<Props, IState> {
             return <Redirect to={routes.Home} />;
         }
 
+        const store = this.getStore();
+
         return (
-            <Page {...this.props}>
-                <h1>Welcome to Home Base</h1>
-                <p><Link to={routes.Player}>Back to planet selection</Link></p>
+            <Page
+                {...this.props}
+                breadcrumbs={this.getBreadcrumbs()}
+                title={is.null(store)
+                    ? "Welcome to Home Base"
+                    : store.MarketingData.DisplayName}
+            >
                 {this.renderStores()}
             </Page>
         );
@@ -59,29 +64,26 @@ export class HomeBasePage extends React.Component<Props, IState> {
         if(is.null(this.state.selectedStore)) {
             return (
                 <React.Fragment>
-                    <h2>Stores</h2>
-                    <ul>
+                    <h3>Stores</h3>
+                    <UlInline>
                         {this.props.stores.map((store, index) => (
-                            <li key={index}><button onClick={this.openStore.bind(this, store.StoreId)}>{store.MarketingData.DisplayName}</button></li>
+                            <li key={index}><PrimaryButton text={store.MarketingData.DisplayName} onClick={this.openStore.bind(this, store.StoreId)} /></li>
                         ))}
-                    </ul>
+                    </UlInline>
                 </React.Fragment>
             );
         }
 
-        const openedStore = this.props.stores.find(s => s.StoreId === this.state.selectedStore);
+        const store = this.getStore();
 
         return (
-            <React.Fragment>
-                <p><button onClick={this.openStore.bind(this, null)}>Leave store</button></p>
-                <Store
-                    store={openedStore}
-                    onBuy={this.onBuyFromStore}
-                    buyResult={this.state.buyResult}
-                    catalogItems={this.props.catalog}
-                    playerWallet={this.props.inventory.VirtualCurrency}
-                />
-            </React.Fragment>
+            <Store
+                store={store}
+                onBuy={this.onBuyFromStore}
+                buyResult={this.state.buyResult}
+                catalogItems={this.props.catalog}
+                playerWallet={this.props.inventory.VirtualCurrency}
+            />
         )
     }
 
@@ -115,7 +117,36 @@ export class HomeBasePage extends React.Component<Props, IState> {
         )
     }
 
+    private getBreadcrumbs(): IBreadcrumbRoute[] {
+        const breadcrumbs: IBreadcrumbRoute[] = [{
+            text: "Home Base",
+            href: routes.HomeBase,
+            onClick: is.null(this.state.selectedStore)
+                ? null
+                : () => {
+                    this.openStore(null);
+                }
+        }];
+
+        const store = this.getStore();
+
+        if(!is.null(store)) {
+            breadcrumbs.push({
+                text: store.MarketingData.DisplayName,
+                href: ""
+            });
+        }
+
+        return breadcrumbs;
+    }
+
     private isValid(): boolean {
         return !is.null(this.props.titleID) && !is.null(this.props.player);
+    }
+
+    private getStore(): PlayFabClientModels.GetStoreItemsResult {
+        return is.null(this.state.selectedStore)
+            ? null
+            : this.props.stores.find(s => s.StoreId === this.state.selectedStore);
     }
 }

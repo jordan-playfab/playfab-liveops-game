@@ -1,6 +1,8 @@
 import * as React from "react";
 import { is } from "../shared/is";
-import { VC_CREDITS, IStringDictionary, INumberDictionary } from "../shared/types";
+import { VC_CREDITS, INumberDictionary } from "../shared/types";
+import { UlInline } from "../styles";
+import { DefaultButton, DetailsList, IColumn } from "office-ui-fabric-react";
 
 interface IStoreProps {
     store: PlayFabClientModels.GetStoreItemsResult;
@@ -14,50 +16,56 @@ export class Store extends React.Component<IStoreProps> {
     public render(): React.ReactNode {
         return (
             <React.Fragment>
-                <h2>{this.props.store.MarketingData.DisplayName}</h2>
                 {!is.null(this.props.buyResult) && (
                     <p>{this.props.buyResult}</p>
                 )}
-                <ul>
-                    {this.props.store.Store.map((item, index) => (
-                        <StoreItem
-                            key={index}
-                            storeItem={item}
-                            catalogItem={this.props.catalogItems.find(c => c.ItemId === item.ItemId)}
-                            playerWallet={this.props.playerWallet}
-                            onBuy={this.props.onBuy}
-                        />
-                    ))}
-                </ul>
+                <UlInline>
+                    <DetailsList
+                        items={this.props.store.Store}
+                        columns={this.getColumns()}
+                        disableSelectionZone
+                    />
+                </UlInline>
             </React.Fragment>
         );
     }
-}
 
-interface IStoreItemProps {
-    storeItem: PlayFabClientModels.StoreItem;
-    catalogItem: PlayFabClientModels.CatalogItem;
-    playerWallet: INumberDictionary;
-    onBuy: (itemID: string, currency: string, price: number) => void;
-}
+    private getColumns(): IColumn[] {
+        return [
+            {
+                key: "name",
+                name: "Name",
+                minWidth: 100,
+                onRender: (item: PlayFabClientModels.StoreItem) => {
+                    const catalogItem = this.props.catalogItems.find(c => c.ItemId === item.ItemId);
 
-class StoreItem extends React.Component<IStoreItemProps> {
-    public render(): React.ReactNode {
-        const price = this.props.storeItem.VirtualCurrencyPrices[VC_CREDITS];
-        const displayName = is.null(this.props.catalogItem.DisplayName)
-            ? this.props.catalogItem.ItemId
-            : this.props.catalogItem.DisplayName;
-        const canBuy = !is.null(this.props.playerWallet) && !is.null(this.props.playerWallet[VC_CREDITS])
-            && this.props.playerWallet[VC_CREDITS] >= price;
+                    return is.null(catalogItem.DisplayName)
+                        ? catalogItem.ItemId
+                        : catalogItem.DisplayName;
+                }
+            },
+            {
+                key: "credits",
+                name: "Credits",
+                minWidth: 100,
+                onRender: (item: PlayFabClientModels.StoreItem) => {
+                    return item.VirtualCurrencyPrices[VC_CREDITS];
+                }
+            },
+            {
+                key: "actions",
+                name: "Actions",
+                minWidth: 100,
+                onRender: (item: PlayFabClientModels.StoreItem) => {
+                    const price = item.VirtualCurrencyPrices[VC_CREDITS];
+                    const canBuy = !is.null(this.props.playerWallet) && !is.null(this.props.playerWallet[VC_CREDITS])
+                        && this.props.playerWallet[VC_CREDITS] >= price;
 
-        return (
-            <li>
-                <strong>{displayName}</strong>
-                ({price} credits)
-                {canBuy && (
-                    <button onClick={this.props.onBuy.bind(this, this.props.storeItem.ItemId, VC_CREDITS, price)}>Buy</button>
-                )}
-            </li>
-        )
+                    return canBuy
+                        ? <DefaultButton text="Buy" onClick={this.props.onBuy.bind(this, item.ItemId, VC_CREDITS, price)} />
+                        : null;
+                }
+            },
+        ];
     }
 }

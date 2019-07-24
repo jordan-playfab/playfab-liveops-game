@@ -20,6 +20,7 @@ const DivPlayerWrapper = styled.div`
     justify-content: space-between;
     align-items: center;
     border-bottom: 2px solid ${s => s.theme.colorBorder200};
+    padding: 0.5em 0;
 `;
 
 const DivPlayerName = styled.div`
@@ -116,7 +117,7 @@ export class Player extends React.Component<IProps, IState> {
                     setInitialFocus
                     hidden={!this.state.isInventoryVisible}
                     target={this.menuButtonElement.current}
-                    directionalHint={DirectionalHint.bottomLeftEdge}
+                    directionalHint={DirectionalHint.bottomRightEdge}
                 >
                     <UlInventory>
                         {this.props.inventory.Inventory.map((i, index) => (
