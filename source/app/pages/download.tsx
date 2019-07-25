@@ -8,8 +8,7 @@ import { DivConfirm, UlNull } from "../styles";
 import { routes } from "../routes";
 import { PROGRESS_STAGES, CATALOG_VERSION, TITLE_DATA_STORES } from "../shared/types";
 import { PlayFabHelper } from "../shared/playfab";
-
-type Props = IRouterProps & RouteComponentProps;
+import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 
 interface IState {
     secretKey: string;
@@ -26,7 +25,9 @@ interface IDownloadContent {
     content: string;
 }
 
-export class DownloadPage extends React.Component<Props, IState> {
+type Props = IRouterProps & RouteComponentProps & IWithAppStateProps;
+
+class DownloadPageBase extends React.PureComponent<Props, IState> {
     private storeCount = 0;
     private storeContent: any[] = [];
 
@@ -51,7 +52,7 @@ export class DownloadPage extends React.Component<Props, IState> {
     }
 
     public render(): React.ReactNode {
-        if(!this.isValid()) {
+        if(!this.props.appState.hasTitleId) {
             return <Redirect to={routes.Home} />;
         }
 
@@ -197,10 +198,6 @@ export class DownloadPage extends React.Component<Props, IState> {
         });
     }
 
-    private isValid(): boolean {
-        return !is.null(this.props.titleID);
-    }
-
     private advanceDownload = (title: string, data: any): void => {
         this.setState((prevState) => {
             return {
@@ -228,3 +225,5 @@ export class DownloadPage extends React.Component<Props, IState> {
         });
     }
 }
+
+export const DownloadPage = withAppState(DownloadPageBase);

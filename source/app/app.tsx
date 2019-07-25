@@ -15,7 +15,6 @@ interface IProps {
 }
 
 interface IState {
-    titleID: string;
     playerPlayFabID: string;
     playerName: string;
     catalog: PlayFabClientModels.CatalogItem[];
@@ -37,7 +36,6 @@ export class App extends React.Component<Props, IState> {
         super(props);
 
         this.state = {
-            titleID: null,
             playerPlayFabID: null,
             playerName: null,
             catalog: null,
@@ -56,8 +54,6 @@ export class App extends React.Component<Props, IState> {
                     <GlobalStyle />
                     <AppStateContainer>
                         <Router
-                            titleID={this.state.titleID}
-                            saveTitleID={this.saveTitleID}
                             playerPlayFabID={this.state.playerPlayFabID}
                             playerName={this.state.playerName}
                             savePlayer={this.savePlayer}
@@ -74,21 +70,6 @@ export class App extends React.Component<Props, IState> {
                 </Provider>
             </ThemeProvider>
         );
-    }
-
-    private saveTitleID = (titleID: string): void => {
-        if(is.null(titleID)) {
-            titleID = "";
-            this.savePlayer(null, null);
-        }
-
-        this.setState({
-            titleID,
-        });
-
-        PlayFab.settings.titleId = titleID;
-
-        titleHelper.set(titleID);
     }
 
     private savePlayer = (player: PlayFabClientModels.LoginResult, playerName: string): void => {

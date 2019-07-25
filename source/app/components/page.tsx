@@ -39,7 +39,7 @@ export class Page extends React.PureComponent<Props> {
     public render(): React.ReactNode {
         return (
             <MainTag>
-                <Header titleID={this.props.titleID} resetTitleID={this.resetTitleID} />
+                <Header />
                 <Player inventory={this.props.inventory} playerName={this.props.playerName} />
                 <DivPage>
                     {this.renderBreadcrumbs()}
@@ -93,10 +93,6 @@ export class Page extends React.PureComponent<Props> {
         return (
             <React.Fragment>&raquo;</React.Fragment>
         );
-    }
-
-    private resetTitleID = (): void => {
-        this.props.saveTitleID(null);
     }
 
     private onBreadcrumbClicked = (e: React.MouseEvent<HTMLElement>, item: IBreadcrumbItem): void => {

@@ -1,5 +1,4 @@
 import * as React from "react";
-import { action } from "typesafe-actions";
 import { TextField } from 'office-ui-fabric-react/lib/TextField';
 import { PrimaryButton, MessageBar, MessageBarType, Spinner } from 'office-ui-fabric-react';
 import { IRouterProps } from "../router";
@@ -11,8 +10,6 @@ import { RouteComponentProps } from "react-router";
 import { Page } from "../components/page";
 import { DivConfirm, UlInline } from "../styles";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
-import { ActionTypes } from "../store/types";
-import { actionSetCatalog } from "../store/actions";
 
 type Props = IRouterProps & RouteComponentProps & IWithAppStateProps;
 
@@ -125,7 +122,7 @@ class PlayerPageBase extends React.Component<Props, IState> {
     }
 
     private isValid(): boolean {
-        return !is.null(this.props.titleID);
+        return !is.null(this.props.appState.titleId);
     }
 }
 

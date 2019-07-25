@@ -3,11 +3,8 @@ import { DefaultButton } from 'office-ui-fabric-react';
 
 import { is } from "../shared/is";
 import styled from "../styles";
-
-interface IProps {
-    titleID?: string;
-    resetTitleID: () => void;
-}
+import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
+import { actionSetTitleId } from "../store/actions";
 
 const HeaderWrapper = styled.header`
     position: relative;
@@ -39,20 +36,28 @@ const ButtonReset = styled(DefaultButton)`
     margin-top: 0.2em;
 `;
 
-export class Header extends React.PureComponent<IProps> {
+type Props = IWithAppStateProps;
+
+class HeaderBase extends React.PureComponent<Props> {
     public render(): React.ReactNode {
         return (
             <HeaderWrapper>
                 <H1Tag>Vanguard Outrider</H1Tag>
-                {!is.null(this.props.titleID) && (
+                {!is.null(this.props.appState.titleId) && (
                     <DivTitleID>
                         <div><strong>Title ID</strong></div>
-                        <div>{this.props.titleID}</div>
-                        <div><ButtonReset text="Reset" onClick={this.props.resetTitleID} /></div>
+                        <div>{this.props.appState.titleId}</div>
+                        <div><ButtonReset text="Reset" onClick={this.resetTitleId} /></div>
                     </DivTitleID>
                 )}
                 <PTagline>A looter shooter game simulation using <a href="https://playfab.com/" target="_blank">PlayFab</a></PTagline>
             </HeaderWrapper>
         );
     }
+
+    private resetTitleId = (): void => {
+        this.props.dispatch(actionSetTitleId(null));
+    }
 }
+
+export const Header = withAppState(HeaderBase);

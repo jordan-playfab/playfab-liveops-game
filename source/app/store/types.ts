@@ -13,7 +13,9 @@ export enum ActionTypes {
 
 export interface IApplicationState {
     titleId: string;
+    hasTitleId: boolean;
     playerId: string;
+    hasPlayerId: boolean;
     playerName: string;
     catalog: PlayFabClientModels.CatalogItem[];
     inventory: PlayFabClientModels.GetUserInventoryResult;

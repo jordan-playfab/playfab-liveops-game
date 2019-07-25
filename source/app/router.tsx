@@ -10,11 +10,12 @@ import { IPlanetData } from "./shared/types";
 import { HomeBasePage } from "./pages/home-base";
 import { UploadPage } from "./pages/upload";
 import { DownloadPage } from "./pages/download";
+import { IWithAppStateProps, withAppState } from "./containers/with-app-state";
+import { titleHelper } from "./shared/title-helper";
+import { is } from "./shared/is";
+import { actionSetTitleId } from "./store/actions";
 
 export interface IRouterProps {
-	titleID: string;
-	saveTitleID: (titleID: string) => void;
-
 	playerPlayFabID: string;
 	playerName: string;
 	savePlayer: (player: PlayFabClientModels.LoginResult, playerName: string) => void;
@@ -32,7 +33,17 @@ export interface IRouterProps {
 	refreshCatalog: (callback?: () => void) => void;
 }
 
-export class Router extends React.Component<IRouterProps> {
+type Props = IRouterProps & IWithAppStateProps;
+
+class RouterBase extends React.Component<Props> {
+	public componentDidMount(): void {
+		const titleId = titleHelper.get();
+
+		if(!is.null(titleId)) {
+			this.props.dispatch(actionSetTitleId(titleId));
+		}
+	}
+
 	public render(): React.ReactNode {
 		return (
 			<HashRouter>
@@ -49,3 +60,5 @@ export class Router extends React.Component<IRouterProps> {
 		);
 	}
 };
+
+export const Router = withAppState(RouterBase);
