@@ -4,6 +4,7 @@ import { VC_CREDITS } from "../shared/types";
 import styled, { UlNull } from "../styles";
 import { Callout, DirectionalHint } from 'office-ui-fabric-react/lib/Callout';
 import { DefaultButton } from "office-ui-fabric-react";
+import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 
 interface IProps {
     playerName: string;
@@ -53,10 +54,12 @@ const UlInventory = styled(UlNull)`
     }
 `;
 
-export class Player extends React.Component<IProps, IState> {
+type Props = IProps & IWithAppStateProps;
+
+class PlayerBase extends React.Component<Props, IState> {
     private menuButtonElement = React.createRef<HTMLDivElement>();
 
-    constructor(props: IProps) {
+    constructor(props: Props) {
         super(props);
 
         this.state = {
@@ -141,3 +144,5 @@ export class Player extends React.Component<IProps, IState> {
         })
     }
 }
+
+export const Player = withAppState(PlayerBase);

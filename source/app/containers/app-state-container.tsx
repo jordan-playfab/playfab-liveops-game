@@ -1,15 +1,28 @@
 import React from "react";
-import { IApplicationState } from "../store/types";
-import { AppStateProvider } from "./with-app-state";
+import { IApplicationState, IAction } from "../store/types";
+import { AppStateProvider, IWithAppStateProps } from "./with-app-state";
 import { connect } from "react-redux";
+import { Dispatch } from "redux";
 
 interface IPropsFromState {
     appState: IApplicationState;
 }
 
-const AppStateContainerBase: React.FunctionComponent<IPropsFromState> = (props): JSX.Element => {
+interface IPropsFromDispatch {
+    dispatch: Dispatch;
+}
+
+type Props = IPropsFromState & IPropsFromDispatch;
+
+const AppStateContainerBase: React.FunctionComponent<Props> = (props): JSX.Element => {
+    const stateContext: IWithAppStateProps = {
+        ...props,
+    };
+
     return (
-        <AppStateProvider value={{appState: props.appState }} />
+        <AppStateProvider value={stateContext}>
+            {props.children}
+        </AppStateProvider>
     );
 }
 
@@ -17,4 +30,8 @@ const mapStateToProps = (state: IApplicationState): IPropsFromState => ({
     appState: state,
 });
 
-export const AppStateContainer = connect<IPropsFromState>(mapStateToProps)(AppStateContainerBase);
+const mapDispatchToProps = (dispatch: Dispatch<IAction<any>>): IPropsFromDispatch => ({
+    dispatch,
+});
+
+export const AppStateContainer = connect<IPropsFromState, IPropsFromDispatch>(mapStateToProps, mapDispatchToProps)(AppStateContainerBase);

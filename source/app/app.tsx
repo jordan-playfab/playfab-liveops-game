@@ -8,6 +8,11 @@ import { titleHelper } from "./shared/title-helper";
 import { GlobalStyle, defaultTheme, ThemeProvider } from "./styles";
 import { reduxStore } from "./store/store";
 import { AppStateContainer } from "./containers/app-state-container";
+import { Store } from "redux";
+
+interface IProps {
+    store: Store;
+}
 
 interface IState {
     titleID: string;
@@ -21,9 +26,15 @@ interface IState {
     };
 }
 
-export default class App extends React.Component<{}, IState> {
-    constructor() {
-        super(undefined);
+type Props = IProps;
+
+export class App extends React.Component<Props, IState> {
+    public static defaultProps: Partial<Props> = {
+        store: reduxStore,
+    }
+
+    constructor(props: Props) {
+        super(props);
 
         this.state = {
             titleID: null,
@@ -41,24 +52,25 @@ export default class App extends React.Component<{}, IState> {
     public render(): React.ReactNode {
         return (
             <ThemeProvider theme={defaultTheme}>
-                <Provider store={reduxStore}>
+                <Provider store={this.props.store}>
                     <GlobalStyle />
-                    <AppStateContainer />
-                    <Router
-                        titleID={this.state.titleID}
-                        saveTitleID={this.saveTitleID}
-                        playerPlayFabID={this.state.playerPlayFabID}
-                        playerName={this.state.playerName}
-                        savePlayer={this.savePlayer}
-                        planets={this.state.titleData.Planets}
-                        refreshPlanets={this.refreshPlanets}
-                        inventory={this.state.inventory}
-                        refreshInventory={this.refreshInventory}
-                        stores={this.state.stores}
-                        refreshStores={this.refreshStores}
-                        catalog={this.state.catalog}
-                        refreshCatalog={this.refreshCatalog}
-                    />
+                    <AppStateContainer>
+                        <Router
+                            titleID={this.state.titleID}
+                            saveTitleID={this.saveTitleID}
+                            playerPlayFabID={this.state.playerPlayFabID}
+                            playerName={this.state.playerName}
+                            savePlayer={this.savePlayer}
+                            planets={this.state.titleData.Planets}
+                            refreshPlanets={this.refreshPlanets}
+                            inventory={this.state.inventory}
+                            refreshInventory={this.refreshInventory}
+                            stores={this.state.stores}
+                            refreshStores={this.refreshStores}
+                            catalog={this.state.catalog}
+                            refreshCatalog={this.refreshCatalog}
+                        />
+                    </AppStateContainer>
                 </Provider>
             </ThemeProvider>
         );

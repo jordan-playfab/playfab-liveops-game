@@ -1,4 +1,5 @@
 import * as React from "react";
+import { action } from "typesafe-actions";
 import { TextField } from 'office-ui-fabric-react/lib/TextField';
 import { PrimaryButton, MessageBar, MessageBarType, Spinner } from 'office-ui-fabric-react';
 import { IRouterProps } from "../router";
@@ -9,8 +10,10 @@ import { PlayFabHelper } from "../shared/playfab";
 import { RouteComponentProps } from "react-router";
 import { Page } from "../components/page";
 import { DivConfirm, UlInline } from "../styles";
+import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
+import { ActionTypes } from "../store/types";
 
-type Props = IRouterProps & RouteComponentProps;
+type Props = IRouterProps & RouteComponentProps & IWithAppStateProps;
 
 interface IState {
     playerName: string;
@@ -18,7 +21,7 @@ interface IState {
     isLoggingIn: boolean;
 }
 
-export class PlayerPage extends React.Component<Props, IState> {
+class PlayerPageBase extends React.Component<Props, IState> {
     constructor(props: Props) {
         super(props);
 
@@ -124,3 +127,5 @@ export class PlayerPage extends React.Component<Props, IState> {
         return !is.null(this.props.titleID);
     }
 }
+
+export const PlayerPage = withAppState(PlayerPageBase);
