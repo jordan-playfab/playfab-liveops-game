@@ -12,7 +12,6 @@ import { PrimaryButton, Spinner } from "office-ui-fabric-react";
 interface IState {
     currentArea: string;
     isLoading: boolean;
-    isShooting: boolean;
     itemGranted: string;
 }
 
@@ -28,7 +27,6 @@ export class PlanetPage extends React.Component<Props, IState> {
 
         this.state = {
             isLoading: true,
-            isShooting: false,
             currentArea: null,
             itemGranted: null,
         }
@@ -90,8 +88,6 @@ export class PlanetPage extends React.Component<Props, IState> {
 
         return (
             <React.Fragment>
-                <p>There are {this.state.totalEnemies} enemies here.</p>
-                <p>Your total kills: {this.state.totalKills}.</p>
                 {this.renderShootButton()}
                 {!is.null(this.state.itemGranted) && (
                     <p>You just got a {this.state.itemGranted}</p>

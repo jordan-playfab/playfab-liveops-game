@@ -64,6 +64,34 @@ const App = {
     }
 };
 
+const isKilledEnemyGroupValid = function(args: IKilledEnemyGroupRequest, planetData: IPlanetData[], enemyData: ITitleDataEnemies): string {
+    const planet = planetData.find(p => p.name === args.planet);
+    
+    if(planet === undefined) {
+        return `Planet ${args.planet} not found.`;
+    }
+
+    const area = planet.areas.find(a => a.name === args.area);
+
+    if(area === undefined) {
+        return `Area ${args.area} not found on planet ${args.planet}.`;
+    }
+
+    const enemyGroup = area.enemyGroups.find(e => e === args.enemyGroup);
+
+    if(enemyGroup === undefined) {
+        return `Enemy group ${args.enemyGroup} not found in area ${args.area} on planet ${args.planet}.`;
+    }
+
+    const fullEnemyGroup = enemyData.enemyGroups.find(e => e.name === args.enemyGroup);
+
+    if(fullEnemyGroup === undefined) {
+        return `Enemy group ${args.enemyGroup} not found.`;
+    }
+
+    return undefined;
+};
+
 handlers.killedEnemyGroup = function(args: IKilledEnemyGroupRequest, context: any): IKilledEnemyGroupResponse {
     const planetsAndEnemies = App.GetTitleData(["Planets", "Enemies"]);
     const planetData = (planetsAndEnemies.Planets as ITitleDataPlanets).planets;
@@ -108,33 +136,3 @@ handlers.killedEnemyGroup = function(args: IKilledEnemyGroupRequest, context: an
         itemGranted
     };
 }
-
-// ----- Error checking ----- //
-
-const isKilledEnemyGroupValid = function(args: IKilledEnemyGroupRequest, planetData: IPlanetData[], enemyData: ITitleDataEnemies): string {
-    const planet = planetData.find(p => p.name === args.planet);
-    
-    if(planet === undefined) {
-        return `Planet ${args.planet} not found.`;
-    }
-
-    const area = planet.areas.find(a => a.name === args.area);
-
-    if(area === undefined) {
-        return `Area ${args.area} not found on planet ${args.planet}.`;
-    }
-
-    const enemyGroup = area.enemyGroups.find(e => e === args.enemyGroup);
-
-    if(enemyGroup === undefined) {
-        return `Enemy group ${args.enemyGroup} not found in area ${args.area} on planet ${args.planet}.`;
-    }
-
-    const fullEnemyGroup = enemyData.enemyGroups.find(e => e.name === args.enemyGroup);
-
-    if(fullEnemyGroup === undefined) {
-        return `Enemy group ${args.enemyGroup} not found.`;
-    }
-
-    return undefined;
-};
