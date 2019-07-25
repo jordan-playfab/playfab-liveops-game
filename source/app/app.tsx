@@ -1,10 +1,13 @@
 import * as React from "react";
+import { Provider } from "react-redux";
 import { Router } from "./router";
 import { ITitleDataPlanets, IPlanetData } from "./shared/types";
 import { is } from "./shared/is";
 import { PlayFabHelper } from "./shared/playfab";
 import { titleHelper } from "./shared/title-helper";
 import { GlobalStyle, defaultTheme, ThemeProvider } from "./styles";
+import { reduxStore } from "./store/store";
+import { AppStateContainer } from "./containers/app-state-container";
 
 interface IState {
     titleID: string;
@@ -38,8 +41,9 @@ export default class App extends React.Component<{}, IState> {
     public render(): React.ReactNode {
         return (
             <ThemeProvider theme={defaultTheme}>
-                <React.Fragment>
+                <Provider store={reduxStore}>
                     <GlobalStyle />
+                    <AppStateContainer />
                     <Router
                         titleID={this.state.titleID}
                         saveTitleID={this.saveTitleID}
@@ -55,7 +59,7 @@ export default class App extends React.Component<{}, IState> {
                         catalog={this.state.catalog}
                         refreshCatalog={this.refreshCatalog}
                     />
-                </React.Fragment>
+                </Provider>
             </ThemeProvider>
         );
     }
