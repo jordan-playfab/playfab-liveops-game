@@ -6,7 +6,7 @@ import { HomePage } from "./pages/home";
 import { PlayerPage } from "./pages/player";
 import { PlanetPage } from "./pages/planet";
 import NotFound from "./pages/not-found";
-import { ITitleDataPlanets } from "./shared/types";
+import { IPlanetData } from "./shared/types";
 import { HomeBasePage } from "./pages/home-base";
 import { UploadPage } from "./pages/upload";
 import { DownloadPage } from "./pages/download";
@@ -15,14 +15,14 @@ export interface IRouterProps {
 	titleID: string;
 	saveTitleID: (titleID: string) => void;
 
-	player: PlayFabClientModels.LoginResult;
+	playerPlayFabID: string;
 	playerName: string;
 	savePlayer: (player: PlayFabClientModels.LoginResult, playerName: string) => void;
 
 	inventory: PlayFabClientModels.GetUserInventoryResult;
 	refreshInventory: () => void;
 
-	planets: ITitleDataPlanets;
+	planets: IPlanetData[];
 	refreshPlanets: (callback?: () => void) => void;
 
 	stores: PlayFabClientModels.GetStoreItemsResult[];

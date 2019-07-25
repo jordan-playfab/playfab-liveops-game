@@ -1,13 +1,35 @@
 // ----- Title data ----- //
 
 export interface ITitleDataPlanets {
-    [key: string]: IPlanetData;
+    planets: IPlanetData[];
 }
 
 export interface IPlanetData {
-    Areas: string[];
-    TreasureChestCount: number;
-    EnemyCount: number;
+    name: string;
+    areas: IPlanetArea[];
+}
+
+export interface IPlanetArea {
+    name: string;
+    enemyGroups: string[];
+}
+
+export interface ITitleDataEnemies {
+    enemies: ITitleDataEnemy[];
+    enemyGroups: ITitleDataEnemyGroup[];
+}
+
+export interface ITitleDataEnemy {
+    name: string;
+    hp: number;
+    damage: number;
+}
+
+export interface ITitleDataEnemyGroup {
+    name: string;
+    enemies: string[];
+    droptable: string;
+    dropchance: number;
 }
 
 // ----- Cloud Script results ----- //

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Router } from "./router";
-import { ITitleDataPlanets } from "./shared/types";
+import { ITitleDataPlanets, IPlanetData } from "./shared/types";
 import { is } from "./shared/is";
 import { PlayFabHelper } from "./shared/playfab";
 import { titleHelper } from "./shared/title-helper";
@@ -8,13 +8,13 @@ import { GlobalStyle, defaultTheme, ThemeProvider } from "./styles";
 
 interface IState {
     titleID: string;
-    player: PlayFabClientModels.LoginResult;
+    playerPlayFabID: string;
     playerName: string;
     catalog: PlayFabClientModels.CatalogItem[];
     inventory: PlayFabClientModels.GetUserInventoryResult;
     stores: PlayFabClientModels.GetStoreItemsResult[];
     titleData: {
-        Planets: ITitleDataPlanets,
+        Planets: IPlanetData[],
     };
 }
 
@@ -24,7 +24,7 @@ export default class App extends React.Component<{}, IState> {
 
         this.state = {
             titleID: null,
-            player: null,
+            playerPlayFabID: null,
             playerName: null,
             catalog: null,
             inventory: null,
@@ -43,7 +43,7 @@ export default class App extends React.Component<{}, IState> {
                     <Router
                         titleID={this.state.titleID}
                         saveTitleID={this.saveTitleID}
-                        player={this.state.player}
+                        playerPlayFabID={this.state.playerPlayFabID}
                         playerName={this.state.playerName}
                         savePlayer={this.savePlayer}
                         planets={this.state.titleData.Planets}
@@ -77,7 +77,7 @@ export default class App extends React.Component<{}, IState> {
 
     private savePlayer = (player: PlayFabClientModels.LoginResult, playerName: string): void => {
         this.setState({
-            player,
+            playerPlayFabID: player.PlayFabId,
             playerName,
         });
     }
@@ -85,10 +85,12 @@ export default class App extends React.Component<{}, IState> {
     private refreshPlanets = (callback?: () => void): void => {
         PlayFabHelper.getTitleData(["Planets"], (data) => {
             this.setState((prevState) => {
+                const planetData = JSON.parse(data["Planets"]) as ITitleDataPlanets;
+
                 return {
                     titleData: {
                         ...prevState.titleData,
-                        Planets: JSON.parse(data["Planets"]),
+                        Planets: planetData.planets,
                     }
                 }
             }, () => {

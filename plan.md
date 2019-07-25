@@ -10,6 +10,8 @@
 - [ ] Actual combat engine with reports at the end
 - [ ] Player HP and damage taking
 - [ ] Use Redux and HOCs to store data
+- [ ] Watch mode
+- [ ] Improve PlayFab helper
 - [ ] Actual loot in looter shooter
 - [ ] Production build
 - [ ] Use memory router
@@ -17,3 +19,44 @@
 - [ ] Put player ID in URL
 - [ ] Put everything in URL, make page refreshable
 - [ ] Credits page
+- [ ] Player title data to equip weapons and armor
+
+# Pages
+
+1. Introduction / what is this
+1. Main menu
+    1. Play
+    1. Load initial data
+    1. Download data
+    1. Credits
+    1. Tutorial
+    1. LiveOps techniques
+1. Game
+    1. Director / select destination
+    1. Home base / Tower
+        1. Shop
+    1. Character status (popup?)
+    1. Inventory (popup?)
+    1. Planet
+        1. Area
+            1. Combat
+1. Load initial data
+1. Download data
+1. Credits
+1. Tutorial
+1. LiveOps techniques
+
+# Combat
+
+When you go to a planet and pick an area, the game selects a random enemy group for you to face.
+
+The player clicks on an enemy to shoot them with the equipped weapon. That counts as a turn.
+
+Every (random number) turns, the enemy fires and has a (random number) chance to do damage.
+
+Armor has a defense stat which, when divided by 100, indicates how much damage it blocks from the enemy.
+
+- Enemies have HP and damage
+- Player has HP
+- Player has guns
+- Guns have damage

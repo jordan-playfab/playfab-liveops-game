@@ -5,18 +5,13 @@ import { PlayFabHelper } from "../shared/playfab";
 import { RouteComponentProps, Redirect } from "react-router";
 import { IPlanetData, IKilledEnemyResult } from "../shared/types";
 import { routes } from "../routes";
-import { Player } from "../components/player";
-import { Header } from "../components/header";
-import { Link } from "react-router-dom";
 import { Page, IBreadcrumbRoute } from "../components/page";
 import { UlInline } from "../styles";
-import { PrimaryButton, DefaultButton, Spinner } from "office-ui-fabric-react";
+import { PrimaryButton, Spinner } from "office-ui-fabric-react";
 
 interface IState {
     currentArea: string;
     isLoading: boolean;
-    totalKills: number;
-    totalEnemies: number;
     isShooting: boolean;
     itemGranted: string;
 }
@@ -35,8 +30,6 @@ export class PlanetPage extends React.Component<Props, IState> {
             isLoading: true,
             isShooting: false,
             currentArea: null,
-            totalKills: 0,
-            totalEnemies: 0,
             itemGranted: null,
         }
     }
@@ -47,25 +40,9 @@ export class PlanetPage extends React.Component<Props, IState> {
         }
 
         this.props.refreshPlanets(() => {
-            const planet = this.getPlanetData();
-
             this.setState({
                 isLoading: false,
-                totalEnemies: planet.EnemyCount,
             });
-        });
-
-        PlayFabHelper.getStatistics(["kills"], (data) => {
-            if(is.null(data)) {
-                // No kills yet
-                return;
-            }
-
-            this.setState({
-                totalKills: data[0].Value,
-            });
-        }, (error) => {
-            // TODO: Something
         });
 
         this.props.refreshInventory();
@@ -103,8 +80,8 @@ export class PlanetPage extends React.Component<Props, IState> {
                 <React.Fragment>
                     <h3>Choose a region to fight in:</h3>
                     <UlInline>
-                        {planet.Areas.map((areaName) => (
-                            <li key={areaName}><PrimaryButton text={areaName} onClick={this.setArea.bind(this, areaName)} /></li>
+                        {planet.areas.map((area) => (
+                            <li key={area.name}><PrimaryButton text={area.name} onClick={this.setArea.bind(this, area.name)} /></li>
                         ))}
                     </UlInline>
                 </React.Fragment>
@@ -124,12 +101,6 @@ export class PlanetPage extends React.Component<Props, IState> {
     }
 
     private renderShootButton(): React.ReactNode {
-        if(this.state.totalEnemies === 0) {
-            return (
-                <p>No more enemies to shoot.</p>
-            );
-        }
-
         if(this.state.isShooting) {
             return (
                 <Spinner label="Firing!" />
@@ -177,13 +148,15 @@ export class PlanetPage extends React.Component<Props, IState> {
     }
 
     private isValid(): boolean {
-        return !is.null(this.props.titleID) && !is.null(this.props.player);
+        return !is.null(this.props.titleID) && !is.null(this.props.playerPlayFabID);
     }
 
     private getPlanetData(): IPlanetData {
+        const planetName = this.getPlanetName();
+
         return is.null(this.props.planets)
             ? null
-            : this.props.planets[this.getPlanetName()];
+            : this.props.planets.find(p => p.name === planetName);
     }
 
     private getPlanetName(): string {

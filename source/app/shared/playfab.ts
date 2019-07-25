@@ -2,14 +2,12 @@
 /// <reference path="../../../node_modules/playfab-web-sdk/src/Typings/PlayFab/PlayFabAdminApi.d.ts" />
 import "playfab-web-sdk/src/PlayFab/PlayFabClientApi.js";
 import "playfab-web-sdk/src/PlayFab/PlayFabAdminApi.js";
-import { IRouterProps } from "../router";
 import { IStringDictionary, CATALOG_VERSION, TITLE_DATA_STORES } from "./types";
 import { is } from "./is";
 
-
-function login(props: IRouterProps, customID: string, success: (data: PlayFabClientModels.LoginResult) => void, error: (message: string) => void): void {
+function login(titleID: string, customID: string, success: (data: PlayFabClientModels.LoginResult) => void, error: (message: string) => void): void {
     PlayFab.ClientApi.LoginWithCustomID({
-        TitleId: props.titleID,
+        TitleId: titleID,
         CustomId: customID,
         CreateAccount: true,
     }, (result, problem) => {

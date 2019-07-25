@@ -13,7 +13,7 @@ import { DivConfirm, UlInline } from "../styles";
 type Props = IRouterProps & RouteComponentProps;
 
 interface IState {
-    playerID: string;
+    playerName: string;
     error: string;
     isLoggingIn: boolean;
 }
@@ -23,7 +23,7 @@ export class PlayerPage extends React.Component<Props, IState> {
         super(props);
 
         this.state = {
-            playerID: null,
+            playerName: null,
             error: null,
             isLoggingIn: false,
         };
@@ -44,7 +44,7 @@ export class PlayerPage extends React.Component<Props, IState> {
                 {!is.null(this.state.error) && (
                     <MessageBar messageBarType={MessageBarType.error}>{this.state.error}</MessageBar>
                 )}
-                {is.null(this.props.player)
+                {is.null(this.props.playerPlayFabID)
                     ? this.renderPlayerLogin()
                     : this.renderPlanetMenu()}
             </Page>
@@ -95,7 +95,7 @@ export class PlayerPage extends React.Component<Props, IState> {
 
     private setLocalPlayerID = (_: any, newValue: string): void => {
         this.setState({
-            playerID: newValue,
+            playerName: newValue,
         });
     }
 
@@ -105,8 +105,8 @@ export class PlayerPage extends React.Component<Props, IState> {
             isLoggingIn: true,
         });
 
-        PlayFabHelper.login(this.props, this.state.playerID, (player) => {
-            this.props.savePlayer(player, this.state.playerID);
+        PlayFabHelper.login(this.props.titleID, this.state.playerName, (player) => {
+            this.props.savePlayer(player, this.state.playerName);
             this.props.refreshPlanets();
             this.props.refreshInventory();
             this.props.refreshCatalog();

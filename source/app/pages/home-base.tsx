@@ -139,7 +139,7 @@ export class HomeBasePage extends React.Component<Props, IState> {
     }
 
     private isValid(): boolean {
-        return !is.null(this.props.titleID) && !is.null(this.props.player);
+        return !is.null(this.props.titleID) && !is.null(this.props.playerPlayFabID);
     }
 
     private getStore(): PlayFabClientModels.GetStoreItemsResult {
