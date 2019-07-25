@@ -2,6 +2,7 @@
 
 - [ ] Improve page design
 - [ ] Add logo
+- [ ] Favicon
 - [ ] Better instructions
 - [ ] How to go further
 - [ ] Enemy groups
