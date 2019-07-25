@@ -97,12 +97,6 @@ export class PlanetPage extends React.Component<Props, IState> {
     }
 
     private renderShootButton(): React.ReactNode {
-        if(this.state.isShooting) {
-            return (
-                <Spinner label="Firing!" />
-            );
-        }
-
         return (
             <PrimaryButton text="Shoot enemy" onClick={this.shootEnemy} />
         );
@@ -116,31 +110,8 @@ export class PlanetPage extends React.Component<Props, IState> {
 
     private shootEnemy = (): void => {
         this.setState({
-            isShooting: true,
             itemGranted: null,
         });
-
-        PlayFabHelper.executeCloudScript("killedEnemy", null, (data) => {
-            const result = data.FunctionResult as IKilledEnemyResult;
-
-            this.setState((prevState) => {
-                return {
-                    totalKills: prevState.totalKills + 1,
-                    totalEnemies: prevState.totalEnemies - 1,
-                    isShooting: false,
-                    itemGranted: result.itemGranted,
-                };
-            });
-
-            if(!is.null(result.itemGranted)) {
-                this.props.refreshInventory();
-            }
-        }, (error) => {
-            // TODO: Something
-            this.setState({
-                isShooting: false,
-            });
-        })
     }
 
     private isValid(): boolean {
