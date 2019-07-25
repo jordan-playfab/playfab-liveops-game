@@ -12,6 +12,7 @@ import { Page } from "../components/page";
 import { DivConfirm, UlInline } from "../styles";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { ActionTypes } from "../store/types";
+import { actionSetCatalog } from "../store/actions";
 
 type Props = IRouterProps & RouteComponentProps & IWithAppStateProps;
 

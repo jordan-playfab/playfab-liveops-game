@@ -1,7 +1,6 @@
-/// <reference path="../../../node_modules/playfab-web-sdk/src/Typings/PlayFab/PlayFabClientApi.d.ts" />
-/// <reference path="../../../node_modules/playfab-web-sdk/src/Typings/PlayFab/PlayFabAdminApi.d.ts" />
 import "playfab-web-sdk/src/PlayFab/PlayFabClientApi.js";
 import "playfab-web-sdk/src/PlayFab/PlayFabAdminApi.js";
+
 import { IStringDictionary, CATALOG_VERSION, TITLE_DATA_STORES } from "./types";
 import { is } from "./is";
 
