@@ -3,34 +3,6 @@
         {
             "Store": [
                 {
-                    "ItemId": "Handgun",
-                    "VirtualCurrencyPrices": {
-                        "CR": 25
-                    }
-                },
-                {
-                    "ItemId": "AssaultRifle",
-                    "VirtualCurrencyPrices": {
-                        "CR": 100
-                    }
-                },
-                {
-                    "ItemId": "RocketLauncher",
-                    "VirtualCurrencyPrices": {
-                        "CR": 500
-                    }
-                }
-            ],
-            "Source": "Admin",
-            "CatalogVersion": "Main",
-            "StoreId": "Weapons",
-            "MarketingData": {
-                "DisplayName": "The Best Offense"
-            }
-        },
-        {
-            "Store": [
-                {
                     "ItemId": "CommonArmor",
                     "VirtualCurrencyPrices": {
                         "CR": 50
@@ -53,7 +25,38 @@
             "CatalogVersion": "Main",
             "StoreId": "Armor",
             "MarketingData": {
-                "DisplayName": "Pete's Powerful Protectives"
+                "DisplayName": "Amy's Armor Shoppe",
+                "Metadata": {
+                    "key": "value"
+                }
+            }
+        },
+        {
+            "Store": [
+                {
+                    "ItemId": "Handgun",
+                    "VirtualCurrencyPrices": {
+                        "CR": 25
+                    }
+                },
+                {
+                    "ItemId": "AssaultRifle",
+                    "VirtualCurrencyPrices": {
+                        "CR": 100
+                    }
+                },
+                {
+                    "ItemId": "RocketLauncher",
+                    "VirtualCurrencyPrices": {
+                        "CR": 500
+                    }
+                }
+            ],
+            "Source": "Admin",
+            "CatalogVersion": "Main",
+            "StoreId": "Weapons",
+            "MarketingData": {
+                "DisplayName": "The Best Defense"
             }
         }
     ]

@@ -23,23 +23,49 @@ const App = {
         }).Statistics;
     },
     UpdatePlayerStatistics(playerId, statistics) {
-        server.UpdatePlayerStatistics({
+        return server.UpdatePlayerStatistics({
             PlayFabId: playerId,
             Statistics: statistics,
         });
     },
+    ConsumeItem(playerId, itemInstanceId, count) {
+        return server.ConsumeItem({
+            PlayFabId: playerId,
+            ItemInstanceId: itemInstanceId,
+            ConsumeCount: count
+        });
+    },
     GrantItemsToUser(playerId, itemIds, catalogVersion = null) {
-        server.GrantItemsToUser({
+        const grantResult = server.GrantItemsToUser({
             PlayFabId: playerId,
             ItemIds: itemIds,
             CatalogVersion: catalogVersion
         });
+        // Is this a bundle of credits we need to unpack?
+        grantResult.ItemGrantResults.forEach(item => {
+            if (item.ItemClass.indexOf(App.Config.UnpackClassName) !== -1) {
+                App.ConsumeItem(playerId, item.ItemInstanceId, item.RemainingUses);
+            }
+        });
+    },
+    GetUserInventory(playerId) {
+        return server.GetUserInventory({
+            PlayFabId: playerId,
+        });
     },
     Config: {
-        unpackClassName: "unpack",
+        UnpackClassName: "unpack",
     },
     Statistics: {
-        kills: "kills",
+        Kills: "kills",
+        HP: "hp"
+    },
+    TitleData: {
+        Planets: "Planets",
+        Enemies: "Enemies"
+    },
+    CatalogItems: {
+        StartingPack: "StartingPack",
     }
 };
 const isKilledEnemyGroupValid = function (args, planetData, enemyData) {
@@ -62,7 +88,7 @@ const isKilledEnemyGroupValid = function (args, planetData, enemyData) {
     return undefined;
 };
 handlers.killedEnemyGroup = function (args, context) {
-    const planetsAndEnemies = App.GetTitleData(["Planets", "Enemies"]);
+    const planetsAndEnemies = App.GetTitleData([App.TitleData.Planets, App.TitleData.Enemies]);
     const planetData = planetsAndEnemies.Planets.planets;
     const enemyData = planetsAndEnemies.Enemies;
     // Ensure the data submitted is valid
@@ -76,14 +102,28 @@ handlers.killedEnemyGroup = function (args, context) {
     // Data is valid, continue
     const fullEnemyGroup = enemyData.enemyGroups.find(e => e.name === args.enemyGroup);
     // Update player statistics
-    const statistics = App.GetPlayerStatistics([App.Statistics.kills]);
-    const killStatistic = App.IsNull(statistics)
-        ? 0
-        : statistics[0].Value;
-    App.UpdatePlayerStatistics(currentPlayerId, [{
-            StatisticName: App.Statistics.kills,
-            Value: killStatistic,
-        }]);
+    const statistics = App.GetPlayerStatistics([App.Statistics.Kills, App.Statistics.HP]);
+    const statisticUpdates = [];
+    if (!App.IsNull(statistics)) {
+        const killStatistic = statistics.find(s => s.StatisticName === App.Statistics.Kills);
+        const hpStatistic = statistics.find(s => s.StatisticName === App.Statistics.HP);
+        if (!App.IsNull(killStatistic)) {
+            statisticUpdates.push({
+                StatisticName: App.Statistics.Kills,
+                Value: killStatistic.Value + fullEnemyGroup.enemies.length,
+            });
+        }
+        if (!App.IsNull(hpStatistic)) {
+            // Can't go below zero health
+            statisticUpdates.push({
+                StatisticName: App.Statistics.HP,
+                Value: Math.max(0, hpStatistic.Value - args.damageTaken),
+            });
+        }
+    }
+    if (statisticUpdates.length !== 0) {
+        App.UpdatePlayerStatistics(currentPlayerId, statisticUpdates);
+    }
     // Grant items if they're lucky
     let itemGranted = null;
     if (fullEnemyGroup.droptable && fullEnemyGroup.dropchance && Math.random() <= fullEnemyGroup.dropchance) {
@@ -94,4 +134,13 @@ handlers.killedEnemyGroup = function (args, context) {
         isError: false,
         itemGranted
     };
+};
+handlers.playerLogin = function (args, context) {
+    // If you're a new player with no money nor items, give you some cash
+    // Make sure you have no money and no items
+    const inventory = App.GetUserInventory(currentPlayerId);
+    if (!App.IsNull(inventory.Inventory) || !App.IsNull(inventory.VirtualCurrency)) {
+        return;
+    }
+    App.GrantItemsToUser(currentPlayerId, [App.CatalogItems.StartingPack]);
 };

@@ -4,6 +4,7 @@ export interface IWithPageProps {
     readonly pageError: string;
     readonly onPageClearError: () => void;
     readonly onPageError: (errorMessage: string) => void;
+    readonly onPageNothing: () => void;
 }
 
 interface IState {
@@ -23,6 +24,7 @@ export const withPage = <P extends IWithPageProps>(Component: React.ComponentTyp
                     pageError={this.state.error}
                     onPageError={this.onError}
                     onPageClearError={this.clearError}
+                    onPageNothing={this.onNothing}
                 />
             );
         }
@@ -37,6 +39,10 @@ export const withPage = <P extends IWithPageProps>(Component: React.ComponentTyp
             this.setState({
                 error: null,
             });
+        }
+
+        private onNothing = (): void => {
+            // TODO: Nothing (done!)
         }
     }
 }

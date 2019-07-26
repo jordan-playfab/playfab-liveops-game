@@ -54,31 +54,38 @@ export interface INumberDictionary {
 interface IProgressStage {
     key: string;
     title: string;
+    filename: string;
 }
 
 export const PROGRESS_STAGES: IProgressStage[] = [{
     key: "currency",
     title: "Currency",
+    filename: "virtual-currency.json"
 },
 {
     key: "catalog",
     title: "Catalog",
+    filename: "catalogs.json"
 },
 {
     key: "droptable",
     title: "Drop tables",
+    filename: "drop-tables.json"
 },
 {
     key: "store",
     title: "Store",
+    filename: "stores.json"
 },
 {
     key: "titledata",
-    title: "Title data"
+    title: "Title data",
+    filename: "title-data.json"
 },
 {
     key: "cloudscript",
     title: "Cloud Script",
+    filename: "cloud-script.json"
 }];
 
 export const CATALOG_VERSION = "Main";

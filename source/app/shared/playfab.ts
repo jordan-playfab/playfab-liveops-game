@@ -15,11 +15,6 @@ function login(titleID: string, customID: string, success: (data: PlayFabClientM
         }
 
         if(result.code === 200) {
-            if(result.data.NewlyCreated) {
-                // Doesn't matter if it succeeds or fails
-                updateDisplayName(customID, () => {}, () => {});
-            }
-
             success(result.data);
         }
         else {
@@ -482,6 +477,7 @@ function adminGetCloudScriptRevision(secretKey: string, version: number, revisio
 
 export const PlayFabHelper = {
     login,
+    updateDisplayName,
     getTitleData,
     updateStatistic,
     executeCloudScript,

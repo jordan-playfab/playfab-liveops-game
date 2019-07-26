@@ -125,27 +125,35 @@ class DownloadPageBase extends React.PureComponent<Props, IState> {
         return PROGRESS_STAGES[this.state.downloadProgress].title;
     }
 
+    private getProgressFilename(): string {
+        if(this.state.downloadProgress > PROGRESS_STAGES.length - 1) {
+            return null;
+        }
+
+        return PROGRESS_STAGES[this.state.downloadProgress].filename;
+    }
+
     private runDownload(): void {
         if(!this.state.hasSecretKey || this.state.downloadProgress > PROGRESS_STAGES.length - 1) {
             return;
         }
 
-        const title = this.getProgressTitle();
+        const filename = this.getProgressFilename();
 
         switch(PROGRESS_STAGES[this.state.downloadProgress].key) {
             case "currency":
                 PlayFabHelper.adminListVirtualCurrency(this.state.secretKey, (data) => {
-                    this.advanceDownload(title, data);
+                    this.advanceDownload(filename, data);
                 }, this.props.onPageError);
                 break;
             case "catalog":
                 PlayFabHelper.adminGetCatalogItems(this.state.secretKey, CATALOG_VERSION, (data) => {
-                    this.advanceDownload(title, data);
+                    this.advanceDownload(filename, data);
                 }, this.props.onPageError);
                 break;
             case "droptable":
                 PlayFabHelper.adminGetRandomResultTables(this.state.secretKey, CATALOG_VERSION, (data) => {
-                    this.advanceDownload(title, data);
+                    this.advanceDownload(filename, data);
                 }, this.props.onPageError);
                 break;
             case "store":
@@ -163,12 +171,12 @@ class DownloadPageBase extends React.PureComponent<Props, IState> {
                 break;
             case "titledata":
                 PlayFabHelper.adminGetTitleData(this.state.secretKey, null, (data) => {
-                    this.advanceDownload(title, data);
+                    this.advanceDownload(filename, data);
                 }, this.props.onPageError)
                 break;
             case "cloudscript":
                 PlayFabHelper.adminGetCloudScriptRevision(this.state.secretKey, null, null, (data) => {
-                    this.advanceDownload(title, data);
+                    this.advanceDownload(filename, data);
                 }, this.props.onPageError);
                 break;
         }
@@ -211,7 +219,7 @@ class DownloadPageBase extends React.PureComponent<Props, IState> {
             }
         }, () => {
             if(this.state.storeCounter >= this.storeCount) {
-                this.advanceDownload("Store", {
+                this.advanceDownload(this.getProgressFilename(), {
                     "data": this.storeContent
                 });
             }

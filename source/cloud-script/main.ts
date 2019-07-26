@@ -44,29 +44,51 @@ const App = {
             StatisticNames: statisticNames,
         }).Statistics;
     },
-    UpdatePlayerStatistics(playerId: string, statistics: PlayFabServerModels.StatisticUpdate[]): void {
-        server.UpdatePlayerStatistics({
+    UpdatePlayerStatistics(playerId: string, statistics: PlayFabServerModels.StatisticUpdate[]): PlayFabServerModels.UpdatePlayerStatisticsResult {
+        return server.UpdatePlayerStatistics({
             PlayFabId: playerId,
             Statistics: statistics,
         });
     },
+    ConsumeItem(playerId: string, itemInstanceId: string, count: number): PlayFabServerModels.ConsumeItemResult {
+        return server.ConsumeItem({
+            PlayFabId: playerId,
+            ItemInstanceId: itemInstanceId,
+            ConsumeCount: count
+        });
+    },
     GrantItemsToUser(playerId: string, itemIds: string[], catalogVersion: string = null): void {
-        server.GrantItemsToUser({
+        const grantResult: PlayFabServerModels.GrantItemsToUserResult = server.GrantItemsToUser({
             PlayFabId: playerId,
             ItemIds: itemIds,
             CatalogVersion: catalogVersion
         });
+        
+        // Is this a bundle of credits we need to unpack?
+        grantResult.ItemGrantResults.forEach(item => {
+            if(item.ItemClass.indexOf(App.Config.UnpackClassName) !== -1) {
+                App.ConsumeItem(playerId, item.ItemInstanceId, item.RemainingUses);
+            }
+        })
+    },
+    GetUserInventory(playerId: string): PlayFabServerModels.GetUserInventoryResult {
+        return server.GetUserInventory({
+            PlayFabId: playerId,
+        });
     },
     Config: {
-        unpackClassName: "unpack",
+        UnpackClassName: "unpack",
     },
     Statistics: {
-        kills: "kills",
-        hp: "hp"
+        Kills: "kills",
+        HP: "hp"
     },
     TitleData: {
-        planets: "Planets",
-        enemies: "Enemies"
+        Planets: "Planets",
+        Enemies: "Enemies"
+    },
+    CatalogItems: {
+        StartingPack: "StartingPack",
     }
 };
 
@@ -99,7 +121,7 @@ const isKilledEnemyGroupValid = function(args: IKilledEnemyGroupRequest, planetD
 };
 
 handlers.killedEnemyGroup = function(args: IKilledEnemyGroupRequest, context: any): IKilledEnemyGroupResponse {
-    const planetsAndEnemies = App.GetTitleData([App.TitleData.planets, App.TitleData.enemies]);
+    const planetsAndEnemies = App.GetTitleData([App.TitleData.Planets, App.TitleData.Enemies]);
     const planetData = (planetsAndEnemies.Planets as ITitleDataPlanets).planets;
     const enemyData = (planetsAndEnemies.Enemies as ITitleDataEnemies);
 
@@ -117,17 +139,17 @@ handlers.killedEnemyGroup = function(args: IKilledEnemyGroupRequest, context: an
     const fullEnemyGroup = enemyData.enemyGroups.find(e => e.name === args.enemyGroup);
 
     // Update player statistics
-    const statistics = App.GetPlayerStatistics([App.Statistics.kills, App.Statistics.hp]);
+    const statistics = App.GetPlayerStatistics([App.Statistics.Kills, App.Statistics.HP]);
 
     const statisticUpdates: PlayFabServerModels.StatisticUpdate[] = [];
     
     if(!App.IsNull(statistics)) {
-        const killStatistic = statistics.find(s => s.StatisticName === App.Statistics.kills);
-        const hpStatistic = statistics.find(s => s.StatisticName === App.Statistics.hp);
+        const killStatistic = statistics.find(s => s.StatisticName === App.Statistics.Kills);
+        const hpStatistic = statistics.find(s => s.StatisticName === App.Statistics.HP);
 
         if(!App.IsNull(killStatistic)) {
             statisticUpdates.push({
-                StatisticName: App.Statistics.kills,
+                StatisticName: App.Statistics.Kills,
                 Value: killStatistic.Value + fullEnemyGroup.enemies.length,
             });
         }
@@ -135,7 +157,7 @@ handlers.killedEnemyGroup = function(args: IKilledEnemyGroupRequest, context: an
         if(!App.IsNull(hpStatistic)) {
             // Can't go below zero health
             statisticUpdates.push({
-                StatisticName: App.Statistics.hp,
+                StatisticName: App.Statistics.HP,
                 Value: Math.max(0, hpStatistic.Value - args.damageTaken),
             });
         }
@@ -158,4 +180,17 @@ handlers.killedEnemyGroup = function(args: IKilledEnemyGroupRequest, context: an
         isError: false,
         itemGranted
     };
+};
+
+handlers.playerLogin = function(args: any, context: any): void {
+    // If you're a new player with no money nor items, give you some cash
+    
+    // Make sure you have no money and no items
+    const inventory = App.GetUserInventory(currentPlayerId);
+
+    if(!App.IsNull(inventory.Inventory) || !App.IsNull(inventory.VirtualCurrency)) {
+        return;
+    }
+
+    App.GrantItemsToUser(currentPlayerId, [App.CatalogItems.StartingPack]);
 }
