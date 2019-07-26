@@ -9,9 +9,10 @@ import { RouteComponentProps } from "react-router";
 import { Page } from "../components/page";
 import { DivConfirm, UlInline } from "../styles";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
-import { actionSetPlayerId, actionSetPlayerName, actionSetCatalog, actionSetInventory, actionSetPlanetsFromTitleData, actionSetStoreNamesFromTitleData } from "../store/actions";
+import { actionSetPlayerId, actionSetPlayerName, actionSetCatalog, actionSetInventory, actionSetPlanetsFromTitleData, actionSetStoreNamesFromTitleData, actionSetPlayerHP } from "../store/actions";
 import { TITLE_DATA_PLANETS, CloudScriptFunctionNames, CATALOG_VERSION, TITLE_DATA_STORES } from "../shared/types";
 import { IWithPageProps, withPage } from "../containers/with-page";
+import { IPlayerLoginResponse } from "../../cloud-script/main";
 
 type Props = RouteComponentProps & IWithAppStateProps & IWithPageProps;
 
@@ -116,6 +117,9 @@ class PlayerPageBase extends React.Component<Props, IState> {
 
                 // Also grant you some items
                 PlayFabHelper.ExecuteCloudScript(CloudScriptFunctionNames.playerLogin, null, (data) => {
+                    const response: IPlayerLoginResponse = data.FunctionResult;
+                    this.props.dispatch(actionSetPlayerHP(response.playerHP));
+                    
                     this.getInventory();
                 }, this.props.onPageError);
             }

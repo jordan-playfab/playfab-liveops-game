@@ -43,7 +43,7 @@ const App = {
         });
         // Is this a bundle of credits we need to unpack?
         grantResult.ItemGrantResults.forEach(item => {
-            if (item.ItemClass.indexOf(App.Config.UnpackClassName) !== -1) {
+            if (item.ItemClass.indexOf(App.CatalogItems.UnpackClassName) !== -1) {
                 App.ConsumeItem(playerId, item.ItemInstanceId, item.RemainingUses);
             }
         });
@@ -53,8 +53,21 @@ const App = {
             PlayFabId: playerId,
         });
     },
-    Config: {
-        UnpackClassName: "unpack",
+    GetUserData(playerId, keys) {
+        return server.GetUserData({
+            PlayFabId: playerId,
+            Keys: keys,
+        });
+    },
+    UpdateUserData(playerId, data, keysToRemove, isPublic = false) {
+        return server.UpdateUserData({
+            PlayFabId: playerId,
+            Data: data,
+            KeysToRemove: keysToRemove,
+            Permission: isPublic
+                ? App.Config.PermissionPublic
+                : App.Config.PermissionPrivate
+        });
     },
     Statistics: {
         Kills: "kills",
@@ -62,13 +75,22 @@ const App = {
     },
     TitleData: {
         Planets: "Planets",
-        Enemies: "Enemies"
+        Enemies: "Enemies",
+    },
+    UserData: {
+        HP: "hp",
     },
     CatalogItems: {
         StartingPack: "StartingPack",
+        UnpackClassName: "unpack",
     },
     VirtualCurrency: {
         Credits: "CR"
+    },
+    Config: {
+        StartingHP: 100,
+        PermissionPublic: "Public",
+        PermissionPrivate: "Private"
     }
 };
 const isKilledEnemyGroupValid = function (args, planetData, enemyData) {
@@ -139,16 +161,35 @@ handlers.killedEnemyGroup = function (args, context) {
     };
 };
 handlers.playerLogin = function (args, context) {
-    // If you're a new player with no money nor items, give you some cash
-    // Make sure you have no money and no items
-    const inventory = App.GetUserInventory(currentPlayerId);
-    if (!App.IsNull(inventory.Inventory) || inventory.VirtualCurrency[App.VirtualCurrency.Credits] !== 0) {
-        return {
-            didGrantStartingPack: false,
-        };
-    }
-    App.GrantItemsToUser(currentPlayerId, [App.CatalogItems.StartingPack]);
-    return {
-        didGrantStartingPack: true,
+    // If you're a new player with no money nor items, give you some cash and set your HP
+    const response = {
+        didGrantStartingPack: false,
+        playerHP: 0,
     };
+    // Give new players their starting items
+    const inventory = App.GetUserInventory(currentPlayerId);
+    if (App.IsNull(inventory.Inventory) && inventory.VirtualCurrency[App.VirtualCurrency.Credits] === 0) {
+        response.didGrantStartingPack = true;
+        App.GrantItemsToUser(currentPlayerId, [App.CatalogItems.StartingPack]);
+    }
+    // Give new players some HP through title data
+    const userData = App.GetUserData(currentPlayerId, [App.UserData.HP]);
+    if (App.IsNull(userData.Data[App.UserData.HP])) {
+        response.playerHP = App.Config.StartingHP;
+        userData.Data[App.UserData.HP] = {
+            Value: App.Config.StartingHP.toString(),
+            LastUpdated: new Date().toString(),
+            Permission: App.Config.PermissionPublic
+        };
+        // Turn this UserDataRecordDictionary into a plain IStringDictionary
+        const userDataStringDictionary = Object.keys(userData.Data).reduce((dictionary, key) => {
+            dictionary[key] = userData.Data[key].Value;
+            return dictionary;
+        }, {});
+        App.UpdateUserData(currentPlayerId, userDataStringDictionary, null, true);
+    }
+    else {
+        response.playerHP = parseInt(userData.Data[App.UserData.HP].Value);
+    }
+    return response;
 };

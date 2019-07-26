@@ -1,6 +1,6 @@
 /// <reference path="../../node_modules/playfab-web-sdk/src/Typings/PlayFab/PlayFabClientApi.d.ts" />
 /// <reference path="../../node_modules/playfab-web-sdk/src/Typings/PlayFab/PlayFabAdminApi.d.ts" />
-import { ITitleDataPlanets, ITitleDataEnemies, IPlanetData } from "../app/shared/types";
+import { ITitleDataPlanets, ITitleDataEnemies, IPlanetData, IStringDictionary } from "../app/shared/types";
 
 // PlayFab-supplied global variables
 declare var currentPlayerId: string;
@@ -66,7 +66,7 @@ const App = {
         
         // Is this a bundle of credits we need to unpack?
         grantResult.ItemGrantResults.forEach(item => {
-            if(item.ItemClass.indexOf(App.Config.UnpackClassName) !== -1) {
+            if(item.ItemClass.indexOf(App.CatalogItems.UnpackClassName) !== -1) {
                 App.ConsumeItem(playerId, item.ItemInstanceId, item.RemainingUses);
             }
         })
@@ -76,8 +76,21 @@ const App = {
             PlayFabId: playerId,
         });
     },
-    Config: {
-        UnpackClassName: "unpack",
+    GetUserData(playerId: string, keys: string[]): PlayFabServerModels.GetUserDataResult {
+        return server.GetUserData({
+            PlayFabId: playerId,
+            Keys: keys,
+        });
+    },
+    UpdateUserData(playerId: string, data: IStringDictionary, keysToRemove: string[], isPublic = false): PlayFabServerModels.UpdateUserDataResult {
+        return server.UpdateUserData({
+            PlayFabId: playerId,
+            Data: data,
+            KeysToRemove: keysToRemove,
+            Permission: isPublic
+                ? App.Config.PermissionPublic
+                : App.Config.PermissionPrivate
+        });
     },
     Statistics: {
         Kills: "kills",
@@ -85,13 +98,22 @@ const App = {
     },
     TitleData: {
         Planets: "Planets",
-        Enemies: "Enemies"
+        Enemies: "Enemies",
+    },
+    UserData: {
+        HP: "hp",
     },
     CatalogItems: {
         StartingPack: "StartingPack",
+        UnpackClassName: "unpack",
     },
     VirtualCurrency: {
         Credits: "CR"
+    },
+    Config: {
+        StartingHP: 100,
+        PermissionPublic: "Public",
+        PermissionPrivate: "Private"
     }
 };
 
@@ -187,23 +209,48 @@ handlers.killedEnemyGroup = function(args: IKilledEnemyGroupRequest, context: an
 
 export interface IPlayerLoginResponse {
     didGrantStartingPack: boolean;
+    playerHP: number;
 }
 
 handlers.playerLogin = function(args: any, context: any): IPlayerLoginResponse {
-    // If you're a new player with no money nor items, give you some cash
-    
-    // Make sure you have no money and no items
-    const inventory = App.GetUserInventory(currentPlayerId);
-
-    if(!App.IsNull(inventory.Inventory) || inventory.VirtualCurrency[App.VirtualCurrency.Credits] !== 0) {
-        return {
-            didGrantStartingPack: false,
-        };
+    // If you're a new player with no money nor items, give you some cash and set your HP
+    const response: IPlayerLoginResponse = {
+        didGrantStartingPack: false,
+        playerHP: 0,
     }
 
-    App.GrantItemsToUser(currentPlayerId, [App.CatalogItems.StartingPack]);
+    // Give new players their starting items
+    const inventory = App.GetUserInventory(currentPlayerId);
 
-    return {
-        didGrantStartingPack: true,
-    };
+    if(App.IsNull(inventory.Inventory) && inventory.VirtualCurrency[App.VirtualCurrency.Credits] === 0) {
+        response.didGrantStartingPack = true;
+        App.GrantItemsToUser(currentPlayerId, [App.CatalogItems.StartingPack]);
+    }
+
+    // Give new players some HP through title data
+    const userData = App.GetUserData(currentPlayerId, [App.UserData.HP]);
+
+    if(App.IsNull(userData.Data[App.UserData.HP])) {
+        response.playerHP = App.Config.StartingHP;
+
+        userData.Data[App.UserData.HP] = {
+            Value: App.Config.StartingHP.toString(),
+            LastUpdated: new Date().toString(),
+            Permission: App.Config.PermissionPublic
+        };
+
+        // Turn this UserDataRecordDictionary into a plain IStringDictionary
+        const userDataStringDictionary = Object.keys(userData.Data).reduce((dictionary: IStringDictionary, key: string) => {
+            dictionary[key] = userData.Data[key].Value;
+
+            return dictionary;
+        }, {} as IStringDictionary);
+
+        App.UpdateUserData(currentPlayerId, userDataStringDictionary, null, true);
+    }
+    else {
+        response.playerHP = parseInt(userData.Data[App.UserData.HP].Value);
+    }
+
+    return response;
 }
