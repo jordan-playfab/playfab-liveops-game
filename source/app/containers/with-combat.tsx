@@ -83,7 +83,7 @@ export const withCombat = <P extends IWithCombatProps>(Component: React.Componen
                 else {
                     return {
                         ...prevState,
-                        playerHP: 0
+                        playerHP
                     };
                 }
             });
