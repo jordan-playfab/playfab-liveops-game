@@ -2,13 +2,14 @@ import React from "react";
 import { is } from "../shared/is";
 import { PlayFabHelper } from "../shared/playfab";
 import { RouteComponentProps, Redirect } from "react-router";
-import { IPlanetData, TITLE_DATA_PLANETS, ITitleDataPlanets } from "../shared/types";
+import { IPlanetData, TITLE_DATA_PLANETS } from "../shared/types";
 import { routes } from "../routes";
 import { Page, IBreadcrumbRoute } from "../components/page";
 import { UlInline } from "../styles";
-import { PrimaryButton, Spinner } from "office-ui-fabric-react";
+import { PrimaryButton } from "office-ui-fabric-react";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
-import { actionSetInventory, actionSetPlanets, actionSetPlanetsFromTitleData } from "../store/actions";
+import { actionSetInventory, actionSetPlanetsFromTitleData } from "../store/actions";
+import { IWithPageProps, withPage } from "../containers/with-page";
 
 interface IState {
     currentArea: string;
@@ -20,7 +21,7 @@ interface IPlanetPageRouteProps {
     name: string;
 }
 
-type Props = RouteComponentProps<IPlanetPageRouteProps> & IWithAppStateProps;
+type Props = RouteComponentProps<IPlanetPageRouteProps> & IWithAppStateProps & IWithPageProps;
 
 class PlanetPageBase extends React.Component<Props, IState> {
     constructor(props: Props) {
@@ -38,15 +39,18 @@ class PlanetPageBase extends React.Component<Props, IState> {
             return;
         }
 
+        this.props.clearErrorMessage();
+
         PlayFabHelper.getTitleData([TITLE_DATA_PLANETS], (data) => {
             this.props.dispatch(actionSetPlanetsFromTitleData(data));
             
             this.setState({
                 isLoading: false,
             });
-        }, null);
+        }, this.props.onPlayFabError);
 
-        PlayFabHelper.getInventory(inventory => this.props.dispatch(actionSetInventory(inventory)), null);
+        PlayFabHelper.getInventory(inventory => this.props.dispatch(actionSetInventory(inventory)),
+            this.props.onPlayFabError);
     }
 
     public render(): React.ReactNode {
@@ -173,4 +177,4 @@ class PlanetPageBase extends React.Component<Props, IState> {
     }
 }
 
-export const PlanetPage = withAppState(PlanetPageBase);
+export const PlanetPage = withAppState(withPage(PlanetPageBase));

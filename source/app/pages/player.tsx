@@ -11,12 +11,12 @@ import { DivConfirm, UlInline } from "../styles";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { actionSetPlayerId, actionSetPlayerName, actionSetCatalog, actionSetInventory, actionSetPlanetsFromTitleData } from "../store/actions";
 import { TITLE_DATA_PLANETS } from "../shared/types";
+import { IWithPageProps, withPage } from "../containers/with-page";
 
-type Props = RouteComponentProps & IWithAppStateProps;
+type Props = RouteComponentProps & IWithAppStateProps & IWithPageProps;
 
 interface IState {
     playerName: string;
-    error: string;
     isLoggingIn: boolean;
 }
 
@@ -26,7 +26,6 @@ class PlayerPageBase extends React.Component<Props, IState> {
 
         this.state = {
             playerName: null,
-            error: null,
             isLoggingIn: false,
         };
     }
@@ -43,8 +42,8 @@ class PlayerPageBase extends React.Component<Props, IState> {
                         ? "Choose Your Destination"
                         : "Play Game"}
                 </h2>
-                {!is.null(this.state.error) && (
-                    <MessageBar messageBarType={MessageBarType.error}>{this.state.error}</MessageBar>
+                {!is.null(this.props.errorMessage) && (
+                    <MessageBar messageBarType={MessageBarType.error}>{this.props.errorMessage}</MessageBar>
                 )}
                 {this.props.appState.hasPlayerId
                     ? this.renderPlanetMenu()
@@ -102,33 +101,32 @@ class PlayerPageBase extends React.Component<Props, IState> {
     }
 
     private login = (): void => {
+        this.props.clearErrorMessage();
+
         this.setState({
-            error: null,
             isLoggingIn: true,
         });
 
         PlayFabHelper.login(this.props.appState.titleId, this.state.playerName, (player) => {
             this.props.dispatch(actionSetPlayerId(player.PlayFabId));
             this.props.dispatch(actionSetPlayerName(this.state.playerName));
+
             PlayFabHelper.getTitleData([TITLE_DATA_PLANETS], (data) => {
                 this.props.dispatch(actionSetPlanetsFromTitleData(data));
-            }, this.loadError);
+            }, this.props.onPlayFabError);
+            
             PlayFabHelper.getInventory((inventory) => {
                 this.props.dispatch(actionSetInventory(inventory));
-            }, this.loadError);
+            }, this.props.onPlayFabError);
+            
             PlayFabHelper.getCatalog((catalog) => {
                 this.props.dispatch(actionSetCatalog(catalog));
-            }, this.loadError)
+            }, this.props.onPlayFabError)
+            
             this.setState({
                 isLoggingIn: false,
             });
-        }, this.loadError);
-    }
-
-    private loadError = (message: string): void => {
-        this.setState({
-            error: message,
-        });
+        }, this.props.onPlayFabError);
     }
 
     private isValid(): boolean {
@@ -136,4 +134,4 @@ class PlayerPageBase extends React.Component<Props, IState> {
     }
 }
 
-export const PlayerPage = withAppState(PlayerPageBase);
+export const PlayerPage = withAppState(withPage(PlayerPageBase));

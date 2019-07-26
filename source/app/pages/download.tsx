@@ -8,11 +8,11 @@ import { routes } from "../routes";
 import { PROGRESS_STAGES, CATALOG_VERSION, TITLE_DATA_STORES } from "../shared/types";
 import { PlayFabHelper } from "../shared/playfab";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
+import { withPage, IWithPageProps } from "../containers/with-page";
 
 interface IState {
     secretKey: string;
     hasSecretKey: boolean;
-    error: string;
     downloadProgress: number;
     storeCounter: number;
     titleDataCounter: number;
@@ -24,7 +24,7 @@ interface IDownloadContent {
     content: string;
 }
 
-type Props = RouteComponentProps & IWithAppStateProps;
+type Props = RouteComponentProps & IWithAppStateProps & IWithPageProps;
 
 class DownloadPageBase extends React.PureComponent<Props, IState> {
     private storeCount = 0;
@@ -36,7 +36,6 @@ class DownloadPageBase extends React.PureComponent<Props, IState> {
         this.state = {
             secretKey: null,
             hasSecretKey: false,
-            error: null,
             downloadProgress: 0,
             storeCounter: 0,
             titleDataCounter: 0,
@@ -57,8 +56,8 @@ class DownloadPageBase extends React.PureComponent<Props, IState> {
 
         return (
             <Page {...this.props} title="Download Data">
-                {!is.null(this.state.error) && (
-                    <MessageBar messageBarType={MessageBarType.error}>{this.state.error}</MessageBar>
+                {!is.null(this.props.errorMessage) && (
+                    <MessageBar messageBarType={MessageBarType.error}>{this.props.errorMessage}</MessageBar>
                 )}
                 {this.state.hasSecretKey
                     ? this.renderDownload()
@@ -137,17 +136,17 @@ class DownloadPageBase extends React.PureComponent<Props, IState> {
             case "currency":
                 PlayFabHelper.adminListVirtualCurrency(this.state.secretKey, (data) => {
                     this.advanceDownload(title, data);
-                }, this.loadError);
+                }, this.props.onPlayFabError);
                 break;
             case "catalog":
                 PlayFabHelper.adminGetCatalogItems(this.state.secretKey, CATALOG_VERSION, (data) => {
                     this.advanceDownload(title, data);
-                }, this.loadError);
+                }, this.props.onPlayFabError);
                 break;
             case "droptable":
                 PlayFabHelper.adminGetRandomResultTables(this.state.secretKey, CATALOG_VERSION, (data) => {
                     this.advanceDownload(title, data);
-                }, this.loadError);
+                }, this.props.onPlayFabError);
                 break;
             case "store":
                 PlayFabHelper.adminGetTitleData(this.state.secretKey, [TITLE_DATA_STORES], (titleData) => {
@@ -158,19 +157,19 @@ class DownloadPageBase extends React.PureComponent<Props, IState> {
                         PlayFabHelper.adminGetStores(this.state.secretKey, CATALOG_VERSION, name, (storeData) => {
                             this.storeContent.push(storeData);
                             this.advanceStoreCounter();
-                        }, this.loadError);
+                        }, this.props.onPlayFabError);
                     })
-                }, this.loadError);
+                }, this.props.onPlayFabError);
                 break;
             case "titledata":
                 PlayFabHelper.adminGetTitleData(this.state.secretKey, null, (data) => {
                     this.advanceDownload(title, data);
-                }, this.loadError)
+                }, this.props.onPlayFabError)
                 break;
             case "cloudscript":
                 PlayFabHelper.adminGetCloudScriptRevision(this.state.secretKey, null, null, (data) => {
                     this.advanceDownload(title, data);
-                }, this.loadError);
+                }, this.props.onPlayFabError);
                 break;
         }
     }
@@ -191,21 +190,16 @@ class DownloadPageBase extends React.PureComponent<Props, IState> {
         }, this.runDownload);
     }
 
-    private loadError = (error: string): void => {
-        this.setState({
-            error,
-        });
-    }
-
     private advanceDownload = (title: string, data: any): void => {
+        this.props.clearErrorMessage();
+
         this.setState((prevState) => {
             return {
                 downloadProgress: prevState.downloadProgress + 1,
                 downloadContent: prevState.downloadContent.concat([{
                     title,
                     content: JSON.stringify(data, null, 4),
-                }]),
-                error: null,
+                }])
             }
         });
     }
@@ -225,4 +219,4 @@ class DownloadPageBase extends React.PureComponent<Props, IState> {
     }
 }
 
-export const DownloadPage = withAppState(DownloadPageBase);
+export const DownloadPage = withAppState(withPage(DownloadPageBase));

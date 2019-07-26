@@ -15,17 +15,17 @@ import TitleData from "../../data/title-data.json";
 import CloudScript from "../../data/cloud-script.json";
 import DropTables from "../../data/drop-tables.json";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
+import { IWithPageProps, withPage } from "../containers/with-page";
 
 interface IState {
     secretKey: string;
     hasSecretKey: boolean;
-    error: string;
     uploadProgress: number;
     storeCounter: number;
     titleDataCounter: number;
 }
 
-type Props = RouteComponentProps & IWithAppStateProps;
+type Props = RouteComponentProps & IWithAppStateProps & IWithPageProps;
 
 class UploadPageBase extends React.Component<Props, IState> {
     constructor(props: Props) {
@@ -34,7 +34,6 @@ class UploadPageBase extends React.Component<Props, IState> {
         this.state = {
             secretKey: null,
             hasSecretKey: false,
-            error: null,
             uploadProgress: 0,
             storeCounter: 0,
             titleDataCounter: 0,
@@ -54,8 +53,8 @@ class UploadPageBase extends React.Component<Props, IState> {
 
         return (
             <Page {...this.props} title="Upload Data">
-                {!is.null(this.state.error) && (
-                    <MessageBar messageBarType={MessageBarType.error}>{this.state.error}</MessageBar>
+                {!is.null(this.props.errorMessage) && (
+                    <MessageBar messageBarType={MessageBarType.error}>{this.props.errorMessage}</MessageBar>
                 )}
                 {this.state.hasSecretKey
                     ? this.renderUpload()
@@ -128,30 +127,30 @@ class UploadPageBase extends React.Component<Props, IState> {
 
         switch(PROGRESS_STAGES[this.state.uploadProgress].key) {
             case "currency":
-                PlayFabHelper.adminAddVirtualCurrencies(this.state.secretKey, VirtualCurrencies.VirtualCurrencies, this.advanceUpload, this.loadError);
+                PlayFabHelper.adminAddVirtualCurrencies(this.state.secretKey, VirtualCurrencies.VirtualCurrencies, this.advanceUpload, this.props.onPlayFabError);
                 break;
             case "catalog":
-                PlayFabHelper.adminSetCatalogItems(this.state.secretKey, Catalogs.Catalog, CATALOG_VERSION, true, this.advanceUpload, this.loadError);
+                PlayFabHelper.adminSetCatalogItems(this.state.secretKey, Catalogs.Catalog, CATALOG_VERSION, true, this.advanceUpload, this.props.onPlayFabError);
                 break;
             case "droptable":
-                PlayFabHelper.adminUpdateDropTables(this.state.secretKey, this.mapDropTable(DropTables as any), CATALOG_VERSION, this.advanceUpload, this.loadError);
+                PlayFabHelper.adminUpdateDropTables(this.state.secretKey, this.mapDropTable(DropTables as any), CATALOG_VERSION, this.advanceUpload, this.props.onPlayFabError);
                 break;
             case "store":
                 Stores.data.forEach((s, index) => {
                     window.setTimeout(() => {
-                        PlayFabHelper.adminSetStoreItems(this.state.secretKey, s.StoreId, s.Store, s.MarketingData, CATALOG_VERSION, this.advanceStoreCounter, this.loadError);
+                        PlayFabHelper.adminSetStoreItems(this.state.secretKey, s.StoreId, s.Store, s.MarketingData, CATALOG_VERSION, this.advanceStoreCounter, this.props.onPlayFabError);
                     }, index * 500);
                 });
                 break;
             case "titledata":
                 Object.keys(TitleData.Data).forEach((key, index) => {
                     window.setTimeout(() => {
-                        PlayFabHelper.adminSetTitleData(this.state.secretKey, key, (TitleData.Data as IStringDictionary)[key], this.advanceTitleDataCounter, this.loadError);
+                        PlayFabHelper.adminSetTitleData(this.state.secretKey, key, (TitleData.Data as IStringDictionary)[key], this.advanceTitleDataCounter, this.props.onPlayFabError);
                     }, index * 500);
                 });
                 break;
             case "cloudscript":
-                PlayFabHelper.adminUpdateCloudScript(this.state.secretKey, CloudScript.Files[0].FileContents, true, this.advanceUpload, this.loadError);
+                PlayFabHelper.adminUpdateCloudScript(this.state.secretKey, CloudScript.Files[0].FileContents, true, this.advanceUpload, this.props.onPlayFabError);
                 break;
         }
     }
@@ -168,10 +167,11 @@ class UploadPageBase extends React.Component<Props, IState> {
     private advanceUpload = (): void => {
         // Can't let the system go too fast
         window.setTimeout(() => {
+            this.props.clearErrorMessage();
+
             this.setState((prevState) => {
                 return {
                     uploadProgress: prevState.uploadProgress + 1,
-                    error: null,
                 }
             });
         }, 500);
@@ -201,15 +201,9 @@ class UploadPageBase extends React.Component<Props, IState> {
         });
     }
 
-    private loadError = (error: string): void => {
-        this.setState({
-            error,
-        });
-    }
-
     private isValid(): boolean {
         return this.props.appState.hasTitleId;
     }
 }
 
-export const UploadPage = withAppState(UploadPageBase);
+export const UploadPage = withAppState(withPage(UploadPageBase));

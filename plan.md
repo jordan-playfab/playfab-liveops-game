@@ -10,7 +10,7 @@
 - [ ] Actual combat engine with reports at the end
 - [ ] Player HP and damage taking
 - [x] Use Redux
-- [ ] Create page HOC to handle errors and maybe more later
+- [x] Create page HOC to handle errors and maybe more later
 - [ ] Watch mode
 - [ ] Improve PlayFab helper
 - [ ] Actual loot in looter shooter
