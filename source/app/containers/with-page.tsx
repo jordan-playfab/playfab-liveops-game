@@ -1,41 +1,41 @@
 import React from "react";
 
 export interface IWithPageProps {
-    readonly errorMessage: string;
-    readonly clearErrorMessage: () => void;
-    readonly onPlayFabError: (errorMessage: string) => void;
+    readonly pageError: string;
+    readonly onPageClearError: () => void;
+    readonly onPageError: (errorMessage: string) => void;
 }
 
 interface IState {
-    errorMessage: string;
+    error: string;
 }
 
 export const withPage = <P extends IWithPageProps>(Component: React.ComponentType<P>) => {
     return class WithAppState extends React.Component<Omit<P, keyof IWithPageProps>, IState> {
         public state: IState = {
-			errorMessage: null,
+			error: null,
 		};
 
         public render(): React.ReactNode {
             return (
                 <Component
                     {...this.props as P}
-                    errorMessage={this.state.errorMessage}
-                    onPlayFabError={this.onPlayFabError}
-                    clearErrorMessage={this.clearErrorMessage}
+                    pageError={this.state.error}
+                    onPageError={this.onError}
+                    onPageClearError={this.clearError}
                 />
             );
         }
 
-        private onPlayFabError = (errorMessage: string): void => {
+        private onError = (errorMessage: string): void => {
             this.setState({
-                errorMessage,
+                error: errorMessage,
             });
         }
 
-        private clearErrorMessage = (): void => {
+        private clearError = (): void => {
             this.setState({
-                errorMessage: null,
+                error: null,
             });
         }
     }

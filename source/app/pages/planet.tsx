@@ -17,7 +17,6 @@ interface IState {
     areaName: string;
     enemyGroupName: string;
     isLoading: boolean;
-    itemGranted: string;
 }
 
 interface IPlanetPageRouteProps {
@@ -33,7 +32,6 @@ class PlanetPageBase extends React.Component<Props, IState> {
         this.state = {
             isLoading: true,
             areaName: null,
-            itemGranted: null,
             enemyGroupName: null,
         }
     }
@@ -43,7 +41,7 @@ class PlanetPageBase extends React.Component<Props, IState> {
             return;
         }
 
-        this.props.clearErrorMessage();
+        this.props.onPageClearError();
 
         PlayFabHelper.getTitleData([TITLE_DATA_PLANETS, TITLE_DATA_ENEMIES], (data) => {
             this.props.dispatch(actionSetPlanetsFromTitleData(data));
@@ -52,10 +50,10 @@ class PlanetPageBase extends React.Component<Props, IState> {
             this.setState({
                 isLoading: false,
             });
-        }, this.props.onPlayFabError);
+        }, this.props.onPageError);
 
         PlayFabHelper.getInventory(inventory => this.props.dispatch(actionSetInventory(inventory)),
-            this.props.onPlayFabError);
+            this.props.onPageError);
     }
 
     public render(): React.ReactNode {
@@ -101,16 +99,13 @@ class PlanetPageBase extends React.Component<Props, IState> {
         return (
             <React.Fragment>
                 {this.renderCombat()}
-                {!is.null(this.state.itemGranted) && (
-                    <p>You just got a {this.state.itemGranted}</p>
-                )}
             </React.Fragment>
         );
     }
 
     private renderCombat(): React.ReactNode {
         const enemyGroup = this.props.appState.enemies.enemyGroups.find(g => g.name === this.state.enemyGroupName);
-        const enemyData = this.props.appState.enemies.enemies.filter(e => enemyGroup.enemies.find(groupEnemy => groupEnemy === e.name));
+        const enemyData = enemyGroup.enemies.map(e => this.props.appState.enemies.enemies.find(d => d.name === e));
 
         return (
             <Combat
@@ -140,7 +135,7 @@ class PlanetPageBase extends React.Component<Props, IState> {
             .find(a => a.name === area);
 
         if(is.null(thisArea)) {
-            return this.props.onPlayFabError(`Area ${area} not found somehow`);
+            return this.props.onPageError(`Area ${area} not found somehow`);
         }
 
         const enemyGroupIndex = mathHelper.getRandomInt(0, thisArea.enemyGroups.length - 1);

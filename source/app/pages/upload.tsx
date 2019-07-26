@@ -53,8 +53,8 @@ class UploadPageBase extends React.Component<Props, IState> {
 
         return (
             <Page {...this.props} title="Upload Data">
-                {!is.null(this.props.errorMessage) && (
-                    <MessageBar messageBarType={MessageBarType.error}>{this.props.errorMessage}</MessageBar>
+                {!is.null(this.props.pageError) && (
+                    <MessageBar messageBarType={MessageBarType.error}>{this.props.pageError}</MessageBar>
                 )}
                 {this.state.hasSecretKey
                     ? this.renderUpload()
@@ -127,30 +127,30 @@ class UploadPageBase extends React.Component<Props, IState> {
 
         switch(PROGRESS_STAGES[this.state.uploadProgress].key) {
             case "currency":
-                PlayFabHelper.adminAddVirtualCurrencies(this.state.secretKey, VirtualCurrencies.VirtualCurrencies, this.advanceUpload, this.props.onPlayFabError);
+                PlayFabHelper.adminAddVirtualCurrencies(this.state.secretKey, VirtualCurrencies.VirtualCurrencies, this.advanceUpload, this.props.onPageError);
                 break;
             case "catalog":
-                PlayFabHelper.adminSetCatalogItems(this.state.secretKey, Catalogs.Catalog, CATALOG_VERSION, true, this.advanceUpload, this.props.onPlayFabError);
+                PlayFabHelper.adminSetCatalogItems(this.state.secretKey, Catalogs.Catalog, CATALOG_VERSION, true, this.advanceUpload, this.props.onPageError);
                 break;
             case "droptable":
-                PlayFabHelper.adminUpdateDropTables(this.state.secretKey, this.mapDropTable(DropTables as any), CATALOG_VERSION, this.advanceUpload, this.props.onPlayFabError);
+                PlayFabHelper.adminUpdateDropTables(this.state.secretKey, this.mapDropTable(DropTables as any), CATALOG_VERSION, this.advanceUpload, this.props.onPageError);
                 break;
             case "store":
                 Stores.data.forEach((s, index) => {
                     window.setTimeout(() => {
-                        PlayFabHelper.adminSetStoreItems(this.state.secretKey, s.StoreId, s.Store, s.MarketingData, CATALOG_VERSION, this.advanceStoreCounter, this.props.onPlayFabError);
+                        PlayFabHelper.adminSetStoreItems(this.state.secretKey, s.StoreId, s.Store, s.MarketingData, CATALOG_VERSION, this.advanceStoreCounter, this.props.onPageError);
                     }, index * 500);
                 });
                 break;
             case "titledata":
                 Object.keys(TitleData.Data).forEach((key, index) => {
                     window.setTimeout(() => {
-                        PlayFabHelper.adminSetTitleData(this.state.secretKey, key, (TitleData.Data as IStringDictionary)[key], this.advanceTitleDataCounter, this.props.onPlayFabError);
+                        PlayFabHelper.adminSetTitleData(this.state.secretKey, key, (TitleData.Data as IStringDictionary)[key], this.advanceTitleDataCounter, this.props.onPageError);
                     }, index * 500);
                 });
                 break;
             case "cloudscript":
-                PlayFabHelper.adminUpdateCloudScript(this.state.secretKey, CloudScript.Files[0].FileContents, true, this.advanceUpload, this.props.onPlayFabError);
+                PlayFabHelper.adminUpdateCloudScript(this.state.secretKey, CloudScript.Files[0].FileContents, true, this.advanceUpload, this.props.onPageError);
                 break;
         }
     }
@@ -167,7 +167,7 @@ class UploadPageBase extends React.Component<Props, IState> {
     private advanceUpload = (): void => {
         // Can't let the system go too fast
         window.setTimeout(() => {
-            this.props.clearErrorMessage();
+            this.props.onPageClearError();
 
             this.setState((prevState) => {
                 return {

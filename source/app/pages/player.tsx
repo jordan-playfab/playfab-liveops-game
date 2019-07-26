@@ -42,8 +42,8 @@ class PlayerPageBase extends React.Component<Props, IState> {
                         ? "Choose Your Destination"
                         : "Play Game"}
                 </h2>
-                {!is.null(this.props.errorMessage) && (
-                    <MessageBar messageBarType={MessageBarType.error}>{this.props.errorMessage}</MessageBar>
+                {!is.null(this.props.pageError) && (
+                    <MessageBar messageBarType={MessageBarType.error}>{this.props.pageError}</MessageBar>
                 )}
                 {this.props.appState.hasPlayerId
                     ? this.renderPlanetMenu()
@@ -101,7 +101,7 @@ class PlayerPageBase extends React.Component<Props, IState> {
     }
 
     private login = (): void => {
-        this.props.clearErrorMessage();
+        this.props.onPageClearError();
 
         this.setState({
             isLoggingIn: true,
@@ -113,20 +113,20 @@ class PlayerPageBase extends React.Component<Props, IState> {
 
             PlayFabHelper.getTitleData([TITLE_DATA_PLANETS], (data) => {
                 this.props.dispatch(actionSetPlanetsFromTitleData(data));
-            }, this.props.onPlayFabError);
+            }, this.props.onPageError);
             
             PlayFabHelper.getInventory((inventory) => {
                 this.props.dispatch(actionSetInventory(inventory));
-            }, this.props.onPlayFabError);
+            }, this.props.onPageError);
             
             PlayFabHelper.getCatalog((catalog) => {
                 this.props.dispatch(actionSetCatalog(catalog));
-            }, this.props.onPlayFabError)
+            }, this.props.onPageError)
             
             this.setState({
                 isLoggingIn: false,
             });
-        }, this.props.onPlayFabError);
+        }, this.props.onPageError);
     }
 
     private isValid(): boolean {
