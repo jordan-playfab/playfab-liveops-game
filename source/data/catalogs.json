@@ -166,6 +166,29 @@
             "IsTradable": false,
             "IsLimitedEdition": false,
             "InitialLimitedEditionCount": 0
+        },
+        {
+            "ItemId": "StartingPack",
+            "ItemClass": "unpack",
+            "CatalogVersion": "Main",
+            "DisplayName": "Starting equipment pack",
+            "VirtualCurrencyPrices": {},
+            "Tags": [],
+            "Consumable": {
+                "UsageCount": 1
+            },
+            "Bundle": {
+                "BundledItems": [],
+                "BundledResultTables": [],
+                "BundledVirtualCurrencies": {
+                    "CR": 100
+                }
+            },
+            "CanBecomeCharacter": false,
+            "IsStackable": false,
+            "IsTradable": false,
+            "IsLimitedEdition": false,
+            "InitialLimitedEditionCount": 0
         }
     ]
 }
