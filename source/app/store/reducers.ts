@@ -1,7 +1,6 @@
 import { Reducer } from "redux";
 import { IApplicationState, IAction, ActionTypes } from "./types";
 import { ITitleDataEnemies, IPlanetData } from "../shared/types";
-import { titleHelper } from "../shared/title-helper";
 import { is } from "../shared/is";
 
 const initialState: IApplicationState = {
@@ -56,9 +55,6 @@ export const mainReducer: Reducer<IApplicationState, IAction<any>> = (state = in
                 stores: action.payload as PlayFabClientModels.GetStoreItemsResult[],
             };
         case ActionTypes.SET_TITLE_ID:
-            PlayFab.settings.titleId = action.payload;
-            titleHelper.set(action.payload);
-
             return {
                 ...state,
                 titleId: action.payload as string,

@@ -7,6 +7,7 @@ import { Page } from "../components/page";
 import { DivConfirm, UlInline } from "../styles";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { actionSetTitleId } from "../store/actions";
+import { titleHelper } from "../shared/title-helper";
 
 interface IState {
     titleID: string;
@@ -78,6 +79,8 @@ class HomePageBase extends React.Component<Props, IState> {
     }
 
     private saveTitleID = (): void => {
+        PlayFab.settings.titleId = this.state.titleID;
+        titleHelper.set(this.state.titleID);
         this.props.dispatch(actionSetTitleId(this.state.titleID));
     }
 }

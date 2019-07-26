@@ -6,7 +6,6 @@ import { HomePage } from "./pages/home";
 import { PlayerPage } from "./pages/player";
 import { PlanetPage } from "./pages/planet";
 import NotFound from "./pages/not-found";
-import { IPlanetData } from "./shared/types";
 import { HomeBasePage } from "./pages/home-base";
 import { UploadPage } from "./pages/upload";
 import { DownloadPage } from "./pages/download";
@@ -22,6 +21,7 @@ class RouterBase extends React.Component<Props> {
 		const titleId = titleHelper.get();
 
 		if(!is.null(titleId)) {
+			PlayFab.settings.titleId = titleId;
 			this.props.dispatch(actionSetTitleId(titleId));
 		}
 	}

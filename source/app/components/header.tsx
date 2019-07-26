@@ -5,6 +5,7 @@ import { is } from "../shared/is";
 import styled from "../styles";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { actionSetTitleId } from "../store/actions";
+import { titleHelper } from "../shared/title-helper";
 
 const HeaderWrapper = styled.header`
     position: relative;
@@ -56,6 +57,8 @@ class HeaderBase extends React.PureComponent<Props> {
     }
 
     private resetTitleId = (): void => {
+        PlayFab.settings.titleId = null;
+        titleHelper.set(null);
         this.props.dispatch(actionSetTitleId(null));
     }
 }
