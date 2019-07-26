@@ -9,13 +9,15 @@ import { UlInline } from "../styles";
 import { PrimaryButton } from "office-ui-fabric-react";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { actionSetInventory, actionSetStores } from "../store/actions";
+import { CATALOG_VERSION } from "../shared/types";
+import { IWithPageProps, withPage } from "../containers/with-page";
 
 interface IState {
     selectedStore: string;
     buyResult: string;
 }
 
-type Props = RouteComponentProps & IWithAppStateProps;
+type Props = RouteComponentProps & IWithAppStateProps & IWithPageProps;
 
 class HomeBasePageBase extends React.Component<Props, IState> {
     constructor(props: Props) {
@@ -32,7 +34,7 @@ class HomeBasePageBase extends React.Component<Props, IState> {
             return;
         }
 
-        PlayFabHelper.getStores(stores => this.props.dispatch(actionSetStores(stores)), null);
+        this.loadStores();
     }
 
     public render(): React.ReactNode {
@@ -93,7 +95,7 @@ class HomeBasePageBase extends React.Component<Props, IState> {
     }
 
     private onBuyFromStore = (itemID: string, currency: string, price: number): void => {
-        PlayFabHelper.buyFromStore(this.state.selectedStore, itemID, currency, price,
+        PlayFabHelper.PurchaseItem(CATALOG_VERSION, this.state.selectedStore, itemID, currency, price,
             (data) => {
                 if(!is.null(data.errorMessage)) {
                     this.setState({
@@ -105,7 +107,7 @@ class HomeBasePageBase extends React.Component<Props, IState> {
                 this.setState({
                     buyResult: `Bought a ${data.Items[0].DisplayName}`,
                 }, () => {
-                    PlayFabHelper.getInventory(inventory => this.props.dispatch(actionSetInventory(inventory)), null);
+                    PlayFabHelper.GetUserInventory(inventory => this.props.dispatch(actionSetInventory(inventory)), null);
                 });
             }, (error) => {
                 console.log("Got an error of " + error);
@@ -148,6 +150,20 @@ class HomeBasePageBase extends React.Component<Props, IState> {
             ? null
             : this.props.appState.stores.find(s => s.StoreId === this.state.selectedStore);
     }
+
+    private loadStores(): void {
+        const stores: PlayFabClientModels.GetStoreItemsResult[] = [];
+
+        this.props.appState.storeNames.forEach(storeId => {
+            PlayFabHelper.GetStoreItems(CATALOG_VERSION, storeId, (data) => {
+                stores.push(data);
+
+                if(stores.length === this.props.appState.storeNames.length) {
+                    this.props.dispatch(actionSetStores(stores));
+                }
+            }, this.props.onPageError)
+        });
+    }
 }
 
-export const HomeBasePage = withAppState(HomeBasePageBase);
+export const HomeBasePage = withAppState(withPage(HomeBasePageBase));

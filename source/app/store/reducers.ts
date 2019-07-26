@@ -15,6 +15,7 @@ const initialState: IApplicationState = {
     titleId: null,
     hasPlayerId: false,
     hasTitleId: false,
+    storeNames: null,
 };
 
 export const mainReducer: Reducer<IApplicationState, IAction<any>> = (state = initialState, action): IApplicationState => {
@@ -54,6 +55,11 @@ export const mainReducer: Reducer<IApplicationState, IAction<any>> = (state = in
             return {
                 ...state,
                 stores: action.payload as PlayFabClientModels.GetStoreItemsResult[],
+            };
+        case ActionTypes.SET_STORE_NAMES:
+            return {
+                ...state,
+                storeNames: action.payload as string[],
             };
         case ActionTypes.SET_TITLE_ID:
             return {

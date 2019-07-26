@@ -10,7 +10,7 @@ import { PrimaryButton } from "office-ui-fabric-react";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { actionSetInventory, actionSetPlanetsFromTitleData, actionSetEnemiesFromTitleData } from "../store/actions";
 import { IWithPageProps, withPage } from "../containers/with-page";
-import { mathHelper } from "../shared/math-helper";
+import { utilities } from "../shared/utilities";
 import { Combat } from "../components/combat";
 
 interface IState {
@@ -43,16 +43,16 @@ class PlanetPageBase extends React.Component<Props, IState> {
 
         this.props.onPageClearError();
 
-        PlayFabHelper.getTitleData([TITLE_DATA_PLANETS, TITLE_DATA_ENEMIES], (data) => {
-            this.props.dispatch(actionSetPlanetsFromTitleData(data));
-            this.props.dispatch(actionSetEnemiesFromTitleData(data));
+        PlayFabHelper.GetTitleData([TITLE_DATA_PLANETS, TITLE_DATA_ENEMIES], (data) => {
+            this.props.dispatch(actionSetPlanetsFromTitleData(data, TITLE_DATA_PLANETS));
+            this.props.dispatch(actionSetEnemiesFromTitleData(data, TITLE_DATA_ENEMIES));
             
             this.setState({
                 isLoading: false,
             });
         }, this.props.onPageError);
 
-        PlayFabHelper.getInventory(inventory => this.props.dispatch(actionSetInventory(inventory)),
+        PlayFabHelper.GetUserInventory(inventory => this.props.dispatch(actionSetInventory(inventory)),
             this.props.onPageError);
     }
 
@@ -138,7 +138,7 @@ class PlanetPageBase extends React.Component<Props, IState> {
             return this.props.onPageError(`Area ${area} not found somehow`);
         }
 
-        const enemyGroupIndex = mathHelper.getRandomInt(0, thisArea.enemyGroups.length - 1);
+        const enemyGroupIndex = utilities.getRandomInteger(0, thisArea.enemyGroups.length - 1);
 
         this.setState({
             areaName: area,

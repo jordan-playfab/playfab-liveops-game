@@ -1,11 +1,11 @@
 import React from "react";
-import { DefaultButton } from 'office-ui-fabric-react';
+import { DefaultButton } from "office-ui-fabric-react";
 
 import { is } from "../shared/is";
 import styled from "../styles";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { actionSetTitleId } from "../store/actions";
-import { titleHelper } from "../shared/title-helper";
+import { utilities } from "../shared/utilities";
 
 const HeaderWrapper = styled.header`
     position: relative;
@@ -58,7 +58,7 @@ class HeaderBase extends React.PureComponent<Props> {
 
     private resetTitleId = (): void => {
         PlayFab.settings.titleId = null;
-        titleHelper.set(null);
+        utilities.setTitleId(null);
         this.props.dispatch(actionSetTitleId(null));
     }
 }

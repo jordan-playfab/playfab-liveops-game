@@ -9,8 +9,8 @@ import { RouteComponentProps } from "react-router";
 import { Page } from "../components/page";
 import { DivConfirm, UlInline } from "../styles";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
-import { actionSetPlayerId, actionSetPlayerName, actionSetCatalog, actionSetInventory, actionSetPlanetsFromTitleData } from "../store/actions";
-import { TITLE_DATA_PLANETS, CloudScriptFunctionNames } from "../shared/types";
+import { actionSetPlayerId, actionSetPlayerName, actionSetCatalog, actionSetInventory, actionSetPlanetsFromTitleData, actionSetStoreNamesFromTitleData } from "../store/actions";
+import { TITLE_DATA_PLANETS, CloudScriptFunctionNames, CATALOG_VERSION, TITLE_DATA_STORES } from "../shared/types";
 import { IWithPageProps, withPage } from "../containers/with-page";
 
 type Props = RouteComponentProps & IWithAppStateProps & IWithPageProps;
@@ -107,15 +107,15 @@ class PlayerPageBase extends React.Component<Props, IState> {
             isLoggingIn: true,
         });
 
-        PlayFabHelper.login(this.props.appState.titleId, this.state.playerName, (player) => {
+        PlayFabHelper.LoginWithCustomID(this.props.appState.titleId, this.state.playerName, (player) => {
             this.props.dispatch(actionSetPlayerId(player.PlayFabId));
             this.props.dispatch(actionSetPlayerName(this.state.playerName));
 
             if(player.NewlyCreated) {
-                PlayFabHelper.updateDisplayName(this.state.playerName, this.props.onPageNothing, this.props.onPageError);
+                PlayFabHelper.UpdateUserTitleDisplayName(this.state.playerName, this.props.onPageNothing, this.props.onPageError);
 
                 // Also grant you some items
-                PlayFabHelper.executeCloudScript(CloudScriptFunctionNames.playerLogin, null, (data) => {
+                PlayFabHelper.ExecuteCloudScript(CloudScriptFunctionNames.playerLogin, null, (data) => {
                     this.getInventory();
                 }, this.props.onPageError);
             }
@@ -123,11 +123,12 @@ class PlayerPageBase extends React.Component<Props, IState> {
                 this.getInventory();
             }
 
-            PlayFabHelper.getTitleData([TITLE_DATA_PLANETS], (data) => {
-                this.props.dispatch(actionSetPlanetsFromTitleData(data));
+            PlayFabHelper.GetTitleData([TITLE_DATA_PLANETS, TITLE_DATA_STORES], (data) => {
+                this.props.dispatch(actionSetPlanetsFromTitleData(data, TITLE_DATA_PLANETS));
+                this.props.dispatch(actionSetStoreNamesFromTitleData(data, TITLE_DATA_STORES));
             }, this.props.onPageError);
             
-            PlayFabHelper.getCatalog((catalog) => {
+            PlayFabHelper.GetCatalogItems(CATALOG_VERSION, (catalog) => {
                 this.props.dispatch(actionSetCatalog(catalog));
             }, this.props.onPageError)
             
@@ -138,7 +139,7 @@ class PlayerPageBase extends React.Component<Props, IState> {
     }
 
     private getInventory(): void {
-        PlayFabHelper.getInventory((inventory) => {
+        PlayFabHelper.GetUserInventory((inventory) => {
             this.props.dispatch(actionSetInventory(inventory));
         }, this.props.onPageError);
     }

@@ -10,15 +10,15 @@ import { HomeBasePage } from "./pages/home-base";
 import { UploadPage } from "./pages/upload";
 import { DownloadPage } from "./pages/download";
 import { IWithAppStateProps, withAppState } from "./containers/with-app-state";
-import { titleHelper } from "./shared/title-helper";
 import { is } from "./shared/is";
 import { actionSetTitleId } from "./store/actions";
+import { utilities } from "./shared/utilities";
 
 type Props = IWithAppStateProps;
 
 class RouterBase extends React.Component<Props> {
 	public componentDidMount(): void {
-		const titleId = titleHelper.get();
+		const titleId = utilities.getTitleId();
 
 		if(!is.null(titleId)) {
 			PlayFab.settings.titleId = titleId;

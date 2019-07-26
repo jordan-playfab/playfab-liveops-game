@@ -142,27 +142,27 @@ class DownloadPageBase extends React.PureComponent<Props, IState> {
 
         switch(PROGRESS_STAGES[this.state.downloadProgress].key) {
             case "currency":
-                PlayFabHelper.adminListVirtualCurrency(this.state.secretKey, (data) => {
+                PlayFabHelper.AdminAPIListVirtualCurrencyTypes(this.state.secretKey, (data) => {
                     this.advanceDownload(filename, data);
                 }, this.props.onPageError);
                 break;
             case "catalog":
-                PlayFabHelper.adminGetCatalogItems(this.state.secretKey, CATALOG_VERSION, (data) => {
+                PlayFabHelper.AdminAPIGetCatalogItems(this.state.secretKey, CATALOG_VERSION, (data) => {
                     this.advanceDownload(filename, data);
                 }, this.props.onPageError);
                 break;
             case "droptable":
-                PlayFabHelper.adminGetRandomResultTables(this.state.secretKey, CATALOG_VERSION, (data) => {
+                PlayFabHelper.AdminAPIGetRandomResultTables(this.state.secretKey, CATALOG_VERSION, (data) => {
                     this.advanceDownload(filename, data);
                 }, this.props.onPageError);
                 break;
             case "store":
-                PlayFabHelper.adminGetTitleData(this.state.secretKey, [TITLE_DATA_STORES], (titleData) => {
+                PlayFabHelper.AdminAPIGetTitleData(this.state.secretKey, [TITLE_DATA_STORES], (titleData) => {
                     const storeNames = (JSON.parse(titleData.Data[TITLE_DATA_STORES]) as string[]);
                     this.storeCount = storeNames.length;
 
                     storeNames.forEach(name => {
-                        PlayFabHelper.adminGetStores(this.state.secretKey, CATALOG_VERSION, name, (storeData) => {
+                        PlayFabHelper.AdminAPIGetStoreItems(this.state.secretKey, CATALOG_VERSION, name, (storeData) => {
                             this.storeContent.push(storeData);
                             this.advanceStoreCounter();
                         }, this.props.onPageError);
@@ -170,12 +170,12 @@ class DownloadPageBase extends React.PureComponent<Props, IState> {
                 }, this.props.onPageError);
                 break;
             case "titledata":
-                PlayFabHelper.adminGetTitleData(this.state.secretKey, null, (data) => {
+                PlayFabHelper.AdminAPIGetTitleData(this.state.secretKey, null, (data) => {
                     this.advanceDownload(filename, data);
                 }, this.props.onPageError)
                 break;
             case "cloudscript":
-                PlayFabHelper.adminGetCloudScriptRevision(this.state.secretKey, null, null, (data) => {
+                PlayFabHelper.AdminAPIGetCloudScriptRevision(this.state.secretKey, null, null, (data) => {
                     this.advanceDownload(filename, data);
                 }, this.props.onPageError);
                 break;

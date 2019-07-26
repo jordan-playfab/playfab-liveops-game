@@ -1,6 +1,6 @@
 import React from "react";
 import { ITitleDataEnemy } from "../shared/types";
-import { mathHelper } from "../shared/math-helper";
+import { utilities } from "../shared/utilities";
 
 export interface IWithCombatProps {
     readonly combatPlayerHP: number;
@@ -68,7 +68,7 @@ export const withCombat = <P extends IWithCombatProps>(Component: React.Componen
 
         private onEnemyAttack = (): IEnemyAttackReport => {
             // Pick someone to attack
-            const attackingEnemyIndex = mathHelper.getRandomInt(0, this.state.enemies.length - 1);
+            const attackingEnemyIndex = utilities.getRandomInteger(0, this.state.enemies.length - 1);
             const damage = this.state.enemies[attackingEnemyIndex].damage;
             const playerHP = this.state.playerHP - damage;
 
