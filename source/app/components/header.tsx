@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { DefaultButton } from 'office-ui-fabric-react';
 
 import { is } from "../shared/is";

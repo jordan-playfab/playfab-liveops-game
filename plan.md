@@ -9,7 +9,8 @@
 - [ ] Give new players a weapon
 - [ ] Actual combat engine with reports at the end
 - [ ] Player HP and damage taking
-- [ ] Use Redux and HOCs to store data
+- [x] Use Redux
+- [ ] Create page HOC to handle errors and maybe more later
 - [ ] Watch mode
 - [ ] Improve PlayFab helper
 - [ ] Actual loot in looter shooter

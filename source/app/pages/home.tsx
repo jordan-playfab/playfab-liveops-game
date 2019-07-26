@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { TextField } from 'office-ui-fabric-react/lib/TextField';
 import { PrimaryButton, DefaultButton } from 'office-ui-fabric-react';
 import { RouteComponentProps } from "react-router-dom";

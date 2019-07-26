@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { is } from "../shared/is";
 import { Redirect, RouteComponentProps } from "react-router";
 import { routes } from "../routes";

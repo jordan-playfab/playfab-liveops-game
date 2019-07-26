@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { is } from "../shared/is";
 import { VC_CREDITS } from "../shared/types";
 import styled, { UlNull } from "../styles";
