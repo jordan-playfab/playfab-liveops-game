@@ -32,11 +32,10 @@ export interface ITitleDataEnemyGroup {
     dropchance: number;
 }
 
-// ----- Cloud Script results ----- //
+// ----- Catalog item custom data ----- //
 
-export interface IKilledEnemyResult {
-    kills: number;
-    itemGranted: string;
+export interface IWeaponItemCustomData {
+    damage: number;
 }
 
 // ----- App interfaces ----- //
@@ -98,3 +97,6 @@ export const CATALOG_VERSION = "Main";
 export const TITLE_DATA_STORES = "Stores";
 export const TITLE_DATA_PLANETS = "Planets";
 export const TITLE_DATA_ENEMIES = "Enemies";
+
+export const ITEM_CLASS_WEAPON = "weapon";
+export const ITEM_CLASS_ARMOR = "armor";

@@ -9,7 +9,7 @@
                 "CR": 25
             },
             "Tags": [],
-            "CustomData": "{\"Damage\":\"5\"}",
+            "CustomData": "{\"damage\":5}",
             "Consumable": {},
             "CanBecomeCharacter": false,
             "IsStackable": false,
@@ -26,7 +26,7 @@
                 "CR": 100
             },
             "Tags": [],
-            "CustomData": "{\"Damage\":\"25\"}",
+            "CustomData": "{\"damage\":25}",
             "Consumable": {},
             "CanBecomeCharacter": false,
             "IsStackable": false,
@@ -43,7 +43,7 @@
                 "CR": 500
             },
             "Tags": [],
-            "CustomData": "{\"Damage\":\"50\"}",
+            "CustomData": "{\"damage\":50}",
             "Consumable": {},
             "CanBecomeCharacter": false,
             "IsStackable": false,

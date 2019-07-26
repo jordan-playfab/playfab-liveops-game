@@ -12,7 +12,6 @@ import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { actionSetPlayerId, actionSetPlayerName, actionSetCatalog, actionSetInventory, actionSetPlanetsFromTitleData } from "../store/actions";
 import { TITLE_DATA_PLANETS, CloudScriptFunctionNames } from "../shared/types";
 import { IWithPageProps, withPage } from "../containers/with-page";
-import { IPlayerLoginResponse } from "../../cloud-script/main";
 
 type Props = RouteComponentProps & IWithAppStateProps & IWithPageProps;
 
