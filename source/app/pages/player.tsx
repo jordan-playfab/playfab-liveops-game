@@ -79,8 +79,8 @@ class PlayerPageBase extends React.Component<Props, IState> {
         return (
             <UlInline>
                 <li key={"homebase"}><PrimaryButton text="Home base" onClick={this.sendToHomeBase} /></li>
-                {Object.keys(this.props.appState.planets).map((name) => (
-                    <li key={name}><PrimaryButton text={`Fly to ${name}`} onClick={this.sendToPlanet.bind(this, name)} /></li>
+                {this.props.appState.planets.map((planet) => (
+                    <li key={planet.name}><PrimaryButton text={`Fly to ${planet.name}`} onClick={this.sendToPlanet.bind(this, planet.name)} /></li>
                 ))}
             </UlInline>
         )

@@ -2,13 +2,13 @@ import React from "react";
 import { is } from "../shared/is";
 import { PlayFabHelper } from "../shared/playfab";
 import { RouteComponentProps, Redirect } from "react-router";
-import { IPlanetData, TITLE_DATA_PLANETS } from "../shared/types";
+import { IPlanetData, TITLE_DATA_PLANETS, TITLE_DATA_ENEMIES } from "../shared/types";
 import { routes } from "../routes";
 import { Page, IBreadcrumbRoute } from "../components/page";
 import { UlInline } from "../styles";
 import { PrimaryButton } from "office-ui-fabric-react";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
-import { actionSetInventory, actionSetPlanetsFromTitleData } from "../store/actions";
+import { actionSetInventory, actionSetPlanetsFromTitleData, actionSetEnemiesFromTitleData } from "../store/actions";
 import { IWithPageProps, withPage } from "../containers/with-page";
 import { mathHelper } from "../shared/math-helper";
 import { Combat } from "../components/combat";
@@ -45,8 +45,9 @@ class PlanetPageBase extends React.Component<Props, IState> {
 
         this.props.clearErrorMessage();
 
-        PlayFabHelper.getTitleData([TITLE_DATA_PLANETS], (data) => {
+        PlayFabHelper.getTitleData([TITLE_DATA_PLANETS, TITLE_DATA_ENEMIES], (data) => {
             this.props.dispatch(actionSetPlanetsFromTitleData(data));
+            this.props.dispatch(actionSetEnemiesFromTitleData(data));
             
             this.setState({
                 isLoading: false,
