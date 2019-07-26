@@ -8,12 +8,16 @@ function get(): string {
     return localStorage["titleID"];
 }
 
-function set(titleID: string): void {
+function set(titleId: string): void {
     if(is.null(localStorage)) {
         return;
     }
 
-    localStorage["titleID"] = titleID;
+    if(is.null(titleId)) {
+        titleId = "";
+    }
+
+    localStorage["titleID"] = titleId;
 }
 
 export const titleHelper = {
