@@ -89,6 +89,9 @@ const App = {
     },
     CatalogItems: {
         StartingPack: "StartingPack",
+    },
+    VirtualCurrency: {
+        Credits: "CR"
     }
 };
 
@@ -188,7 +191,7 @@ handlers.playerLogin = function(args: any, context: any): void {
     // Make sure you have no money and no items
     const inventory = App.GetUserInventory(currentPlayerId);
 
-    if(!App.IsNull(inventory.Inventory) || !App.IsNull(inventory.VirtualCurrency)) {
+    if(!App.IsNull(inventory.Inventory) || inventory.VirtualCurrency[App.VirtualCurrency.Credits] !== 0) {
         return;
     }
 

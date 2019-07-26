@@ -66,6 +66,9 @@ const App = {
     },
     CatalogItems: {
         StartingPack: "StartingPack",
+    },
+    VirtualCurrency: {
+        Credits: "CR"
     }
 };
 const isKilledEnemyGroupValid = function (args, planetData, enemyData) {
@@ -139,7 +142,7 @@ handlers.playerLogin = function (args, context) {
     // If you're a new player with no money nor items, give you some cash
     // Make sure you have no money and no items
     const inventory = App.GetUserInventory(currentPlayerId);
-    if (!App.IsNull(inventory.Inventory) || !App.IsNull(inventory.VirtualCurrency)) {
+    if (!App.IsNull(inventory.Inventory) || inventory.VirtualCurrency[App.VirtualCurrency.Credits] !== 0) {
         return;
     }
     App.GrantItemsToUser(currentPlayerId, [App.CatalogItems.StartingPack]);
