@@ -143,7 +143,12 @@ handlers.playerLogin = function (args, context) {
     // Make sure you have no money and no items
     const inventory = App.GetUserInventory(currentPlayerId);
     if (!App.IsNull(inventory.Inventory) || inventory.VirtualCurrency[App.VirtualCurrency.Credits] !== 0) {
-        return;
+        return {
+            didGrantStartingPack: false,
+        };
     }
     App.GrantItemsToUser(currentPlayerId, [App.CatalogItems.StartingPack]);
+    return {
+        didGrantStartingPack: true,
+    };
 };

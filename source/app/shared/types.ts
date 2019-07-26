@@ -41,8 +41,6 @@ export interface IKilledEnemyResult {
 
 // ----- App interfaces ----- //
 
-export const VC_CREDITS = "CR";
-
 export interface IStringDictionary {
     [key: string]: string;
 }
@@ -88,7 +86,15 @@ export const PROGRESS_STAGES: IProgressStage[] = [{
     filename: "cloud-script.json"
 }];
 
+export enum CloudScriptFunctionNames {
+    killedEnemyGroup = "killedEnemyGroup",
+    playerLogin = "playerLogin",
+}
+
+export const VC_CREDITS = "CR";
+
 export const CATALOG_VERSION = "Main";
+
 export const TITLE_DATA_STORES = "Stores";
 export const TITLE_DATA_PLANETS = "Planets";
 export const TITLE_DATA_ENEMIES = "Enemies";

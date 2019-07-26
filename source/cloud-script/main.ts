@@ -185,15 +185,25 @@ handlers.killedEnemyGroup = function(args: IKilledEnemyGroupRequest, context: an
     };
 };
 
-handlers.playerLogin = function(args: any, context: any): void {
+export interface IPlayerLoginResponse {
+    didGrantStartingPack: boolean;
+}
+
+handlers.playerLogin = function(args: any, context: any): IPlayerLoginResponse {
     // If you're a new player with no money nor items, give you some cash
     
     // Make sure you have no money and no items
     const inventory = App.GetUserInventory(currentPlayerId);
 
     if(!App.IsNull(inventory.Inventory) || inventory.VirtualCurrency[App.VirtualCurrency.Credits] !== 0) {
-        return;
+        return {
+            didGrantStartingPack: false,
+        };
     }
 
     App.GrantItemsToUser(currentPlayerId, [App.CatalogItems.StartingPack]);
+
+    return {
+        didGrantStartingPack: true,
+    };
 }

@@ -10,8 +10,9 @@ import { Page } from "../components/page";
 import { DivConfirm, UlInline } from "../styles";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { actionSetPlayerId, actionSetPlayerName, actionSetCatalog, actionSetInventory, actionSetPlanetsFromTitleData } from "../store/actions";
-import { TITLE_DATA_PLANETS } from "../shared/types";
+import { TITLE_DATA_PLANETS, CloudScriptFunctionNames } from "../shared/types";
 import { IWithPageProps, withPage } from "../containers/with-page";
+import { IPlayerLoginResponse } from "../../cloud-script/main";
 
 type Props = RouteComponentProps & IWithAppStateProps & IWithPageProps;
 
@@ -115,15 +116,16 @@ class PlayerPageBase extends React.Component<Props, IState> {
                 PlayFabHelper.updateDisplayName(this.state.playerName, this.props.onPageNothing, this.props.onPageError);
 
                 // Also grant you some items
-                PlayFabHelper.executeCloudScript("playerLogin", null, this.props.onPageNothing, this.props.onPageError);
+                PlayFabHelper.executeCloudScript(CloudScriptFunctionNames.playerLogin, null, (data) => {
+                    this.getInventory();
+                }, this.props.onPageError);
+            }
+            else {
+                this.getInventory();
             }
 
             PlayFabHelper.getTitleData([TITLE_DATA_PLANETS], (data) => {
                 this.props.dispatch(actionSetPlanetsFromTitleData(data));
-            }, this.props.onPageError);
-            
-            PlayFabHelper.getInventory((inventory) => {
-                this.props.dispatch(actionSetInventory(inventory));
             }, this.props.onPageError);
             
             PlayFabHelper.getCatalog((catalog) => {
@@ -133,6 +135,12 @@ class PlayerPageBase extends React.Component<Props, IState> {
             this.setState({
                 isLoggingIn: false,
             });
+        }, this.props.onPageError);
+    }
+
+    private getInventory(): void {
+        PlayFabHelper.getInventory((inventory) => {
+            this.props.dispatch(actionSetInventory(inventory));
         }, this.props.onPageError);
     }
 
