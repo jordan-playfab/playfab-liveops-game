@@ -5,8 +5,8 @@
 - [ ] Favicon
 - [ ] Better instructions
 - [ ] How to go further
-- [ ] Enemy groups
-- [ ] Give new players a weapon
+- [x] Enemy groups
+- [x] Give new players something
 - [ ] Actual combat engine with reports at the end
 - [ ] Player HP and damage taking
 - [x] Use Redux

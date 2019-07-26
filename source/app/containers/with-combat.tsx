@@ -6,6 +6,8 @@ export interface IWithCombatProps {
     readonly combatPlayerHP: number;
     readonly combatEnemies: ITitleDataEnemy[];
     readonly combatStage: CombatStage;
+    readonly combatDamageTakenLastRound: number;
+    readonly combatAttackedByIndexLastRound: number;
 
     readonly onCombatStart: (enemies: ITitleDataEnemy[], playerHP: number) => void;
     readonly onCombatPlayerAttack: (enemyIndex: number) => void;
@@ -17,6 +19,8 @@ interface IState {
     playerHP: number;
     enemies: ITitleDataEnemy[];
     stage: CombatStage;
+    damageTakenLastRound: number;
+    attackedByEnemyIndexLastRound: number;
 }
 
 export enum CombatStage {
@@ -37,6 +41,8 @@ export const withCombat = <P extends IWithCombatProps>(Component: React.Componen
         public state: IState = {
             enemies: [],
             playerHP: 0,
+            damageTakenLastRound: null,
+            attackedByEnemyIndexLastRound: null,
             stage: CombatStage.Introduction,
         };
         
@@ -54,6 +60,8 @@ export const withCombat = <P extends IWithCombatProps>(Component: React.Componen
                     onCombatPlayerAttack={this.onPlayerAttack}
                     onCombatEnemyAttack={this.onEnemyAttack}
                     onCombatAdvanceStage={this.onAdvanceStage}
+                    combatAttackedByIndexLastRound={this.state.attackedByEnemyIndexLastRound}
+                    combatDamageTakenLastRound={this.state.damageTakenLastRound}
                 />
             );
         }
@@ -66,7 +74,7 @@ export const withCombat = <P extends IWithCombatProps>(Component: React.Componen
             });
         }
 
-        private onEnemyAttack = (): IEnemyAttackReport => {
+        private onEnemyAttack = (): void => {
             // Pick someone to attack
             const attackingEnemyIndex = utilities.getRandomInteger(0, this.state.enemies.length - 1);
             const damage = this.state.enemies[attackingEnemyIndex].damage;
@@ -83,15 +91,13 @@ export const withCombat = <P extends IWithCombatProps>(Component: React.Componen
                 else {
                     return {
                         ...prevState,
+                        stage: CombatStage.Enemy,
+                        attackedByEnemyIndexLastRound: attackingEnemyIndex,
+                        damageTakenLastRound: damage,
                         playerHP
                     };
                 }
             });
-
-            return {
-                enemyIndex: attackingEnemyIndex,
-                damage
-            };
         }
 
         private onPlayerAttack = (enemyIndex: number): void => {
@@ -103,8 +109,9 @@ export const withCombat = <P extends IWithCombatProps>(Component: React.Componen
                 const enemyHP = prevState.enemies[enemyIndex].hp - this.playerDamage;
                 
                 if(enemyHP <= 0) {
-                    // Is this the last enemy?
+                    // You killed an enemy
                     if(prevState.enemies.length === 1) {
+                        // You killed the last enemy and it's victory time
                         return {
                             ...prevState,
                             enemies: [],
@@ -112,14 +119,20 @@ export const withCombat = <P extends IWithCombatProps>(Component: React.Componen
                         }
                     }
 
+                    // More enemies remain
                     return {
                         ...prevState,
+                        attackedByEnemyIndexLastRound: null,
+                        damageTakenLastRound: null,
                         enemies: prevState.enemies.filter((_, index) => index !== enemyIndex),
                     };
                 }
                 else {
+                    // You didn't kill all the enemies
                     return {
                         ...prevState,
+                        attackedByEnemyIndexLastRound: null,
+                        damageTakenLastRound: null,
                         enemies: prevState.enemies.map((e, index) => {
                             if(index !== enemyIndex) {
                                 return e;
@@ -131,6 +144,11 @@ export const withCombat = <P extends IWithCombatProps>(Component: React.Componen
                             };
                         })
                     }
+                }
+            }, () => {
+                // If the battle's not over, the enemy gets to attack
+                if(this.state.stage === CombatStage.Player) {
+                    this.onEnemyAttack();
                 }
             });
         }
@@ -146,13 +164,16 @@ export const withCombat = <P extends IWithCombatProps>(Component: React.Componen
                     case CombatStage.Player:
                         stage = CombatStage.Enemy;
                         break;
+                    case CombatStage.Enemy:
+                        stage = CombatStage.Player;
+                        break;
                 }
 
                 return {
                     ...prevState,
                     stage,
                 }
-            })
+            });
         }
     }
 }

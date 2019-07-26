@@ -114,18 +114,14 @@ class PlayerPageBase extends React.Component<Props, IState> {
 
             if(player.NewlyCreated) {
                 PlayFabHelper.UpdateUserTitleDisplayName(this.state.playerName, this.props.onPageNothing, this.props.onPageError);
+            }
 
-                // Also grant you some items
-                PlayFabHelper.ExecuteCloudScript(CloudScriptFunctionNames.playerLogin, null, (data) => {
-                    const response: IPlayerLoginResponse = data.FunctionResult;
-                    this.props.dispatch(actionSetPlayerHP(response.playerHP));
-                    
-                    this.getInventory();
-                }, this.props.onPageError);
-            }
-            else {
+            PlayFabHelper.ExecuteCloudScript(CloudScriptFunctionNames.playerLogin, null, (data) => {
+                const response: IPlayerLoginResponse = data.FunctionResult;
+                this.props.dispatch(actionSetPlayerHP(response.playerHP));
+                
                 this.getInventory();
-            }
+            }, this.props.onPageError);
 
             PlayFabHelper.GetTitleData([TITLE_DATA_PLANETS, TITLE_DATA_STORES], (data) => {
                 this.props.dispatch(actionSetPlanetsFromTitleData(data, TITLE_DATA_PLANETS));

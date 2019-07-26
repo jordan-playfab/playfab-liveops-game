@@ -2,6 +2,8 @@ import React from "react";
 import { IWithCombatProps, withCombat, CombatStage, IEnemyAttackReport } from "../containers/with-combat";
 import { ITitleDataEnemy, ITitleDataEnemyGroup } from "../shared/types";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
+import { actionSetPlayerHP } from "../store/actions";
+import { is } from "../shared/is";
 
 interface IProps {
     planet: string;
@@ -11,42 +13,26 @@ interface IProps {
     onFinished: () => void;
 }
 
-interface IState {
-    enemyAttack: IEnemyAttackReport;
-}
-
 type Props = IProps & IWithCombatProps & IWithAppStateProps;
 
-class CombatBase extends React.PureComponent<Props, IState> {
-    constructor(props: Props) {
-        super(props);
-
-        this.state = {
-            enemyAttack: null,
-        };
-    }
-
+class CombatBase extends React.PureComponent<Props> {
     public componentDidMount(): void {
         this.props.onCombatStart(this.props.enemies, this.props.appState.playerHP);
     }
 
     public componentDidUpdate(prevProps: Props): void {
-        if(prevProps.combatStage !== CombatStage.Enemy && this.props.combatStage === CombatStage.Enemy) {
-            this.setState({
-                enemyAttack: this.props.onCombatEnemyAttack(),
-            });
-        }
-        else {
-            this.setState({
-                enemyAttack: null,
-            });
-
-            // TODO: Grant items? No, report to Cloud Script about the end of the battle and get its items there.
-            // Maybe the HOC does that.
+        if(this.props.combatPlayerHP !== this.props.appState.playerHP) {
+            this.props.dispatch(actionSetPlayerHP(this.props.combatPlayerHP));
         }
     }
 
     public render(): React.ReactNode {
+        if(this.props.combatPlayerHP <= 0 && this.props.combatStage !== CombatStage.Dead) {
+            return (
+                <p>Sorry, you're dead and cannot fight.</p>
+            );
+        }
+
         switch(this.props.combatStage) {
             case CombatStage.Introduction:
                 return (
@@ -73,13 +59,7 @@ class CombatBase extends React.PureComponent<Props, IState> {
                     </React.Fragment>
                 );
             case CombatStage.Enemy:
-                return (
-                    <React.Fragment>
-                        {this.renderPlayer()}
-                        <p>The enemy {this.props.combatEnemies[this.state.enemyAttack.enemyIndex].name} hit you for {this.state.enemyAttack.damage} damage.</p>
-                        <button onClick={this.props.onCombatAdvanceStage}>Continue</button>
-                    </React.Fragment>
-                );
+                return this.renderEnemyStage();
             default:
                 return (
                     <React.Fragment>
@@ -93,6 +73,20 @@ class CombatBase extends React.PureComponent<Props, IState> {
                     </React.Fragment>
                 );
         }
+    }
+
+    private renderEnemyStage(): React.ReactNode {
+        if(is.null(this.props.combatAttackedByIndexLastRound)) {
+            return null;
+        }
+
+        return (
+            <React.Fragment>
+                {this.renderPlayer()}
+                <p>The enemy {this.props.combatEnemies[this.props.combatAttackedByIndexLastRound].name} hit you for {this.props.combatDamageTakenLastRound} damage.</p>
+                <button onClick={this.props.onCombatAdvanceStage}>Continue</button>
+            </React.Fragment>
+        );
     }
 
     private renderPlayer(): React.ReactNode {
