@@ -1,32 +1,27 @@
 import React from "react";
+import { IWithCombatProps, withCombat } from "../containers/with-combat";
 
 interface IProps {
-    playerHP: number;
+    planet: string;
+    area: string;
     enemyGroup: string;
-    onPlayerDied: () => void;
 }
 
-interface IState {
-    playerHP: number;
-}
+type Props = IWithCombatProps;
 
-type Props = IProps;
+class CombatBase extends React.PureComponent<Props> {
+    public componentDidMount(): void {
 
-export class Combat extends React.PureComponent<Props, IState> {
-    constructor(props: Props) {
-        super(props);
-
-        this.state = {
-            playerHP: props.playerHP,
-        };
     }
 
     public render(): React.ReactNode {
         // TODO: Get enemies
         return (
             <div>
-                <p>Your health: {this.state.playerHP}</p>
+                <p>Your health: {this.props.playerHP}</p>
             </div>
         );
     }
 }
+
+export const Combat = withCombat(CombatBase);

@@ -11,6 +11,7 @@ interface IKilledEnemyGroupRequest {
     planet: string;
     area: string;
     enemyGroup: string;
+    damageTaken: number;
 }
 
 interface IKilledEnemyGroupResponse {
@@ -61,6 +62,11 @@ const App = {
     },
     Statistics: {
         kills: "kills",
+        hp: "hp"
+    },
+    TitleData: {
+        planets: "Planets",
+        enemies: "Enemies"
     }
 };
 
@@ -93,7 +99,7 @@ const isKilledEnemyGroupValid = function(args: IKilledEnemyGroupRequest, planetD
 };
 
 handlers.killedEnemyGroup = function(args: IKilledEnemyGroupRequest, context: any): IKilledEnemyGroupResponse {
-    const planetsAndEnemies = App.GetTitleData(["Planets", "Enemies"]);
+    const planetsAndEnemies = App.GetTitleData([App.TitleData.planets, App.TitleData.enemies]);
     const planetData = (planetsAndEnemies.Planets as ITitleDataPlanets).planets;
     const enemyData = (planetsAndEnemies.Enemies as ITitleDataEnemies);
 
@@ -111,16 +117,33 @@ handlers.killedEnemyGroup = function(args: IKilledEnemyGroupRequest, context: an
     const fullEnemyGroup = enemyData.enemyGroups.find(e => e.name === args.enemyGroup);
 
     // Update player statistics
-    const statistics = App.GetPlayerStatistics([App.Statistics.kills]);
+    const statistics = App.GetPlayerStatistics([App.Statistics.kills, App.Statistics.hp]);
 
-    const killStatistic = App.IsNull(statistics)
-        ? 0
-        : statistics[0].Value;
+    const statisticUpdates: PlayFabServerModels.StatisticUpdate[] = [];
+    
+    if(!App.IsNull(statistics)) {
+        const killStatistic = statistics.find(s => s.StatisticName === App.Statistics.kills);
+        const hpStatistic = statistics.find(s => s.StatisticName === App.Statistics.hp);
 
-    App.UpdatePlayerStatistics(currentPlayerId, [{
-        StatisticName: App.Statistics.kills,
-        Value: killStatistic,
-    }]);
+        if(!App.IsNull(killStatistic)) {
+            statisticUpdates.push({
+                StatisticName: App.Statistics.kills,
+                Value: killStatistic.Value + fullEnemyGroup.enemies.length,
+            });
+        }
+
+        if(!App.IsNull(hpStatistic)) {
+            // Can't go below zero health
+            statisticUpdates.push({
+                StatisticName: App.Statistics.hp,
+                Value: Math.max(0, hpStatistic.Value - args.damageTaken),
+            });
+        }
+    }
+
+    if(statisticUpdates.length !== 0) {
+        App.UpdatePlayerStatistics(currentPlayerId, statisticUpdates);
+    }
 
     // Grant items if they're lucky
     let itemGranted: string = null;
