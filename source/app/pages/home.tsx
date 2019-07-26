@@ -8,14 +8,16 @@ import { routes } from "../routes";
 import { titleHelper } from "../shared/title-helper";
 import { Page } from "../components/page";
 import styled, { DivConfirm, UlNull, UlInline } from "../styles";
+import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
+import { actionSetTitleId } from "../store/actions";
 
 interface IState {
     titleID: string;
 }
 
-type Props = IRouterProps & RouteComponentProps;
+type Props = IRouterProps & RouteComponentProps & IWithAppStateProps;
 
-export class HomePage extends React.Component<Props, IState> {
+class HomePageBase extends React.Component<Props, IState> {
     constructor(props: Props) {
         super(props);
 
@@ -24,23 +26,17 @@ export class HomePage extends React.Component<Props, IState> {
         }
     }
 
-    public componentDidMount(): void {
-        if(!is.null(titleHelper.get())) {
-            this.props.saveTitleID(titleHelper.get());
-        }
-    }
-
     public render(): React.ReactNode {
         return (
             <Page
                 {...this.props}
-                title={is.null(this.props.titleID)
-                    ? "Instructions"
-                    : "Ready To Go"}
+                title={this.props.appState.hasTitleId
+                    ? "Ready To Go"
+                    : "Instructions"}
             >
-                {is.null(this.props.titleID)
-                    ? this.renderAskForTitleID()
-                    : this.renderShowTitleID()}
+                {this.props.appState.hasTitleId
+                    ? this.renderShowTitleID()
+                    : this.renderAskForTitleID()}
             </Page>
         );
     }
@@ -85,6 +81,8 @@ export class HomePage extends React.Component<Props, IState> {
     }
 
     private saveTitleID = (): void => {
-        this.props.saveTitleID(this.state.titleID);
+        this.props.dispatch(actionSetTitleId(this.state.titleID));
     }
 }
+
+export const HomePage = withAppState(HomePageBase);

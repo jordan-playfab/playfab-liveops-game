@@ -15,8 +15,7 @@ import Stores from "../../data/stores.json";
 import TitleData from "../../data/title-data.json";
 import CloudScript from "../../data/cloud-script.json";
 import DropTables from "../../data/drop-tables.json";
-
-type Props = IRouterProps & RouteComponentProps;
+import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 
 interface IState {
     secretKey: string;
@@ -27,7 +26,9 @@ interface IState {
     titleDataCounter: number;
 }
 
-export class UploadPage extends React.Component<Props, IState> {
+type Props = IRouterProps & RouteComponentProps & IWithAppStateProps;
+
+class UploadPageBase extends React.Component<Props, IState> {
     constructor(props: Props) {
         super(props);
 
@@ -208,6 +209,8 @@ export class UploadPage extends React.Component<Props, IState> {
     }
 
     private isValid(): boolean {
-        return !is.null(this.props.titleID);
+        return this.props.appState.hasTitleId;
     }
 }
+
+export const UploadPage = withAppState(UploadPageBase);

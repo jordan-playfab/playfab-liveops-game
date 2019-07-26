@@ -8,15 +8,16 @@ import { PlayFabHelper } from "../shared/playfab";
 import { Page, IBreadcrumbRoute } from "../components/page";
 import { UlInline } from "../styles";
 import { PrimaryButton } from "office-ui-fabric-react";
-
-type Props = IRouterProps & RouteComponentProps;
+import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 
 interface IState {
     selectedStore: string;
     buyResult: string;
 }
 
-export class HomeBasePage extends React.Component<Props, IState> {
+type Props = IRouterProps & RouteComponentProps & IWithAppStateProps;
+
+class HomeBasePageBase extends React.Component<Props, IState> {
     constructor(props: Props) {
         super(props);
 
@@ -139,7 +140,7 @@ export class HomeBasePage extends React.Component<Props, IState> {
     }
 
     private isValid(): boolean {
-        return !is.null(this.props.titleID) && !is.null(this.props.playerPlayFabID);
+        return this.props.appState.hasTitleId && this.props.appState.hasPlayerId;
     }
 
     private getStore(): PlayFabClientModels.GetStoreItemsResult {
@@ -148,3 +149,5 @@ export class HomeBasePage extends React.Component<Props, IState> {
             : this.props.stores.find(s => s.StoreId === this.state.selectedStore);
     }
 }
+
+export const HomeBasePage = withAppState(HomeBasePageBase);

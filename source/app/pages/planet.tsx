@@ -8,6 +8,7 @@ import { routes } from "../routes";
 import { Page, IBreadcrumbRoute } from "../components/page";
 import { UlInline } from "../styles";
 import { PrimaryButton, Spinner } from "office-ui-fabric-react";
+import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 
 interface IState {
     currentArea: string;
@@ -19,9 +20,9 @@ interface IPlanetPageRouteProps {
     name: string;
 }
 
-type Props = IRouterProps & RouteComponentProps<IPlanetPageRouteProps>;
+type Props = IRouterProps & RouteComponentProps<IPlanetPageRouteProps> & IWithAppStateProps;
 
-export class PlanetPage extends React.Component<Props, IState> {
+class PlanetPageBase extends React.Component<Props, IState> {
     constructor(props: Props) {
         super(props);
 
@@ -115,7 +116,7 @@ export class PlanetPage extends React.Component<Props, IState> {
     }
 
     private isValid(): boolean {
-        return !is.null(this.props.titleID) && !is.null(this.props.playerPlayFabID);
+        return this.props.appState.hasTitleId && this.props.appState.hasPlayerId;
     }
 
     private getPlanetData(): IPlanetData {
@@ -169,3 +170,5 @@ export class PlanetPage extends React.Component<Props, IState> {
         return breadcrumbs;
     }
 }
+
+export const PlanetPage = withAppState(PlanetPageBase);

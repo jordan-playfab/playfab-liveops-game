@@ -106,7 +106,7 @@ class PlayerPageBase extends React.Component<Props, IState> {
             isLoggingIn: true,
         });
 
-        PlayFabHelper.login(this.props.titleID, this.state.playerName, (player) => {
+        PlayFabHelper.login(this.props.appState.titleId, this.state.playerName, (player) => {
             this.props.savePlayer(player, this.state.playerName);
             this.props.refreshPlanets();
             this.props.refreshInventory();
@@ -122,7 +122,7 @@ class PlayerPageBase extends React.Component<Props, IState> {
     }
 
     private isValid(): boolean {
-        return !is.null(this.props.appState.titleId);
+        return this.props.appState.hasTitleId;
     }
 }
 
