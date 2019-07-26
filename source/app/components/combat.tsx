@@ -1,5 +1,4 @@
 import * as React from "react";
-import { IRouterProps } from "../router";
 
 interface IProps {
     playerHP: number;
@@ -11,7 +10,7 @@ interface IState {
     playerHP: number;
 }
 
-type Props = IProps & IRouterProps;
+type Props = IProps;
 
 export class Combat extends React.PureComponent<Props, IState> {
     constructor(props: Props) {

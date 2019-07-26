@@ -1,5 +1,4 @@
 import * as React from "react";
-import { IRouterProps } from "../router";
 import { is } from "../shared/is";
 import { Redirect, RouteComponentProps } from "react-router";
 import { routes } from "../routes";
@@ -9,13 +8,14 @@ import { Page, IBreadcrumbRoute } from "../components/page";
 import { UlInline } from "../styles";
 import { PrimaryButton } from "office-ui-fabric-react";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
+import { actionSetInventory, actionSetStores } from "../store/actions";
 
 interface IState {
     selectedStore: string;
     buyResult: string;
 }
 
-type Props = IRouterProps & RouteComponentProps & IWithAppStateProps;
+type Props = RouteComponentProps & IWithAppStateProps;
 
 class HomeBasePageBase extends React.Component<Props, IState> {
     constructor(props: Props) {
@@ -32,7 +32,7 @@ class HomeBasePageBase extends React.Component<Props, IState> {
             return;
         }
 
-        this.props.refreshStores();
+        PlayFabHelper.getStores(stores => this.props.dispatch(actionSetStores(stores)), null);
     }
 
     public render(): React.ReactNode {
@@ -56,7 +56,7 @@ class HomeBasePageBase extends React.Component<Props, IState> {
     }
 
     public renderStores(): React.ReactNode {
-        if(is.null(this.props.stores)) {
+        if(is.null(this.props.appState.stores)) {
             return null;
         }
 
@@ -65,7 +65,7 @@ class HomeBasePageBase extends React.Component<Props, IState> {
                 <React.Fragment>
                     <h3>Stores</h3>
                     <UlInline>
-                        {this.props.stores.map((store, index) => (
+                        {this.props.appState.stores.map((store, index) => (
                             <li key={index}><PrimaryButton text={store.MarketingData.DisplayName} onClick={this.openStore.bind(this, store.StoreId)} /></li>
                         ))}
                     </UlInline>
@@ -80,8 +80,8 @@ class HomeBasePageBase extends React.Component<Props, IState> {
                 store={store}
                 onBuy={this.onBuyFromStore}
                 buyResult={this.state.buyResult}
-                catalogItems={this.props.catalog}
-                playerWallet={this.props.inventory.VirtualCurrency}
+                catalogItems={this.props.appState.catalog}
+                playerWallet={this.props.appState.inventory.VirtualCurrency}
             />
         )
     }
@@ -105,7 +105,7 @@ class HomeBasePageBase extends React.Component<Props, IState> {
                 this.setState({
                     buyResult: `Bought a ${data.Items[0].DisplayName}`,
                 }, () => {
-                    this.props.refreshInventory();
+                    PlayFabHelper.getInventory(inventory => this.props.dispatch(actionSetInventory(inventory)), null);
                 });
             }, (error) => {
                 console.log("Got an error of " + error);
@@ -146,7 +146,7 @@ class HomeBasePageBase extends React.Component<Props, IState> {
     private getStore(): PlayFabClientModels.GetStoreItemsResult {
         return is.null(this.state.selectedStore)
             ? null
-            : this.props.stores.find(s => s.StoreId === this.state.selectedStore);
+            : this.props.appState.stores.find(s => s.StoreId === this.state.selectedStore);
     }
 }
 

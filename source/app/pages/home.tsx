@@ -1,13 +1,10 @@
 import * as React from "react";
 import { TextField } from 'office-ui-fabric-react/lib/TextField';
 import { PrimaryButton, DefaultButton } from 'office-ui-fabric-react';
-import { IRouterProps } from "../router";
-import { is } from "../shared/is";
 import { RouteComponentProps } from "react-router-dom";
 import { routes } from "../routes";
-import { titleHelper } from "../shared/title-helper";
 import { Page } from "../components/page";
-import styled, { DivConfirm, UlNull, UlInline } from "../styles";
+import { DivConfirm, UlInline } from "../styles";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { actionSetTitleId } from "../store/actions";
 
@@ -15,7 +12,7 @@ interface IState {
     titleID: string;
 }
 
-type Props = IRouterProps & RouteComponentProps & IWithAppStateProps;
+type Props = RouteComponentProps & IWithAppStateProps;
 
 class HomePageBase extends React.Component<Props, IState> {
     constructor(props: Props) {

@@ -83,3 +83,4 @@ export const PROGRESS_STAGES: IProgressStage[] = [{
 
 export const CATALOG_VERSION = "Main";
 export const TITLE_DATA_STORES = "Stores";
+export const TITLE_DATA_PLANETS = "Planets";

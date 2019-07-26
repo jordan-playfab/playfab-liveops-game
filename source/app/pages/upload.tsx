@@ -1,6 +1,5 @@
 import * as React from "react";
 import { RouteComponentProps, Redirect } from "react-router";
-import { IRouterProps } from "../router";
 import { Page } from "../components/page";
 import { is } from "../shared/is";
 import { MessageBar, MessageBarType, TextField, PrimaryButton, ProgressIndicator } from "office-ui-fabric-react";
@@ -26,7 +25,7 @@ interface IState {
     titleDataCounter: number;
 }
 
-type Props = IRouterProps & RouteComponentProps & IWithAppStateProps;
+type Props = RouteComponentProps & IWithAppStateProps;
 
 class UploadPageBase extends React.Component<Props, IState> {
     constructor(props: Props) {

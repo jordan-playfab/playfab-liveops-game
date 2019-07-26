@@ -1,14 +1,14 @@
 import * as React from "react";
-import { IRouterProps } from "../router";
 import { is } from "../shared/is";
 import { PlayFabHelper } from "../shared/playfab";
 import { RouteComponentProps, Redirect } from "react-router";
-import { IPlanetData, IKilledEnemyResult } from "../shared/types";
+import { IPlanetData, TITLE_DATA_PLANETS, ITitleDataPlanets } from "../shared/types";
 import { routes } from "../routes";
 import { Page, IBreadcrumbRoute } from "../components/page";
 import { UlInline } from "../styles";
 import { PrimaryButton, Spinner } from "office-ui-fabric-react";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
+import { actionSetInventory, actionSetPlanets, actionSetPlanetsFromTitleData } from "../store/actions";
 
 interface IState {
     currentArea: string;
@@ -20,7 +20,7 @@ interface IPlanetPageRouteProps {
     name: string;
 }
 
-type Props = IRouterProps & RouteComponentProps<IPlanetPageRouteProps> & IWithAppStateProps;
+type Props = RouteComponentProps<IPlanetPageRouteProps> & IWithAppStateProps;
 
 class PlanetPageBase extends React.Component<Props, IState> {
     constructor(props: Props) {
@@ -38,13 +38,15 @@ class PlanetPageBase extends React.Component<Props, IState> {
             return;
         }
 
-        this.props.refreshPlanets(() => {
+        PlayFabHelper.getTitleData([TITLE_DATA_PLANETS], (data) => {
+            this.props.dispatch(actionSetPlanetsFromTitleData(data));
+            
             this.setState({
                 isLoading: false,
             });
-        });
+        }, null);
 
-        this.props.refreshInventory();
+        PlayFabHelper.getInventory(inventory => this.props.dispatch(actionSetInventory(inventory)), null);
     }
 
     public render(): React.ReactNode {
@@ -122,9 +124,9 @@ class PlanetPageBase extends React.Component<Props, IState> {
     private getPlanetData(): IPlanetData {
         const planetName = this.getPlanetName();
 
-        return is.null(this.props.planets)
+        return is.null(this.props.appState.planets)
             ? null
-            : this.props.planets.find(p => p.name === planetName);
+            : this.props.appState.planets.find(p => p.name === planetName);
     }
 
     private getPlanetName(): string {

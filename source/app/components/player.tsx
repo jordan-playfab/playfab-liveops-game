@@ -6,11 +6,6 @@ import { Callout, DirectionalHint } from 'office-ui-fabric-react/lib/Callout';
 import { DefaultButton } from "office-ui-fabric-react";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 
-interface IProps {
-    playerName: string;
-    inventory: PlayFabClientModels.GetUserInventoryResult;
-}
-
 interface IState {
     isInventoryVisible: boolean;
 }
@@ -54,7 +49,7 @@ const UlInventory = styled(UlNull)`
     }
 `;
 
-type Props = IProps & IWithAppStateProps;
+type Props = IWithAppStateProps;
 
 class PlayerBase extends React.Component<Props, IState> {
     private menuButtonElement = React.createRef<HTMLDivElement>();
@@ -68,14 +63,14 @@ class PlayerBase extends React.Component<Props, IState> {
     }
 
     public render(): React.ReactNode {
-        if(is.null(this.props.playerName)) {
+        if(is.null(this.props.appState.playerName)) {
             return null;
         }
 
         return (
             <DivPlayerWrapper>
                 <DivPlayerName>
-                    <h3>{this.props.playerName}</h3>
+                    <h3>{this.props.appState.playerName}</h3>
                 </DivPlayerName>
                 {this.renderCredits()}
                 {this.renderInventory()}
@@ -86,8 +81,8 @@ class PlayerBase extends React.Component<Props, IState> {
     private renderCredits(): React.ReactNode {
         let credits = 0;
 
-        if(!is.null(this.props.inventory) && !is.null(this.props.inventory.VirtualCurrency)) {
-            credits = this.props.inventory.VirtualCurrency[VC_CREDITS] || 0;
+        if(!is.null(this.props.appState.inventory) && !is.null(this.props.appState.inventory.VirtualCurrency)) {
+            credits = this.props.appState.inventory.VirtualCurrency[VC_CREDITS] || 0;
         }
 
         return (
@@ -96,7 +91,7 @@ class PlayerBase extends React.Component<Props, IState> {
     }
 
     private renderInventory(): React.ReactNode {
-        if(is.null(this.props.inventory) || is.null(this.props.inventory.Inventory)) {
+        if(is.null(this.props.appState.inventory) || is.null(this.props.appState.inventory.Inventory)) {
             return (
                 <DivPlayerInventory>
                     <ButtonInventory text="No inventory" />
@@ -123,7 +118,7 @@ class PlayerBase extends React.Component<Props, IState> {
                     directionalHint={DirectionalHint.bottomRightEdge}
                 >
                     <UlInventory>
-                        {this.props.inventory.Inventory.map((i, index) => (
+                        {this.props.appState.inventory.Inventory.map((i, index) => (
                             <li key={index}>{i.DisplayName}</li>
                         ))}
                     </UlInventory>

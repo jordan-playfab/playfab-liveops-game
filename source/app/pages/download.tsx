@@ -1,6 +1,5 @@
 import * as React from "react";
 import { RouteComponentProps, Redirect } from "react-router";
-import { IRouterProps } from "../router";
 import { Page } from "../components/page";
 import { MessageBar, MessageBarType, TextField, PrimaryButton, ProgressIndicator } from "office-ui-fabric-react";
 import { is } from "../shared/is";
@@ -25,7 +24,7 @@ interface IDownloadContent {
     content: string;
 }
 
-type Props = IRouterProps & RouteComponentProps & IWithAppStateProps;
+type Props = RouteComponentProps & IWithAppStateProps;
 
 class DownloadPageBase extends React.PureComponent<Props, IState> {
     private storeCount = 0;

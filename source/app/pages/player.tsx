@@ -1,7 +1,6 @@
 import * as React from "react";
 import { TextField } from 'office-ui-fabric-react/lib/TextField';
 import { PrimaryButton, MessageBar, MessageBarType, Spinner } from 'office-ui-fabric-react';
-import { IRouterProps } from "../router";
 import { is } from "../shared/is";
 import { Redirect } from "react-router";
 import { routes } from "../routes";
@@ -10,8 +9,10 @@ import { RouteComponentProps } from "react-router";
 import { Page } from "../components/page";
 import { DivConfirm, UlInline } from "../styles";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
+import { actionSetPlayerId, actionSetPlayerName, actionSetCatalog, actionSetInventory, actionSetPlanetsFromTitleData } from "../store/actions";
+import { TITLE_DATA_PLANETS } from "../shared/types";
 
-type Props = IRouterProps & RouteComponentProps & IWithAppStateProps;
+type Props = RouteComponentProps & IWithAppStateProps;
 
 interface IState {
     playerName: string;
@@ -38,16 +39,16 @@ class PlayerPageBase extends React.Component<Props, IState> {
         return (
             <Page {...this.props}>
                 <h2>
-                    {is.null(this.props.playerName)
-                        ? "Play Game"
-                        : "Choose Your Destination"}
+                    {this.props.appState.hasPlayerId
+                        ? "Choose Your Destination"
+                        : "Play Game"}
                 </h2>
                 {!is.null(this.state.error) && (
                     <MessageBar messageBarType={MessageBarType.error}>{this.state.error}</MessageBar>
                 )}
-                {is.null(this.props.playerPlayFabID)
-                    ? this.renderPlayerLogin()
-                    : this.renderPlanetMenu()}
+                {this.props.appState.hasPlayerId
+                    ? this.renderPlanetMenu()
+                    : this.renderPlayerLogin()}
             </Page>
         );
     }
@@ -72,14 +73,14 @@ class PlayerPageBase extends React.Component<Props, IState> {
     }
 
     private renderPlanetMenu(): React.ReactNode {
-        if(is.null(this.props.planets)) {
+        if(is.null(this.props.appState.planets)) {
             return <Spinner label="Loading planets" />;
         }
 
         return (
             <UlInline>
                 <li key={"homebase"}><PrimaryButton text="Home base" onClick={this.sendToHomeBase} /></li>
-                {Object.keys(this.props.planets).map((name) => (
+                {Object.keys(this.props.appState.planets).map((name) => (
                     <li key={name}><PrimaryButton text={`Fly to ${name}`} onClick={this.sendToPlanet.bind(this, name)} /></li>
                 ))}
             </UlInline>
@@ -107,17 +108,26 @@ class PlayerPageBase extends React.Component<Props, IState> {
         });
 
         PlayFabHelper.login(this.props.appState.titleId, this.state.playerName, (player) => {
-            this.props.savePlayer(player, this.state.playerName);
-            this.props.refreshPlanets();
-            this.props.refreshInventory();
-            this.props.refreshCatalog();
+            this.props.dispatch(actionSetPlayerId(player.PlayFabId));
+            this.props.dispatch(actionSetPlayerName(this.state.playerName));
+            PlayFabHelper.getTitleData([TITLE_DATA_PLANETS], (data) => {
+                this.props.dispatch(actionSetPlanetsFromTitleData(data));
+            }, this.loadError);
+            PlayFabHelper.getInventory((inventory) => {
+                this.props.dispatch(actionSetInventory(inventory));
+            }, this.loadError);
+            PlayFabHelper.getCatalog((catalog) => {
+                this.props.dispatch(actionSetCatalog(catalog));
+            }, this.loadError)
             this.setState({
                 isLoggingIn: false,
             });
-        }, (message) => {
-            this.setState({
-                error: message,
-            })
+        }, this.loadError);
+    }
+
+    private loadError = (message: string): void => {
+        this.setState({
+            error: message,
         });
     }
 

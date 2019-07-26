@@ -15,25 +15,7 @@ import { titleHelper } from "./shared/title-helper";
 import { is } from "./shared/is";
 import { actionSetTitleId } from "./store/actions";
 
-export interface IRouterProps {
-	playerPlayFabID: string;
-	playerName: string;
-	savePlayer: (player: PlayFabClientModels.LoginResult, playerName: string) => void;
-
-	inventory: PlayFabClientModels.GetUserInventoryResult;
-	refreshInventory: () => void;
-
-	planets: IPlanetData[];
-	refreshPlanets: (callback?: () => void) => void;
-
-	stores: PlayFabClientModels.GetStoreItemsResult[];
-	refreshStores: (callback?: () => void) => void;
-
-	catalog: PlayFabClientModels.CatalogItem[];
-	refreshCatalog: (callback?: () => void) => void;
-}
-
-type Props = IRouterProps & IWithAppStateProps;
+type Props = IWithAppStateProps;
 
 class RouterBase extends React.Component<Props> {
 	public componentDidMount(): void {
@@ -48,12 +30,12 @@ class RouterBase extends React.Component<Props> {
 		return (
 			<HashRouter>
 				<Switch>
-					<Route exact path={routes.Home} render={(props) => <HomePage {...props} {...this.props} />} />
-					<Route exact path={routes.Player} render={(props) => <PlayerPage {...props} {...this.props} />} />
-					<Route exact path={routes.Planet} render={(props) => <PlanetPage {...props} {...this.props} />} />
-					<Route exact path={routes.HomeBase} render={(props) => <HomeBasePage {...props} {...this.props} />} />
-					<Route exact path={routes.Upload} render={(props) => <UploadPage {...props} {...this.props} />} />
-					<Route exact path={routes.Download} render={(props) => <DownloadPage {...props} {...this.props} />} />
+					<Route exact path={routes.Home} component={HomePage} />
+					<Route exact path={routes.Player} component={PlayerPage} />
+					<Route exact path={routes.Planet} component={PlanetPage} />
+					<Route exact path={routes.HomeBase} component={HomeBasePage} />
+					<Route exact path={routes.Upload} component={UploadPage} />
+					<Route exact path={routes.Download} component={DownloadPage} />
 					<Route component={NotFound} />
 				</Switch>
 			</HashRouter>
