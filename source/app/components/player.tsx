@@ -70,7 +70,7 @@ class PlayerBase extends React.Component<Props, IState> {
         return (
             <DivPlayerWrapper>
                 <DivPlayerName>
-                    <h3>{this.props.appState.playerName}</h3>
+                    <h3>{this.props.appState.playerName} ({this.props.appState.playerHP} HP)</h3>
                 </DivPlayerName>
                 {this.renderCredits()}
                 {this.renderInventory()}
