@@ -115,7 +115,7 @@ class PlayerPageBase extends React.Component<Props, IState> {
                 PlayFabHelper.updateDisplayName(this.state.playerName, this.props.onPageNothing, this.props.onPageError);
 
                 // Also grant you some items
-                PlayFabHelper.executeCloudScript("newPlayerLogin", null, this.props.onPageNothing, this.props.onPageError);
+                PlayFabHelper.executeCloudScript("playerLogin", null, this.props.onPageNothing, this.props.onPageError);
             }
 
             PlayFabHelper.getTitleData([TITLE_DATA_PLANETS], (data) => {
