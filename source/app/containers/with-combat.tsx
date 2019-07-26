@@ -3,13 +3,14 @@ import { ITitleDataEnemy } from "../shared/types";
 import { mathHelper } from "../shared/math-helper";
 
 export interface IWithCombatProps {
-    readonly playerHP: number;
-    readonly enemies: ITitleDataEnemy[];
-    readonly stage: CombatStage;
+    readonly combatPlayerHP: number;
+    readonly combatEnemies: ITitleDataEnemy[];
+    readonly combatStage: CombatStage;
 
-    readonly start: (enemies: ITitleDataEnemy[], playerHP: number) => void;
-    readonly onPlayerAttack: (enemyIndex: number) => void;
-    readonly onEnemyAttack: () => void;
+    readonly onCombatStart: (enemies: ITitleDataEnemy[], playerHP: number) => void;
+    readonly onCombatPlayerAttack: (enemyIndex: number) => void;
+    readonly onCombatEnemyAttack: () => IEnemyAttackReport;
+    readonly onCombatAdvanceStage: () => void;
 }
 
 interface IState {
@@ -24,6 +25,11 @@ export enum CombatStage {
     Enemy,
     Dead,
     Victory
+}
+
+export interface IEnemyAttackReport {
+    enemyIndex: number;
+    damage: number;
 }
 
 export const withCombat = <P extends IWithCombatProps>(Component: React.ComponentType<P>) => {
@@ -41,12 +47,13 @@ export const withCombat = <P extends IWithCombatProps>(Component: React.Componen
             return (
                 <Component
                     {...this.props as P}
-                    enemies={this.state.enemies}
-                    playerHP={this.state.playerHP}
-                    stage={this.state.stage}
-                    start={this.start}
-                    onPlayerAttack={this.onPlayerAttack}
-                    onEnemyAttack={this.onEnemyAttack}
+                    combatEnemies={this.state.enemies}
+                    combatPlayerHP={this.state.playerHP}
+                    combatStage={this.state.stage}
+                    onCombatStart={this.start}
+                    onCombatPlayerAttack={this.onPlayerAttack}
+                    onCombatEnemyAttack={this.onEnemyAttack}
+                    onCombatAdvanceStage={this.onAdvanceStage}
                 />
             );
         }
@@ -59,13 +66,13 @@ export const withCombat = <P extends IWithCombatProps>(Component: React.Componen
             });
         }
 
-        private onEnemyAttack = (): void => {
-            this.setState(prevState => {
-                // Pick someone to attack
-                const attackingEnemyIndex = mathHelper.getRandomInt(0, prevState.enemies.length - 1);
-                const damage = prevState.enemies[attackingEnemyIndex].damage;
-                const playerHP = prevState.playerHP - damage;
+        private onEnemyAttack = (): IEnemyAttackReport => {
+            // Pick someone to attack
+            const attackingEnemyIndex = mathHelper.getRandomInt(0, this.state.enemies.length - 1);
+            const damage = this.state.enemies[attackingEnemyIndex].damage;
+            const playerHP = this.state.playerHP - damage;
 
+            this.setState(prevState => {
                 if(playerHP <= 0) {
                     return {
                         ...prevState,
@@ -79,7 +86,12 @@ export const withCombat = <P extends IWithCombatProps>(Component: React.Componen
                         playerHP: 0
                     };
                 }
-            })
+            });
+
+            return {
+                enemyIndex: attackingEnemyIndex,
+                damage
+            };
         }
 
         private onPlayerAttack = (enemyIndex: number): void => {
@@ -102,23 +114,43 @@ export const withCombat = <P extends IWithCombatProps>(Component: React.Componen
 
                     return {
                         ...prevState,
-                        enemies: prevState.enemies.filter((e, index) => index !== enemyIndex),
+                        enemies: prevState.enemies.filter((_, index) => index !== enemyIndex),
                     };
                 }
                 else {
                     return {
                         ...prevState,
                         enemies: prevState.enemies.map((e, index) => {
-                            if(index === enemyIndex) {
-                                return {
-                                    ...e,
-                                    hp: enemyHP,
-                                };
+                            if(index !== enemyIndex) {
+                                return e;
                             }
-                            
-                            return e;
+
+                            return {
+                                ...e,
+                                hp: enemyHP,
+                            };
                         })
                     }
+                }
+            });
+        }
+
+        private onAdvanceStage = (): void => {
+            this.setState((prevState) => {
+                let stage = prevState.stage;
+
+                switch(this.state.stage) {
+                    case CombatStage.Introduction:
+                        stage = CombatStage.Player;
+                        break;
+                    case CombatStage.Player:
+                        stage = CombatStage.Enemy;
+                        break;
+                }
+
+                return {
+                    ...prevState,
+                    stage,
                 }
             })
         }

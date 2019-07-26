@@ -10,6 +10,7 @@ const initialState: IApplicationState = {
     planets: null,
     playerId: null,
     playerName: null,
+    playerHP: 0,
     stores: null,
     titleId: null,
     hasPlayerId: false,
@@ -59,6 +60,16 @@ export const mainReducer: Reducer<IApplicationState, IAction<any>> = (state = in
                 ...state,
                 titleId: action.payload as string,
                 hasTitleId: !is.null(action.payload),
+            };
+        case ActionTypes.SET_PLAYER_HP:
+            return {
+                ...state,
+                playerHP: action.payload as number,
+            };
+        case ActionTypes.SUBTRACT_PLAYER_HP:
+            return {
+                ...state,
+                playerHP: Math.max(0, state.playerHP - action.payload as number),
             };
         default:
             return state;

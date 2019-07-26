@@ -11,6 +11,8 @@ export const actionSetPlanetsFromTitleData = (data: IStringDictionary) => {
     return action(ActionTypes.SET_PLANETS, planetData)
 };
 export const actionSetPlayerId = (id: string) => action(ActionTypes.SET_PLAYER_ID, id);
+export const actionSetPlayerHP = (hp: number) => action(ActionTypes.SET_PLAYER_HP, hp);
 export const actionSetPlayerName = (name: string) => action(ActionTypes.SET_PLAYER_NAME, name);
 export const actionSetStores = (stores: PlayFabClientModels.GetStoreItemsResult[]) => action(ActionTypes.SET_STORES, stores);
 export const actionSetTitleId = (titleId: string) => action(ActionTypes.SET_TITLE_ID, titleId);
+export const actionSubtractPlayerHP = (damage: number) => action(ActionTypes.SUBTRACT_PLAYER_HP, damage);

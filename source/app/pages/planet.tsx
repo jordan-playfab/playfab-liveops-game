@@ -10,9 +10,12 @@ import { PrimaryButton } from "office-ui-fabric-react";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { actionSetInventory, actionSetPlanetsFromTitleData } from "../store/actions";
 import { IWithPageProps, withPage } from "../containers/with-page";
+import { mathHelper } from "../shared/math-helper";
+import { Combat } from "../components/combat";
 
 interface IState {
-    currentArea: string;
+    areaName: string;
+    enemyGroupName: string;
     isLoading: boolean;
     itemGranted: string;
 }
@@ -29,8 +32,9 @@ class PlanetPageBase extends React.Component<Props, IState> {
 
         this.state = {
             isLoading: true,
-            currentArea: null,
+            areaName: null,
             itemGranted: null,
+            enemyGroupName: null,
         }
     }
 
@@ -80,7 +84,7 @@ class PlanetPageBase extends React.Component<Props, IState> {
     private renderArea(): React.ReactNode {
         const planet = this.getPlanetData();
 
-        if(is.null(this.state.currentArea)) {
+        if(is.null(this.state.areaName)) {
             return (
                 <React.Fragment>
                     <h3>Choose a region to fight in:</h3>
@@ -95,7 +99,7 @@ class PlanetPageBase extends React.Component<Props, IState> {
 
         return (
             <React.Fragment>
-                {this.renderShootButton()}
+                {this.renderCombat()}
                 {!is.null(this.state.itemGranted) && (
                     <p>You just got a {this.state.itemGranted}</p>
                 )}
@@ -103,21 +107,46 @@ class PlanetPageBase extends React.Component<Props, IState> {
         );
     }
 
-    private renderShootButton(): React.ReactNode {
+    private renderCombat(): React.ReactNode {
+        const enemyGroup = this.props.appState.enemies.enemyGroups.find(g => g.name === this.state.enemyGroupName);
+        const enemyData = this.props.appState.enemies.enemies.filter(e => enemyGroup.enemies.find(groupEnemy => groupEnemy === e.name));
+
         return (
-            <PrimaryButton text="Shoot enemy" onClick={this.shootEnemy} />
+            <Combat
+                planet={this.getPlanetName()}
+                area={this.state.areaName}
+                enemyGroup={enemyGroup}
+                enemies={enemyData}
+                onFinished={this.setArea.bind(this, null)}
+            />
         );
     }
 
-    private setArea = (currentArea: string): void => {
-        this.setState({
-            currentArea,
-        })
-    }
+    private setArea = (area: string): void => {
+        if(is.null(area)) {
+            this.setState({
+                areaName: null,
+                enemyGroupName: null,
+            });
 
-    private shootEnemy = (): void => {
+            return;
+        }
+
+        // Pick an enemy group to fight
+        const thisArea = this.props.appState.planets
+            .find(p => p.name === this.getPlanetName())
+            .areas
+            .find(a => a.name === area);
+
+        if(is.null(thisArea)) {
+            return this.props.onPlayFabError(`Area ${area} not found somehow`);
+        }
+
+        const enemyGroupIndex = mathHelper.getRandomInt(0, thisArea.enemyGroups.length - 1);
+
         this.setState({
-            itemGranted: null,
+            areaName: area,
+            enemyGroupName: thisArea.enemyGroups[enemyGroupIndex]
         });
     }
 
@@ -142,8 +171,8 @@ class PlanetPageBase extends React.Component<Props, IState> {
             return "Loading...";
         }
 
-        if(!is.null(this.state.currentArea)) {
-            return `${this.state.currentArea} Region`;
+        if(!is.null(this.state.areaName)) {
+            return `${this.state.areaName} Region`;
         }
 
         return `Welcome to ${this.getPlanetName()}`;
@@ -159,16 +188,16 @@ class PlanetPageBase extends React.Component<Props, IState> {
         const breadcrumbs: IBreadcrumbRoute[] = [{
             text: planetName,
             href: routes.Planet.replace(":name", planetName),
-            onClick: is.null(this.state.currentArea)
+            onClick: is.null(this.state.areaName)
                 ? null
                 : () => {
                     this.setArea(null);
                 }
         }];
 
-        if(!is.null(this.state.currentArea)) {
+        if(!is.null(this.state.areaName)) {
             breadcrumbs.push({
-                text: this.state.currentArea,
+                text: this.state.areaName,
                 href: ""
             });
         }
