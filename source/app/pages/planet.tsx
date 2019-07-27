@@ -8,7 +8,7 @@ import { Page, IBreadcrumbRoute } from "../components/page";
 import { UlInline } from "../styles";
 import { PrimaryButton } from "office-ui-fabric-react";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
-import { actionSetInventory, actionSetPlayerXP, actionSetPlayerLevel } from "../store/actions";
+import { actionSetInventory, actionSetPlayerXP, actionSetPlayerLevel, actionSetPlayerHP } from "../store/actions";
 import { IWithPageProps, withPage } from "../containers/with-page";
 import { utilities } from "../shared/utilities";
 import { Combat } from "../components/combat";
@@ -18,7 +18,9 @@ import { CloudScriptHelper } from "../shared/cloud-script";
 interface IState {
     areaName: string;
     enemyGroupName: string;
-    itemGranted: string;
+    itemsGranted: string[];
+    newLevel: number;
+    newXP: number;
 }
 
 interface IPlanetPageRouteProps {
@@ -34,7 +36,9 @@ class PlanetPageBase extends React.Component<Props, IState> {
         this.state = {
             areaName: null,
             enemyGroupName: null,
-            itemGranted: null,
+            itemsGranted: null,
+            newLevel: null,
+            newXP: null,
         }
     }
 
@@ -79,12 +83,28 @@ class PlanetPageBase extends React.Component<Props, IState> {
     }
 
     private renderItemGranted(): React.ReactNode {
-        if(is.null(this.state.itemGranted)) {
+        if(is.null(this.state.itemsGranted)) {
             return null;
         }
 
         return (
-            <p>Good job in combat! You won a {this.state.itemGranted}!</p>
+            <React.Fragment>
+                <p>Good job in combat!</p>
+                {!is.null(this.state.newXP) && (
+                    <p>You gained {this.state.newXP} XP.</p>
+                )}
+                {!is.null(this.state.newLevel) && (
+                    <p>Congratulations! You are now level {this.state.newLevel}!</p>
+                )}
+                <p>Rewards:</p>
+                <ul>
+                    {this.state.itemsGranted.map((name, index) => (
+                        <li key={index}>{name}</li>
+                    ))}
+                </ul>
+                
+            </React.Fragment>
+            
         )
     }
 
@@ -123,22 +143,42 @@ class PlanetPageBase extends React.Component<Props, IState> {
                 return;
             }
 
-            if(!is.null(response.itemGranted)) {
+            if(!is.null(response.hp)) {
+                // Your HP might be filled when you level up
+                this.props.dispatch(actionSetPlayerHP(response.hp));
+            }
+
+            if(!is.null(response.itemsGranted)) {
                 this.setState({
-                    itemGranted: response.itemGranted
+                    itemsGranted: response.itemsGranted
                 });
 
                 this.refreshInventory();
             }
 
-            // TODO: Tell the user how much XP they got and whether they gained a level
-
             if(!is.null(response.xp)) {
+                this.setState({
+                    newXP: response.xp - this.props.appState.playerXP
+                });
+
                 this.props.dispatch(actionSetPlayerXP(response.xp));
+            }
+            else {
+                this.setState({
+                    newXP: null,
+                });
             }
 
             if(!is.null(response.level)) {
                 this.props.dispatch(actionSetPlayerLevel(response.level));
+                this.setState({
+                    newLevel: response.level,
+                });
+            }
+            else {
+                this.setState({
+                    newLevel: null,
+                });
             }
         }, this.props.onPageError);
     }
@@ -156,7 +196,7 @@ class PlanetPageBase extends React.Component<Props, IState> {
             this.setState({
                 areaName: null,
                 enemyGroupName: null,
-                itemGranted: null,
+                itemsGranted: null,
             });
 
             return;
@@ -177,7 +217,7 @@ class PlanetPageBase extends React.Component<Props, IState> {
         this.setState({
             areaName: area,
             enemyGroupName: thisArea.enemyGroups[enemyGroupIndex],
-            itemGranted: null,
+            itemsGranted: null,
         });
     }
 

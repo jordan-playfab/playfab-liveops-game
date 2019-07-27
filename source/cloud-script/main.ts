@@ -1,6 +1,6 @@
 /// <reference path="../../node_modules/playfab-web-sdk/src/Typings/PlayFab/PlayFabClientApi.d.ts" />
 /// <reference path="../../node_modules/playfab-web-sdk/src/Typings/PlayFab/PlayFabAdminApi.d.ts" />
-import { ITitleDataPlanets, ITitleDataEnemies, IPlanetData, IStringDictionary, IAnyDictionary } from "../app/shared/types";
+import { ITitleDataPlanets, ITitleDataEnemies, IPlanetData, IStringDictionary, IAnyDictionary, ITitleDataLevel } from "../app/shared/types";
 
 // PlayFab-supplied global variables
 declare var currentPlayerId: string;
@@ -127,6 +127,7 @@ const App = {
     TitleData: {
         Planets: "Planets",
         Enemies: "Enemies",
+        Levels: "Levels",
     },
     UserData: {
         HP: "hp",
@@ -142,6 +143,8 @@ const App = {
     },
     Config: {
         StartingHP: 100,
+        StartingLevel: 1,
+        StartingXP: 0,
         PermissionPublic: "Public",
         PermissionPrivate: "Private"
     }
@@ -158,18 +161,34 @@ export interface IKilledEnemyGroupRequest {
 
 export interface IKilledEnemyGroupResponse {
     errorMessage?: string;
-    itemGranted?: string;
+    itemsGranted?: string[];
     kills?: number
     xp?: number;
     level?: number;
+    hp?: number;
 }
 
+/*
+    This function:
+        1. Ensures the user isn't cheating by validating the monsters and location
+        2. Updates kills statistic
+        3. Updates XP statistic
+        4. If appropriate, updates level, which includes:
+            4a. Increased max HP
+            4b. Item granted
+            4c. Set current HP to max HP
+        5. Updates new HP user data
+        6. If this enemy group has a droptable, grant the user that item
+*/
 handlers.killedEnemyGroup = function(args: IKilledEnemyGroupRequest, context: any): IKilledEnemyGroupResponse {
-    const planetsAndEnemies = App.GetTitleData([App.TitleData.Planets, App.TitleData.Enemies], true);
-    const planetData = (planetsAndEnemies[App.TitleData.Planets] as ITitleDataPlanets).planets;
-    const enemyData = (planetsAndEnemies[App.TitleData.Enemies] as ITitleDataEnemies);
+    // Retrieve all the data we'll need to make these updates
+    const titleData = App.GetTitleData([App.TitleData.Planets, App.TitleData.Enemies, App.TitleData.Levels], true);
+    const planetData = (titleData[App.TitleData.Planets] as ITitleDataPlanets).planets;
+    const enemyData = (titleData[App.TitleData.Enemies] as ITitleDataEnemies);
+    const userData = App.GetUserData(currentPlayerId, [App.UserData.MaxHP]).Data;
+    const statistics = App.GetPlayerStatistics(currentPlayerId, [App.Statistics.Kills, App.Statistics.XP, App.Statistics.Level]);
 
-    // Ensure the data submitted is valid
+    // STEP 1: Ensure the data submitted is valid
     const errorMessage = isKilledEnemyGroupValid(args, planetData, enemyData);
 
     if(!App.IsNull(errorMessage)) {
@@ -178,16 +197,17 @@ handlers.killedEnemyGroup = function(args: IKilledEnemyGroupRequest, context: an
         };
     }
 
-    const response: IKilledEnemyGroupResponse = {};
 
     // Data is valid, continue
     const fullEnemyGroup = enemyData.enemyGroups.find(e => e.name === args.enemyGroup);
 
-    // Update player statistics
-    const statistics = App.GetPlayerStatistics(currentPlayerId, [App.Statistics.Kills, App.Statistics.XP]);
+    // Update player statistics and user data
+    const itemsGranted: string[] = [];
     const statisticUpdates: PlayFabServerModels.StatisticUpdate[] = [];
+    const userDataUpdates: IStringDictionary = {};
+    const response: IKilledEnemyGroupResponse = {};
     
-    // Update number of kills
+    // STEP 2: Update number of kills
     const killStatistic = statistics.find(s => s.StatisticName === App.Statistics.Kills);
     const startingKills = App.IsNull(killStatistic)
         ? 0
@@ -201,45 +221,83 @@ handlers.killedEnemyGroup = function(args: IKilledEnemyGroupRequest, context: an
         Value: newKills,
     });
 
-    // How much XP you earned from that enemy group
+    // STEP 3: How much XP you earned from that enemy group
     const xpStatistic = statistics.find(s => s.StatisticName === App.Statistics.XP);
     const startingXP = App.IsNull(xpStatistic)
-        ? 0
+        ? App.Config.StartingXP
         : xpStatistic.Value;
 
-    const newXP = fullEnemyGroup.enemies
+    const yourXP = fullEnemyGroup.enemies
         .map(e => enemyData.enemies.find(e2 => e2.name === e).xp)
         .reduce((totalXP, enemyXP) => {
             return totalXP + enemyXP;
         }, startingXP);
 
-    response.xp = newXP;
+    response.xp = yourXP;
 
     statisticUpdates.push({
         StatisticName: App.Statistics.XP,
-        Value: newXP,
+        Value: yourXP,
     });
 
-    // Do both updates
-    App.UpdatePlayerStatistics(currentPlayerId, statisticUpdates);
+    // STEP 4: Did you gain a level?
+    let newMaxHP = App.IsNull(userData[App.UserData.MaxHP])
+        ? App.Config.StartingHP
+        : parseInt(userData[App.UserData.MaxHP].Value);
 
-    // TODO: Did you gain a level?
+    const levelStatistic = statistics.find(s => s.StatisticName === App.Statistics.Level);
+    let originalLevelNumber = App.IsNull(levelStatistic)
+        ? App.Config.StartingLevel
+        : levelStatistic.Value;
+    let yourLevelNumber = originalLevelNumber;
+    
+    // Allow the user to go up multiple levels simultaneously (somehow)
+    let newLevel = levelPlayer(titleData[App.TitleData.Levels] as ITitleDataLevel[], yourLevelNumber, yourXP);
+    while(!App.IsNull(newLevel)) {
+        // Grant the user a new level and all the perks and privileges that come from it
+        yourLevelNumber = newLevel.level;
 
-    // Also update your HP, which is stored in user data
-    App.UpdateUserDataExisting({
-        [App.UserData.HP]: args.playerHP.toString()
-    }, true);
+        if(!App.IsNull(newLevel.itemGranted)) {
+            itemsGranted.push(newLevel.itemGranted);
+        }
 
-    // Grant items
-    let itemGranted: string = null;
+        // HP goes up
+        newMaxHP += newLevel.hpGranted;
 
-    if(!App.IsNull(fullEnemyGroup.droptable)) {
-        itemGranted = App.EvaluateRandomResultTable(null, fullEnemyGroup.droptable);
-
-        App.GrantItemsToUser(currentPlayerId, [itemGranted]);
+        newLevel = levelPlayer(titleData[App.TitleData.Levels] as ITitleDataLevel[], yourLevelNumber, yourXP);
     }
 
-    response.itemGranted = itemGranted;
+    if(yourLevelNumber !== originalLevelNumber) {
+        statisticUpdates.push({
+            StatisticName: App.Statistics.Level,
+            Value: yourLevelNumber
+        });
+
+        response.level = yourLevelNumber;
+
+        userDataUpdates[App.UserData.MaxHP] = newMaxHP.toString();
+        userDataUpdates[App.UserData.HP] = newMaxHP.toString();
+
+        response.hp = newMaxHP;
+    }
+    else {
+        userDataUpdates[App.UserData.HP] = args.playerHP.toString();
+    }
+
+    // STEP 5: Do both updates
+    App.UpdatePlayerStatistics(currentPlayerId, statisticUpdates);
+    App.UpdateUserDataExisting(userDataUpdates, true);
+
+    // STEP 6: Grant items
+    if(!App.IsNull(fullEnemyGroup.droptable)) {
+        const itemGranted = App.EvaluateRandomResultTable(null, fullEnemyGroup.droptable);
+
+        App.GrantItemsToUser(currentPlayerId, [itemGranted]);
+
+        itemsGranted.push(itemGranted);
+    }
+
+    response.itemsGranted = itemsGranted;
 
     return response;
 };
@@ -375,7 +433,7 @@ handlers.equipItem = function(args: IEquipItemRequest, context: any): PlayFabSer
 
 // ----- Helpers ----- //
 
-const isKilledEnemyGroupValid = function(args: IKilledEnemyGroupRequest, planetData: IPlanetData[], enemyData: ITitleDataEnemies): string {
+function isKilledEnemyGroupValid(args: IKilledEnemyGroupRequest, planetData: IPlanetData[], enemyData: ITitleDataEnemies): string {
     const planet = planetData.find(p => p.name === args.planet);
     
     if(planet === undefined) {
@@ -402,3 +460,14 @@ const isKilledEnemyGroupValid = function(args: IKilledEnemyGroupRequest, planetD
 
     return undefined;
 };
+
+function levelPlayer(titleDataLevels: ITitleDataLevel[], yourLevel: number, yourXP: number): ITitleDataLevel {
+    let nextLevelNumber = yourLevel + 1;
+    const nextLevel = titleDataLevels.find(l => l.level === nextLevelNumber);
+    
+    if(yourXP >= nextLevel.xp) {
+        return nextLevel;
+    }
+
+    return null;
+}

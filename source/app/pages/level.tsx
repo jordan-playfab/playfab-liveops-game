@@ -4,18 +4,14 @@ import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { IWithPageProps, withPage } from "../containers/with-page";
 import { Page } from "../components/page";
 import { TextField } from "office-ui-fabric-react";
+import { ITitleDataLevel } from "../shared/types";
 
 interface IState {
     maxLevel: number;
     xpToLevel1: number;
     xpToLevel50: number;
     xpPerLevelMultiplier: number;
-}
-
-interface ILevelObject {
-    level: number;
-    xp: number;
-    itemGranted: string;
+    hpPerLevelMultiplier: number;
 }
 
 type Props = RouteComponentProps & IWithAppStateProps & IWithPageProps;
@@ -30,6 +26,7 @@ class LevelPageBase extends React.Component<Props, IState> {
             xpToLevel1: 100,
             xpToLevel50: 10000,
             xpPerLevelMultiplier: 1.15,
+            hpPerLevelMultiplier: 5.75,
         };
     }
 
@@ -46,7 +43,7 @@ class LevelPageBase extends React.Component<Props, IState> {
     }
 
     private renderLevelCurve(): React.ReactNode {
-        const xpPerLevel: ILevelObject[] = [];
+        const xpPerLevel: ITitleDataLevel[] = [];
 
         for(let i = 0; i < this.state.maxLevel; i++) {
             let xp = this.calculateLevelCurve(i);
@@ -58,6 +55,7 @@ class LevelPageBase extends React.Component<Props, IState> {
             xpPerLevel.push({
                 level: i + 1,
                 xp: Math.floor(xp),
+                hpGranted: Math.floor(i * this.state.hpPerLevelMultiplier),
                 itemGranted: null,
             });
         }

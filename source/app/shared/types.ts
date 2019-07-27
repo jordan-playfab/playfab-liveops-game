@@ -32,6 +32,13 @@ export interface ITitleDataEnemyGroup {
     droptable: string;
 }
 
+export interface ITitleDataLevel {
+    level: number;
+    xp: number;
+    itemGranted: string;
+    hpGranted: number;
+}
+
 // ----- Catalog item custom data ----- //
 
 export interface IWeaponItemCustomData {
