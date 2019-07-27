@@ -9,11 +9,12 @@ import { RouteComponentProps } from "react-router";
 import { Page } from "../components/page";
 import { DivConfirm, UlInline } from "../styles";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
-import { actionSetPlayerId, actionSetPlayerName, actionSetCatalog, actionSetInventory, actionSetPlanetsFromTitleData, actionSetStoreNamesFromTitleData, actionSetPlayerHP, actionSetEnemiesFromTitleData, actionSetEquipmentMultiple } from "../store/actions";
-import { TITLE_DATA_PLANETS, CloudScriptFunctionNames, CATALOG_VERSION, TITLE_DATA_STORES, TITLE_DATA_ENEMIES, IStringDictionary } from "../shared/types";
+import { actionSetPlayerId, actionSetPlayerName, actionSetCatalog, actionSetInventory, actionSetPlanetsFromTitleData, actionSetStoreNamesFromTitleData, actionSetPlayerHP, actionSetEnemiesFromTitleData, actionSetEquipmentMultiple, actionSetPlayerLevel, actionSetPlayerXP } from "../store/actions";
+import { TITLE_DATA_PLANETS, CATALOG_VERSION, TITLE_DATA_STORES, TITLE_DATA_ENEMIES, IStringDictionary } from "../shared/types";
 import { IWithPageProps, withPage } from "../containers/with-page";
 import { IPlayerLoginResponse } from "../../cloud-script/main";
 import { IEquipItemInstance } from "../store/types";
+import { CloudScriptHelper } from "../shared/cloud-script";
 
 type Props = RouteComponentProps & IWithAppStateProps & IWithPageProps;
 
@@ -149,13 +150,15 @@ class PlayerPageBase extends React.Component<Props, IState> {
                 PlayFabHelper.UpdateUserTitleDisplayName(this.state.playerName, this.props.onPageNothing, this.props.onPageError);
             }
 
-            PlayFabHelper.ExecuteCloudScript(CloudScriptFunctionNames.playerLogin, null, (data) => {
-                const response: IPlayerLoginResponse = data.FunctionResult;
+            CloudScriptHelper.login((response) => {
                 this.props.dispatch(actionSetPlayerHP(response.playerHP));
 
                 this.setState({
                     equipment: response.equipment
                 });
+
+                this.props.dispatch(actionSetPlayerLevel(response.level));
+                this.props.dispatch(actionSetPlayerXP(response.xp));
                 
                 this.getInventory();
             }, this.props.onPageError);

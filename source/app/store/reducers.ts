@@ -11,6 +11,8 @@ const initialState: IApplicationState = {
     playerId: null,
     playerName: null,
     playerHP: 0,
+    playerLevel: 1,
+    playerXP: 0,
     stores: null,
     titleId: null,
     hasPlayerId: false,
@@ -99,6 +101,21 @@ export const mainReducer: Reducer<IApplicationState, IAction<any>> = (state = in
                     ...state.equipment,
                     ...slotDictionary,
                 }
+            };
+        case ActionTypes.SET_PLAYER_LEVEL:
+            return {
+                ...state,
+                playerLevel: action.payload as number,
+            };
+        case ActionTypes.SET_PLAYER_XP:
+            return {
+                ...state,
+                playerXP: action.payload as number,
+            };
+        case ActionTypes.ADD_PLAYER_XP:
+            return {
+                ...state,
+                playerXP: state.playerXP + action.payload as number,
             };
         default:
             return state;

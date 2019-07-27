@@ -88,13 +88,6 @@ export const PROGRESS_STAGES: IProgressStage[] = [{
     filename: "cloud-script.json"
 }];
 
-export enum CloudScriptFunctionNames {
-    killedEnemyGroup = "killedEnemyGroup",
-    playerLogin = "playerLogin",
-    returnToHomeBase = "returnToHomeBase",
-    equipItem = "equipItem"
-}
-
 export const VC_CREDITS = "CR";
 
 export const CATALOG_VERSION = "Main";

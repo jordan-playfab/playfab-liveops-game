@@ -90,7 +90,7 @@ class PlayerBase extends React.Component<Props, IState> {
         }
 
         return (
-            <div>Credits: <strong>{credits}</strong></div>
+            <div>Credits: <strong>{credits}</strong> &middot; Level: <strong>{this.props.appState.playerLevel}</strong> &middot; XP: {this.props.appState.playerXP}</div>
         );
     }
 

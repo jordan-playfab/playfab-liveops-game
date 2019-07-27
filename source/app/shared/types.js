@@ -29,13 +29,6 @@ export const PROGRESS_STAGES = [{
         title: "Cloud Script",
         filename: "cloud-script.json"
     }];
-export var CloudScriptFunctionNames;
-(function (CloudScriptFunctionNames) {
-    CloudScriptFunctionNames["killedEnemyGroup"] = "killedEnemyGroup";
-    CloudScriptFunctionNames["playerLogin"] = "playerLogin";
-    CloudScriptFunctionNames["returnToHomeBase"] = "returnToHomeBase";
-    CloudScriptFunctionNames["equipItem"] = "equipItem";
-})(CloudScriptFunctionNames || (CloudScriptFunctionNames = {}));
 export const VC_CREDITS = "CR";
 export const CATALOG_VERSION = "Main";
 export const TITLE_DATA_STORES = "Stores";

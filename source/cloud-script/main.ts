@@ -121,7 +121,8 @@ const App = {
     },
     Statistics: {
         Kills: "kills",
-        HP: "hp"
+        Level: "level",
+        XP: "xp"
     },
     TitleData: {
         Planets: "Planets",
@@ -218,6 +219,8 @@ export interface IPlayerLoginResponse {
     didGrantStartingPack: boolean;
     playerHP: number;
     equipment: IStringDictionary;
+    xp: number;
+    level: number;
 }
 
 handlers.playerLogin = function(args: any, context: any): IPlayerLoginResponse {
@@ -226,6 +229,8 @@ handlers.playerLogin = function(args: any, context: any): IPlayerLoginResponse {
         didGrantStartingPack: false,
         playerHP: 0,
         equipment: {},
+        xp: 0,
+        level: 1,
     }
 
     // Give new players their starting items
@@ -250,6 +255,19 @@ handlers.playerLogin = function(args: any, context: any): IPlayerLoginResponse {
         response.playerHP = parseInt(userData.Data[App.UserData.HP].Value);
     }
 
+    // We also need to know your current XP and level
+    const statistics = App.GetPlayerStatistics(currentPlayerId, [App.Statistics.Level, App.Statistics.XP]);
+    
+    const statisticXP = statistics.find(s => s.StatisticName === App.Statistics.XP);
+    if(!App.IsNull(statisticXP)) {
+        response.xp = statisticXP.Value;
+    }
+    const statisticLevel = statistics.find(s => s.StatisticName === App.Statistics.Level);
+    if(!App.IsNull(statisticLevel)) {
+        response.level = statisticLevel.Value;
+    }
+
+    // And return any equipment which existing users might have
     if(!App.IsNull(userData.Data[App.UserData.Equipment])) {
         response.equipment = JSON.parse(userData.Data[App.UserData.Equipment].Value)
     }

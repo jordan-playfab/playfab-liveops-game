@@ -1,5 +1,5 @@
 import React from "react";
-import { IWithCombatProps, withCombat, CombatStage, IEnemyAttackReport } from "../containers/with-combat";
+import { IWithCombatProps, withCombat, CombatStage } from "../containers/with-combat";
 import { ITitleDataEnemy, ITitleDataEnemyGroup } from "../shared/types";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { actionSetPlayerHP } from "../store/actions";

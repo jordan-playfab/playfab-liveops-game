@@ -9,9 +9,9 @@ import { UlInline } from "../styles";
 import { PrimaryButton, Spinner } from "office-ui-fabric-react";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { actionSetInventory, actionSetStores, actionSetPlayerHP, actionSetEquipmentSingle } from "../store/actions";
-import { CATALOG_VERSION, CloudScriptFunctionNames, ITEM_CLASS_WEAPON } from "../shared/types";
+import { CATALOG_VERSION } from "../shared/types";
 import { IWithPageProps, withPage } from "../containers/with-page";
-import { IReturnToHomeBaseResponse, IEquipItemRequest } from "../../cloud-script/main";
+import { IReturnToHomeBaseResponse } from "../../cloud-script/main";
 import { getSlotTypeFromItemClass, EquipmentSlotTypes } from "../store/types";
 import { CloudScriptHelper } from "../shared/cloud-script";
 
@@ -201,9 +201,7 @@ class HomeBasePageBase extends React.Component<Props, IState> {
     }
 
     private restorePlayerHP(): void {
-        PlayFabHelper.ExecuteCloudScript(CloudScriptFunctionNames.returnToHomeBase, null, (data) => {
-            const response = data.FunctionResult as IReturnToHomeBaseResponse;
-
+        CloudScriptHelper.returnToHomeBase((response) => {
             this.props.dispatch(actionSetPlayerHP(response.maxHP));
         }, this.props.onPageError);
     }

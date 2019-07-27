@@ -7,6 +7,9 @@ export enum ActionTypes {
     SET_CATALOG = "SET_CATALOG",
     SET_INVENTORY = "SET_INVENTORY",
     SET_PLAYER_HP = "SET_PLAYER_HP",
+    SET_PLAYER_XP = "SET_PLAYER_XP",
+    ADD_PLAYER_XP = "ADD_PLAYER_XP",
+    SET_PLAYER_LEVEL = "SET_PLAYER_LEVEL",
     SET_STORES = "SET_STORES",
     SET_STORE_NAMES = "SET_STORE_NAMES",
     SET_PLANETS = "SET_PLANETS",
@@ -23,6 +26,8 @@ export interface IApplicationState {
     hasPlayerId: boolean;
     playerName: string;
     playerHP: number;
+    playerXP: number;
+    playerLevel: number;
     catalog: PlayFabClientModels.CatalogItem[];
     inventory: PlayFabClientModels.GetUserInventoryResult;
     stores: PlayFabClientModels.GetStoreItemsResult[];

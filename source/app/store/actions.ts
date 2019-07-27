@@ -30,3 +30,6 @@ export const actionSetEquipmentSingle = (item: PlayFabClientModels.ItemInstance,
     slot,
 } as IEquipItemInstance);
 export const actionSetEquipmentMultiple = (equips: IEquipItemInstance[]) => action(ActionTypes.SET_EQUIPMENT_MULTIPLE, equips);
+export const actionSetPlayerLevel = (level: number) => action(ActionTypes.SET_PLAYER_LEVEL, level);
+export const actionSetPlayerXP = (xp: number) => action(ActionTypes.SET_PLAYER_XP, xp);
+export const actionAddPlayerXP = (xp: number) => action(ActionTypes.ADD_PLAYER_XP, xp);

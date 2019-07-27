@@ -2,7 +2,7 @@ import React from "react";
 import { is } from "../shared/is";
 import { PlayFabHelper } from "../shared/playfab";
 import { RouteComponentProps, Redirect } from "react-router";
-import { IPlanetData, CloudScriptFunctionNames } from "../shared/types";
+import { IPlanetData } from "../shared/types";
 import { routes } from "../routes";
 import { Page, IBreadcrumbRoute } from "../components/page";
 import { UlInline } from "../styles";
@@ -12,7 +12,8 @@ import { actionSetInventory } from "../store/actions";
 import { IWithPageProps, withPage } from "../containers/with-page";
 import { utilities } from "../shared/utilities";
 import { Combat } from "../components/combat";
-import { IKilledEnemyGroupRequest, IKilledEnemyGroupResponse } from "../../cloud-script/main";
+import { IKilledEnemyGroupRequest } from "../../cloud-script/main";
+import { CloudScriptHelper } from "../shared/cloud-script";
 
 interface IState {
     areaName: string;
@@ -116,23 +117,18 @@ class PlanetPageBase extends React.Component<Props, IState> {
             playerHP: this.props.appState.playerHP,
         };
 
-        PlayFabHelper.ExecuteCloudScript(
-            CloudScriptFunctionNames.killedEnemyGroup,
-            combatReport,
-            (data) => {
-                const response = data.FunctionResult as IKilledEnemyGroupResponse;
+        CloudScriptHelper.killedEnemyGroup(combatReport, (response) => {
+            if(!is.null(response.errorMessage)) {
+                this.props.onPageError(`Error when finishing combat: ${response.errorMessage}`);
+                return;
+            }
 
-                if(!is.null(response.errorMessage)) {
-                    this.props.onPageError(`Error when finishing combat: ${response.errorMessage}`);
-                }
-                else {
-                    this.setState({
-                        itemGranted: response.itemGranted
-                    });
+            this.setState({
+                itemGranted: response.itemGranted
+            });
 
-                    this.refreshInventory();
-                }
-            }, this.props.onPageError);
+            this.refreshInventory();
+        }, this.props.onPageError);
     }
 
     private onLeaveCombat = (): void => {
