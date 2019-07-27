@@ -63,6 +63,7 @@ class HomePageBase extends React.Component<Props, IState> {
                     <li><PrimaryButton text="Play game" onClick={this.goToPage.bind(this, routes.Player)} /></li>
                     <li><DefaultButton text="Load initial data" onClick={this.goToPage.bind(this, routes.Upload)} /></li>
                     <li><DefaultButton text="Download data from title" onClick={this.goToPage.bind(this, routes.Download)} /></li>
+                    <li><DefaultButton text="Generate level curve" onClick={this.goToPage.bind(this, routes.Level)} /></li>
                 </UlInline>
             </React.Fragment>
         );

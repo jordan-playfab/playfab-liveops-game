@@ -13,6 +13,7 @@ import { IWithAppStateProps, withAppState } from "./containers/with-app-state";
 import { is } from "./shared/is";
 import { actionSetTitleId } from "./store/actions";
 import { utilities } from "./shared/utilities";
+import { LevelPage } from "./pages/level";
 
 type Props = IWithAppStateProps;
 
@@ -36,6 +37,7 @@ class RouterBase extends React.Component<Props> {
 					<Route exact path={routes.HomeBase} component={HomeBasePage} />
 					<Route exact path={routes.Upload} component={UploadPage} />
 					<Route exact path={routes.Download} component={DownloadPage} />
+					<Route exact path={routes.Level} component={LevelPage} />
 					<Route component={NotFound} />
 				</Switch>
 			</HashRouter>

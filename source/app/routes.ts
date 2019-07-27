@@ -5,5 +5,6 @@ export const routes = {
     Planet: "/planet/:name",
     HomeBase: "/home-base",
     Upload: "/upload",
-    Download: "/download"
+    Download: "/download",
+    Level: "/level"
 };
