@@ -18,7 +18,9 @@ type Props = IProps & IWithCombatProps & IWithAppStateProps;
 
 class CombatBase extends React.PureComponent<Props> {
     public componentDidMount(): void {
-        this.props.onCombatStart(this.props.enemies, this.props.appState.playerHP, this.props.appState.equippedWeapon);
+        const weapon = this.props.appState.catalog.find(i => i.ItemId === this.props.appState.equipment.weapon.ItemId);
+
+        this.props.onCombatStart(this.props.enemies, this.props.appState.playerHP, weapon);
     }
 
     public componentDidUpdate(prevProps: Props): void {

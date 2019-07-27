@@ -113,8 +113,7 @@ const App = {
     UserData: {
         HP: "hp",
         MaxHP: "maxHP",
-        Weapon: "weapon",
-        Armor: "armor"
+        Equipment: "equipment"
     },
     CatalogItems: {
         StartingPack: "StartingPack",
@@ -175,8 +174,7 @@ handlers.playerLogin = function (args, context) {
     const response = {
         didGrantStartingPack: false,
         playerHP: 0,
-        equippedArmor: null,
-        equippedWeapon: null,
+        equipment: {},
     };
     // Give new players their starting items
     const inventory = App.GetUserInventory(currentPlayerId);
@@ -184,8 +182,8 @@ handlers.playerLogin = function (args, context) {
         response.didGrantStartingPack = true;
         App.GrantItemsToUser(currentPlayerId, [App.CatalogItems.StartingPack]);
     }
-    // Give new players some HP through title data
-    const userData = App.GetUserData(currentPlayerId, [App.UserData.HP, App.UserData.Armor, App.UserData.Weapon]);
+    // Give new players some HP using title data
+    const userData = App.GetUserData(currentPlayerId, [App.UserData.HP, App.UserData.Equipment]);
     if (App.IsNull(userData.Data[App.UserData.HP])) {
         App.UpdateUserDataExisting({
             [App.UserData.HP]: App.Config.StartingHP.toString(),
@@ -196,11 +194,8 @@ handlers.playerLogin = function (args, context) {
     else {
         response.playerHP = parseInt(userData.Data[App.UserData.HP].Value);
     }
-    if (!App.IsNull(userData.Data[App.UserData.Armor])) {
-        response.equippedArmor = userData.Data[App.UserData.Armor].Value;
-    }
-    if (!App.IsNull(userData.Data[App.UserData.Weapon])) {
-        response.equippedWeapon = userData.Data[App.UserData.Weapon].Value;
+    if (!App.IsNull(userData.Data[App.UserData.Equipment])) {
+        response.equipment = JSON.parse(userData.Data[App.UserData.Equipment].Value);
     }
     return response;
 };
@@ -222,17 +217,26 @@ handlers.returnToHomeBase = function (args, context) {
     };
 };
 handlers.equipItem = function (args, context) {
-    const dataKey = args.isWeapon
-        ? App.UserData.Weapon
-        : App.UserData.Armor;
-    const result = App.UpdateUserData(currentPlayerId, {
-        [dataKey]: args.itemId,
-    }, null, true);
-    App.WritePlayerEvent(currentPlayerId, "equipped_item", {
-        itemId: args.itemId,
-        isWeapon: args.isWeapon,
-    });
-    return result;
+    const currentEquipment = App.GetUserData(currentPlayerId, [App.UserData.Equipment]).Data;
+    let returnResult = null;
+    const equipmentDictionary = App.IsNull(args.multiple)
+        ? { [args.single.slot]: args.single.itemInstanceId }
+        : args.multiple.reduce((dictionary, request) => {
+            dictionary[request.slot] = request.itemInstanceId;
+            return dictionary;
+        }, {});
+    if (App.IsNull(currentEquipment[App.UserData.Equipment])) {
+        returnResult = App.UpdateUserData(currentPlayerId, {
+            [App.UserData.Equipment]: JSON.stringify(equipmentDictionary)
+        }, null, true);
+    }
+    else {
+        returnResult = App.UpdateUserData(currentPlayerId, {
+            [App.UserData.Equipment]: JSON.stringify(Object.assign({}, JSON.parse(currentEquipment[App.UserData.Equipment].Value), equipmentDictionary))
+        }, null, true);
+    }
+    App.WritePlayerEvent(currentPlayerId, "equipped_item", args);
+    return returnResult;
 };
 // ----- Helpers ----- //
 const isKilledEnemyGroupValid = function (args, planetData, enemyData) {

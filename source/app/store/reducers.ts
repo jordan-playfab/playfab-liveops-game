@@ -1,5 +1,5 @@
 import { Reducer } from "redux";
-import { IApplicationState, IAction, ActionTypes } from "./types";
+import { IApplicationState, IAction, ActionTypes, IEquipItemInstance, IEquipmentSlotsDictionary } from "./types";
 import { ITitleDataEnemies, IPlanetData } from "../shared/types";
 import { is } from "../shared/is";
 
@@ -16,8 +16,7 @@ const initialState: IApplicationState = {
     hasPlayerId: false,
     hasTitleId: false,
     storeNames: null,
-    equippedArmor: null,
-    equippedWeapon: null,
+    equipment: null,
 };
 
 export const mainReducer: Reducer<IApplicationState, IAction<any>> = (state = initialState, action): IApplicationState => {
@@ -79,15 +78,27 @@ export const mainReducer: Reducer<IApplicationState, IAction<any>> = (state = in
                 ...state,
                 playerHP: Math.max(0, state.playerHP - action.payload as number),
             };
-        case ActionTypes.SET_EQUIPPED_ARMOR:
+        case ActionTypes.SET_EQUIPMENT_SINGLE:
+            const singleItem = (action.payload as IEquipItemInstance);
             return {
                 ...state,
-                equippedArmor: action.payload as PlayFabClientModels.CatalogItem,
+                equipment: {
+                    ...state.equipment,
+                    [singleItem.slot]: singleItem.item,
+                }
             };
-        case ActionTypes.SET_EQUIPPED_WEAPON:
+        case ActionTypes.SET_EQUIPMENT_MULTIPLE:
+            const slotDictionary = (action.payload as IEquipItemInstance[]).reduce((dictionary, equip) => {
+                dictionary[equip.slot] = equip.item;
+                return dictionary;
+            }, {} as IEquipmentSlotsDictionary);
+            
             return {
                 ...state,
-                equippedWeapon: action.payload as PlayFabClientModels.CatalogItem,
+                equipment: {
+                    ...state.equipment,
+                    ...slotDictionary,
+                }
             };
         default:
             return state;

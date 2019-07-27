@@ -9,18 +9,18 @@ import { RouteComponentProps } from "react-router";
 import { Page } from "../components/page";
 import { DivConfirm, UlInline } from "../styles";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
-import { actionSetPlayerId, actionSetPlayerName, actionSetCatalog, actionSetInventory, actionSetPlanetsFromTitleData, actionSetStoreNamesFromTitleData, actionSetPlayerHP, actionSetEnemiesFromTitleData, actionSetEquippedArmor, actionSetEquippedWeapon } from "../store/actions";
-import { TITLE_DATA_PLANETS, CloudScriptFunctionNames, CATALOG_VERSION, TITLE_DATA_STORES, TITLE_DATA_ENEMIES } from "../shared/types";
+import { actionSetPlayerId, actionSetPlayerName, actionSetCatalog, actionSetInventory, actionSetPlanetsFromTitleData, actionSetStoreNamesFromTitleData, actionSetPlayerHP, actionSetEnemiesFromTitleData, actionSetEquipmentMultiple } from "../store/actions";
+import { TITLE_DATA_PLANETS, CloudScriptFunctionNames, CATALOG_VERSION, TITLE_DATA_STORES, TITLE_DATA_ENEMIES, IStringDictionary } from "../shared/types";
 import { IWithPageProps, withPage } from "../containers/with-page";
 import { IPlayerLoginResponse } from "../../cloud-script/main";
+import { IEquipItemInstance } from "../store/types";
 
 type Props = RouteComponentProps & IWithAppStateProps & IWithPageProps;
 
 interface IState {
     playerName: string;
     isLoggingIn: boolean;
-    equipArmor: string;
-    equipWeapon: string;
+    equipment: IStringDictionary;
 }
 
 class PlayerPageBase extends React.Component<Props, IState> {
@@ -30,29 +30,26 @@ class PlayerPageBase extends React.Component<Props, IState> {
         this.state = {
             playerName: null,
             isLoggingIn: false,
-            equipArmor: null,
-            equipWeapon: null,
+            equipment: null,
         };
     }
 
     public componentDidUpdate(): void {
-        const shouldTryAndEquip = !is.null(this.props.appState.catalog) && (!is.null(this.state.equipArmor) || !is.null(this.state.equipWeapon));
+        const shouldTryAndEquip = !is.null(this.props.appState.inventory) && !is.null(this.props.appState.inventory.Inventory) && !is.null(this.state.equipment);
 
         if(shouldTryAndEquip) {
-            if(!is.null(this.state.equipArmor)) {
-                this.props.dispatch(actionSetEquippedArmor(this.props.appState.catalog.find(i => i.ItemId === this.state.equipArmor)));
+            const equipmentArray = Object.keys(this.state.equipment).map(slot => {
+                return {
+                    slot,
+                    item: this.props.appState.inventory.Inventory.find(i => i.ItemInstanceId === this.state.equipment[slot])
+                } as IEquipItemInstance;
+            });
 
-                this.setState({
-                    equipArmor: null,
-                });
-            }
-            if(!is.null(this.state.equipWeapon)) {
-                this.props.dispatch(actionSetEquippedWeapon(this.props.appState.catalog.find(i => i.ItemId === this.state.equipWeapon)));
+            this.props.dispatch(actionSetEquipmentMultiple(equipmentArray));
 
-                this.setState({
-                    equipWeapon: null,
-                });
-            }
+            this.setState({
+                equipment: null,
+            });
         }
     }
 
@@ -102,7 +99,7 @@ class PlayerPageBase extends React.Component<Props, IState> {
             return <Spinner label="Loading planets" />;
         }
 
-        if(is.null(this.props.appState.equippedWeapon)) {
+        if(is.null(this.props.appState.equipment) || is.null(this.props.appState.equipment.weapon)) {
             return (
                 <React.Fragment>
                     <p>You can't go into the field without a weapon! Buy one at home base.</p>
@@ -157,8 +154,7 @@ class PlayerPageBase extends React.Component<Props, IState> {
                 this.props.dispatch(actionSetPlayerHP(response.playerHP));
 
                 this.setState({
-                    equipArmor: response.equippedArmor,
-                    equipWeapon: response.equippedWeapon,
+                    equipment: response.equipment
                 });
                 
                 this.getInventory();

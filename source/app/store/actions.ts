@@ -1,5 +1,5 @@
 import { action } from "typesafe-actions";
-import { ActionTypes } from "./types";
+import { ActionTypes, EquipmentSlotTypes, IEquipItemInstance } from "./types";
 import { ITitleDataEnemies, IPlanetData, ITitleDataPlanets, IStringDictionary } from "../shared/types";
 
 export const actionSetCatalog = (catalog: PlayFabClientModels.CatalogItem[]) => action(ActionTypes.SET_CATALOG, catalog);
@@ -25,5 +25,8 @@ export const actionSetStoreNamesFromTitleData = (data: IStringDictionary, key: s
 export const actionSetStoreNames = (names: string[]) => action(ActionTypes.SET_STORE_NAMES, names);
 export const actionSetTitleId = (titleId: string) => action(ActionTypes.SET_TITLE_ID, titleId);
 export const actionSubtractPlayerHP = (damage: number) => action(ActionTypes.SUBTRACT_PLAYER_HP, damage);
-export const actionSetEquippedArmor = (armor: PlayFabClientModels.CatalogItem) => action(ActionTypes.SET_EQUIPPED_ARMOR, armor);
-export const actionSetEquippedWeapon = (weapon: PlayFabClientModels.CatalogItem) => action(ActionTypes.SET_EQUIPPED_WEAPON, weapon);
+export const actionSetEquipmentSingle = (item: PlayFabClientModels.ItemInstance, slot: EquipmentSlotTypes) => action(ActionTypes.SET_EQUIPMENT_SINGLE, {
+    item,
+    slot,
+} as IEquipItemInstance);
+export const actionSetEquipmentMultiple = (equips: IEquipItemInstance[]) => action(ActionTypes.SET_EQUIPMENT_MULTIPLE, equips);

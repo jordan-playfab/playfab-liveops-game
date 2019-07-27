@@ -1,14 +1,14 @@
 import React from "react";
 import { is } from "../shared/is";
-import { VC_CREDITS, ITEM_CLASS_WEAPON, CloudScriptFunctionNames } from "../shared/types";
+import { VC_CREDITS } from "../shared/types";
 import styled, { UlNull } from "../styles";
 import { Callout, DirectionalHint } from 'office-ui-fabric-react/lib/Callout';
 import { DefaultButton } from "office-ui-fabric-react";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
-import { actionSetEquippedWeapon, actionSetEquippedArmor } from "../store/actions";
-import { PlayFabHelper } from "../shared/playfab";
-import { IEquipItemRequest } from "../../cloud-script/main";
 import { IWithPageProps, withPage } from "../containers/with-page";
+import { actionSetEquipmentSingle } from "../store/actions";
+import { getSlotTypeFromItemClass } from "../store/types";
+import { CloudScriptHelper } from "../shared/cloud-script";
 
 interface IState {
     isInventoryVisible: boolean;
@@ -95,7 +95,7 @@ class PlayerBase extends React.Component<Props, IState> {
     }
 
     private renderInventory(): React.ReactNode {
-        if(is.null(this.props.appState.inventory) || is.null(this.props.appState.inventory.Inventory)) {
+        if(is.null(this.props.appState.inventory) || is.null(this.props.appState.inventory.Inventory) || is.null(this.props.appState.equipment)) {
             return (
                 <DivPlayerInventory>
                     <ButtonInventory text="No inventory" />
@@ -111,6 +111,19 @@ class PlayerBase extends React.Component<Props, IState> {
             ? this.hideInventory
             : this.showInventory;
 
+        const equippedItemInstanceIds = is.null(this.props.appState.equipment)
+                ? []
+                : Object.keys(this.props.appState.equipment).map(key => {
+                        // Ensure the instance ID actually exists
+                        const equipmentItem = this.props.appState.equipment[key];
+
+                        if(is.null(equipmentItem)) {
+                            return "";
+                        }
+                        
+                        return this.props.appState.equipment[key].ItemInstanceId;
+                });
+
         return (
             <DivPlayerInventory ref={this.menuButtonElement}>
                 <ButtonInventory text={buttonText} onClick={buttonEvent} />
@@ -124,9 +137,9 @@ class PlayerBase extends React.Component<Props, IState> {
                     <UlInventory>
                         {this.props.appState.inventory.Inventory.map((item, index) => (
                             <li key={index}>
-                                {!is.null(this.props.appState.equippedWeapon) && item.ItemId === this.props.appState.equippedWeapon.ItemId
-                                    ? (<React.Fragment>{item.DisplayName} (equipped)</React.Fragment>)
-                                    : (<button onClick={this.equipItem.bind(this, item, item.ItemClass === ITEM_CLASS_WEAPON)}>{item.DisplayName}</button>)}
+                                {is.inArray(equippedItemInstanceIds, item.ItemInstanceId)
+                                    ? (<button onClick={this.equipItem.bind(this, item)}>{item.DisplayName}</button>)
+                                    : (<React.Fragment>{item.DisplayName} (equipped)</React.Fragment>)}
                             </li>
                         ))}
                     </UlInventory>
@@ -147,27 +160,19 @@ class PlayerBase extends React.Component<Props, IState> {
         })
     }
 
-    private equipItem = (itemInstance: PlayFabClientModels.ItemInstance, isWeapon: boolean): void => {
-        const item = this.props.appState.catalog.find(i => i.ItemId === itemInstance.ItemId);
-
+    private equipItem = (item: PlayFabClientModels.ItemInstance): void => {
         if(is.null(item)) {
             // This shouldn't be possible
             return;
         }
 
-        this.props.dispatch(
-            isWeapon
-                ? actionSetEquippedWeapon(item)
-                : actionSetEquippedArmor(item));
+        const slot = getSlotTypeFromItemClass(item.ItemClass);
+        this.props.dispatch(actionSetEquipmentSingle(item, slot));
 
-        PlayFabHelper.ExecuteCloudScript(
-            CloudScriptFunctionNames.equipItem,
-            {
-                itemId: itemInstance.ItemId,
-                isWeapon
-            } as IEquipItemRequest, 
-            this.props.onPageNothing,
-            this.props.onPageError);
+        CloudScriptHelper.equipItem([{
+            itemInstanceId: item.ItemInstanceId,
+            slot
+        }], this.props.onPageNothing, this.props.onPageError);
     }
 }
 

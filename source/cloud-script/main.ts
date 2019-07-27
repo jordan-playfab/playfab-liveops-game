@@ -130,8 +130,7 @@ const App = {
     UserData: {
         HP: "hp",
         MaxHP: "maxHP",
-        Weapon: "weapon",
-        Armor: "armor"
+        Equipment: "equipment"
     },
     CatalogItems: {
         StartingPack: "StartingPack",
@@ -218,8 +217,7 @@ handlers.killedEnemyGroup = function(args: IKilledEnemyGroupRequest, context: an
 export interface IPlayerLoginResponse {
     didGrantStartingPack: boolean;
     playerHP: number;
-    equippedWeapon: string;
-    equippedArmor: string;
+    equipment: IStringDictionary;
 }
 
 handlers.playerLogin = function(args: any, context: any): IPlayerLoginResponse {
@@ -227,8 +225,7 @@ handlers.playerLogin = function(args: any, context: any): IPlayerLoginResponse {
     const response: IPlayerLoginResponse = {
         didGrantStartingPack: false,
         playerHP: 0,
-        equippedArmor: null,
-        equippedWeapon: null,
+        equipment: {},
     }
 
     // Give new players their starting items
@@ -239,8 +236,8 @@ handlers.playerLogin = function(args: any, context: any): IPlayerLoginResponse {
         App.GrantItemsToUser(currentPlayerId, [App.CatalogItems.StartingPack]);
     }
 
-    // Give new players some HP through title data
-    const userData = App.GetUserData(currentPlayerId, [App.UserData.HP, App.UserData.Armor, App.UserData.Weapon]);
+    // Give new players some HP using title data
+    const userData = App.GetUserData(currentPlayerId, [App.UserData.HP, App.UserData.Equipment]);
 
     if(App.IsNull(userData.Data[App.UserData.HP])) {
         App.UpdateUserDataExisting({
@@ -253,12 +250,8 @@ handlers.playerLogin = function(args: any, context: any): IPlayerLoginResponse {
         response.playerHP = parseInt(userData.Data[App.UserData.HP].Value);
     }
 
-    if(!App.IsNull(userData.Data[App.UserData.Armor])) {
-        response.equippedArmor = userData.Data[App.UserData.Armor].Value;
-    }
-
-    if(!App.IsNull(userData.Data[App.UserData.Weapon])) {
-        response.equippedWeapon = userData.Data[App.UserData.Weapon].Value;
+    if(!App.IsNull(userData.Data[App.UserData.Equipment])) {
+        response.equipment = JSON.parse(userData.Data[App.UserData.Equipment].Value)
     }
 
     return response;
@@ -293,25 +286,44 @@ handlers.returnToHomeBase = function(args: any, context: any): IReturnToHomeBase
 };
 
 export interface IEquipItemRequest {
-    itemId: string;
-    isWeapon: boolean;
+    single?: IEquipItemInstanceRequest;
+    multiple?: IEquipItemInstanceRequest[];
+}
+
+export interface IEquipItemInstanceRequest {
+    itemInstanceId: string;
+    slot: string;
 }
 
 handlers.equipItem = function(args: IEquipItemRequest, context: any): PlayFabServerModels.UpdateUserDataResult {
-    const dataKey = args.isWeapon
-        ? App.UserData.Weapon
-        : App.UserData.Armor;
+    const currentEquipment = App.GetUserData(currentPlayerId, [App.UserData.Equipment]).Data;
 
-    const result = App.UpdateUserData(currentPlayerId, {
-        [dataKey]: args.itemId,
-    }, null, true);
+    let returnResult: PlayFabServerModels.UpdateUserDataResult = null;
 
-    App.WritePlayerEvent(currentPlayerId, "equipped_item", {
-        itemId: args.itemId,
-        isWeapon: args.isWeapon,
-    });
+    const equipmentDictionary: IStringDictionary = App.IsNull(args.multiple)
+        ? { [args.single.slot]: args.single.itemInstanceId }
+        : args.multiple.reduce((dictionary, request) => {
+            dictionary[request.slot] = request.itemInstanceId;
+            return dictionary;
+        }, {} as IStringDictionary);
 
-    return result;
+    if(App.IsNull(currentEquipment[App.UserData.Equipment])) {
+        returnResult = App.UpdateUserData(currentPlayerId, {
+            [App.UserData.Equipment]: JSON.stringify(equipmentDictionary)
+        }, null, true);
+    }
+    else {
+        returnResult = App.UpdateUserData(currentPlayerId, {
+            [App.UserData.Equipment]: JSON.stringify({
+                ...JSON.parse(currentEquipment[App.UserData.Equipment].Value),
+                ...equipmentDictionary,
+            })
+        }, null, true);
+    }
+
+    App.WritePlayerEvent(currentPlayerId, "equipped_item", args);
+
+    return returnResult;
 }
 
 // ----- Helpers ----- //

@@ -8,14 +8,15 @@ import { Page, IBreadcrumbRoute } from "../components/page";
 import { UlInline } from "../styles";
 import { PrimaryButton, Spinner } from "office-ui-fabric-react";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
-import { actionSetInventory, actionSetStores, actionSetPlayerHP, actionSetEquippedWeapon } from "../store/actions";
+import { actionSetInventory, actionSetStores, actionSetPlayerHP, actionSetEquipmentSingle } from "../store/actions";
 import { CATALOG_VERSION, CloudScriptFunctionNames, ITEM_CLASS_WEAPON } from "../shared/types";
 import { IWithPageProps, withPage } from "../containers/with-page";
 import { IReturnToHomeBaseResponse, IEquipItemRequest } from "../../cloud-script/main";
+import { getSlotTypeFromItemClass, EquipmentSlotTypes } from "../store/types";
+import { CloudScriptHelper } from "../shared/cloud-script";
 
 interface IState {
     selectedStore: string;
-    buyResult: string;
 }
 
 type Props = RouteComponentProps & IWithAppStateProps & IWithPageProps;
@@ -26,7 +27,6 @@ class HomeBasePageBase extends React.Component<Props, IState> {
 
         this.state = {
             selectedStore: null,
-            buyResult: null,
         };
     }
 
@@ -86,7 +86,6 @@ class HomeBasePageBase extends React.Component<Props, IState> {
             <Store
                 store={store}
                 onBuy={this.onBuyFromStore}
-                buyResult={this.state.buyResult}
                 catalogItems={this.props.appState.catalog}
                 playerWallet={this.props.appState.inventory.VirtualCurrency}
             />
@@ -107,30 +106,51 @@ class HomeBasePageBase extends React.Component<Props, IState> {
                     return;
                 }
 
-                this.setState({
-                    buyResult: `Bought a ${data.Items[0].DisplayName}`,
-                }, () => {
-                    PlayFabHelper.GetUserInventory(inventory => this.props.dispatch(actionSetInventory(inventory)), null);
-                });
-
-                // If you just bought a weapon and it's your only weapon, equip it immediately
-                // TODO: Handle armor
-                if(is.null(this.props.appState.equippedWeapon) && is.null(this.props.appState.inventory.Inventory.filter(i => i.ItemClass === ITEM_CLASS_WEAPON))) {
-                    this.props.dispatch(actionSetEquippedWeapon(this.props.appState.catalog.find(i => i.ItemId === itemId)));
-                    this.checkForEquipItem(itemId, true);
-                }
+                PlayFabHelper.GetUserInventory(inventory => {
+                    this.props.dispatch(actionSetInventory(inventory));
+                    this.checkForEquipItem(inventory, data.Items[0].ItemInstanceId);
+                }, this.props.onPageError);
         }, this.props.onPageError);
     }
 
-    private checkForEquipItem(itemId: string, isWeapon: boolean): void {
-        PlayFabHelper.ExecuteCloudScript(
-            CloudScriptFunctionNames.equipItem,
-            {
-                itemId: itemId,
-                isWeapon
-            } as IEquipItemRequest, 
-            this.props.onPageNothing,
-            this.props.onPageError);
+    private checkForEquipItem(inventory: PlayFabClientModels.GetUserInventoryResult, itemInstanceId: string): void {
+        const item = inventory.Inventory.find(i => i.ItemInstanceId === itemInstanceId);
+
+        if(is.null(item)) {
+            // TODO: Should be impossible
+            return;
+        }
+
+        const slot = getSlotTypeFromItemClass(item.ItemClass);
+
+        if(is.null(slot)) {
+            // No worries, it's not equippable.
+            return;
+        }
+
+        // Do you have no equipment at all? If so, you're equipping this.
+        if(is.null(this.props.appState.equipment)) {
+            this.equipItem(item, slot);
+            return;
+        }
+
+        // Do you already have something in this slot?
+        if(!is.null(this.props.appState.equipment[slot])) {
+            // You do! No worries.
+            return;
+        }
+
+        // You don't! Equip this thing.
+        this.equipItem(item, slot);
+    }
+
+    private equipItem(item: PlayFabClientModels.ItemInstance, slot: EquipmentSlotTypes): void {
+        this.props.dispatch(actionSetEquipmentSingle(item, slot));
+
+        CloudScriptHelper.equipItem([{
+            itemInstanceId: item.ItemInstanceId,
+            slot
+        }], this.props.onPageNothing, this.props.onPageError);
     }
 
     private getBreadcrumbs(): IBreadcrumbRoute[] {

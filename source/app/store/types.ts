@@ -1,4 +1,4 @@
-import { IPlanetData, ITitleDataEnemies } from "../shared/types";
+import { IPlanetData, ITitleDataEnemies, ITEM_CLASS_WEAPON, ITEM_CLASS_ARMOR } from "../shared/types";
 
 export enum ActionTypes {
     SET_TITLE_ID = "SET_TITLE_ID",
@@ -12,8 +12,8 @@ export enum ActionTypes {
     SET_PLANETS = "SET_PLANETS",
     SET_ENEMIES = "SET_ENEMIES",
     SUBTRACT_PLAYER_HP = "SUBTRACT_PLAYER_HP",
-    SET_EQUIPPED_WEAPON = "SET_EQUIPPED_WEAPON",
-    SET_EQUIPPED_ARMOR = "SET_EQUIPPED_ARMOR",
+    SET_EQUIPMENT_SINGLE = "SET_EQUIPMENT_SINGLE",
+    SET_EQUIPMENT_MULTIPLE = "SET_EQUIPMENT_MULTIPLE",
 }
 
 export interface IApplicationState {
@@ -29,8 +29,37 @@ export interface IApplicationState {
     planets: IPlanetData[];
     enemies: ITitleDataEnemies;
     storeNames: string[];
-    equippedWeapon: PlayFabClientModels.CatalogItem;
-    equippedArmor: PlayFabClientModels.CatalogItem;
+    equipment: IEquipmentSlots;
+}
+
+interface IEquipmentSlots extends IEquipmentSlotsDictionary {
+    weapon: PlayFabClientModels.ItemInstance;
+    armor: PlayFabClientModels.ItemInstance;
+}
+
+export interface IEquipmentSlotsDictionary {
+    [key: string]: PlayFabClientModels.ItemInstance
+}
+
+export enum EquipmentSlotTypes {
+    weapon = "weapon",
+    armor = "armor"
+}
+
+export function getSlotTypeFromItemClass(itemClass: string): EquipmentSlotTypes {
+    switch(itemClass) {
+        case ITEM_CLASS_WEAPON:
+            return EquipmentSlotTypes.weapon;
+        case ITEM_CLASS_ARMOR:
+            return EquipmentSlotTypes.armor;
+        default:
+            return null;
+    }
+}
+
+export interface IEquipItemInstance {
+    item: PlayFabClientModels.ItemInstance;
+    slot: EquipmentSlotTypes;
 }
 
 export interface IAction<T> {
