@@ -92,6 +92,7 @@ export enum CloudScriptFunctionNames {
     killedEnemyGroup = "killedEnemyGroup",
     playerLogin = "playerLogin",
     returnToHomeBase = "returnToHomeBase",
+    equipItem = "equipItem"
 }
 
 export const VC_CREDITS = "CR";

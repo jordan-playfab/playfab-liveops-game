@@ -18,7 +18,7 @@ type Props = IProps & IWithCombatProps & IWithAppStateProps;
 
 class CombatBase extends React.PureComponent<Props> {
     public componentDidMount(): void {
-        this.props.onCombatStart(this.props.enemies, this.props.appState.playerHP);
+        this.props.onCombatStart(this.props.enemies, this.props.appState.playerHP, this.props.appState.equippedWeapon);
     }
 
     public componentDidUpdate(prevProps: Props): void {
@@ -42,7 +42,6 @@ class CombatBase extends React.PureComponent<Props> {
             case CombatStage.Introduction:
                 return (
                     <React.Fragment>
-                        {this.renderPlayer()}
                         <p>Welcome to combat! You face {this.props.enemies.length} enemies.</p>
                         <button onClick={this.props.onCombatAdvanceStage}>Start</button>
                     </React.Fragment>
@@ -50,7 +49,6 @@ class CombatBase extends React.PureComponent<Props> {
             case CombatStage.Dead:
                 return (
                     <React.Fragment>
-                        {this.renderPlayer()}
                         <p>You are dead. Sorry about that!</p>
                         <button onClick={this.props.onLeaveCombat}>Okay</button>
                     </React.Fragment>
@@ -58,8 +56,6 @@ class CombatBase extends React.PureComponent<Props> {
             case CombatStage.Victory:
                 return (
                     <React.Fragment>
-                        {this.renderPlayer()}
-                        <p>You won. Good job!</p>
                         <button onClick={this.props.onLeaveCombat}>Continue</button>
                     </React.Fragment>
                 );
@@ -67,7 +63,6 @@ class CombatBase extends React.PureComponent<Props> {
             default:
                 return (
                     <React.Fragment>
-                        {this.renderPlayer()}
                         {this.renderEnemyAttackReport()}
                         <p>Enemies:</p>
                         <ul>
@@ -87,12 +82,6 @@ class CombatBase extends React.PureComponent<Props> {
 
         return (
             <p>The enemy {this.props.combatEnemies[this.props.combatAttackedByIndexLastRound].name} hit you for {this.props.combatDamageTakenLastRound} damage.</p>
-        );
-    }
-
-    private renderPlayer(): React.ReactNode {
-        return (
-            <p>Your health: {this.props.combatPlayerHP}</p>
         );
     }
 }

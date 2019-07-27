@@ -16,6 +16,8 @@ const initialState: IApplicationState = {
     hasPlayerId: false,
     hasTitleId: false,
     storeNames: null,
+    equippedArmor: null,
+    equippedWeapon: null,
 };
 
 export const mainReducer: Reducer<IApplicationState, IAction<any>> = (state = initialState, action): IApplicationState => {
@@ -76,6 +78,16 @@ export const mainReducer: Reducer<IApplicationState, IAction<any>> = (state = in
             return {
                 ...state,
                 playerHP: Math.max(0, state.playerHP - action.payload as number),
+            };
+        case ActionTypes.SET_EQUIPPED_ARMOR:
+            return {
+                ...state,
+                equippedArmor: action.payload as PlayFabClientModels.CatalogItem,
+            };
+        case ActionTypes.SET_EQUIPPED_WEAPON:
+            return {
+                ...state,
+                equippedWeapon: action.payload as PlayFabClientModels.CatalogItem,
             };
         default:
             return state;

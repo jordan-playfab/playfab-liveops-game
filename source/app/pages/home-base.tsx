@@ -8,10 +8,10 @@ import { Page, IBreadcrumbRoute } from "../components/page";
 import { UlInline } from "../styles";
 import { PrimaryButton } from "office-ui-fabric-react";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
-import { actionSetInventory, actionSetStores, actionSetPlayerHP } from "../store/actions";
-import { CATALOG_VERSION, CloudScriptFunctionNames } from "../shared/types";
+import { actionSetInventory, actionSetStores, actionSetPlayerHP, actionSetEquippedWeapon } from "../store/actions";
+import { CATALOG_VERSION, CloudScriptFunctionNames, ITEM_CLASS_WEAPON } from "../shared/types";
 import { IWithPageProps, withPage } from "../containers/with-page";
-import { IReturnToHomeBaseResponse } from "../../cloud-script/main";
+import { IReturnToHomeBaseResponse, IEquipItemRequest } from "../../cloud-script/main";
 
 interface IState {
     selectedStore: string;
@@ -98,13 +98,11 @@ class HomeBasePageBase extends React.Component<Props, IState> {
         });
     }
 
-    private onBuyFromStore = (itemID: string, currency: string, price: number): void => {
-        PlayFabHelper.PurchaseItem(CATALOG_VERSION, this.state.selectedStore, itemID, currency, price,
+    private onBuyFromStore = (itemId: string, currency: string, price: number): void => {
+        PlayFabHelper.PurchaseItem(CATALOG_VERSION, this.state.selectedStore, itemId, currency, price,
             (data) => {
                 if(!is.null(data.errorMessage)) {
-                    this.setState({
-                        buyResult: data.errorMessage,
-                    });
+                    this.props.onPageError(data.errorMessage);
                     return;
                 }
 
@@ -113,13 +111,25 @@ class HomeBasePageBase extends React.Component<Props, IState> {
                 }, () => {
                     PlayFabHelper.GetUserInventory(inventory => this.props.dispatch(actionSetInventory(inventory)), null);
                 });
-            }, (error) => {
-                console.log("Got an error of " + error);
-                this.setState({
-                    buyResult: error,
-                });
-            }
-        )
+
+                // If you just bought a weapon and it's your only weapon, equip it immediately
+                // TODO: Handle armor
+                if(is.null(this.props.appState.equippedWeapon) && is.null(this.props.appState.inventory.Inventory.filter(i => i.ItemClass === ITEM_CLASS_WEAPON))) {
+                    this.props.dispatch(actionSetEquippedWeapon(this.props.appState.catalog.find(i => i.ItemId === itemId)));
+                    this.checkForEquipItem(itemId, true);
+                }
+        }, this.props.onPageError);
+    }
+
+    private checkForEquipItem(itemId: string, isWeapon: boolean): void {
+        PlayFabHelper.ExecuteCloudScript(
+            CloudScriptFunctionNames.equipItem,
+            {
+                itemId: itemId,
+                isWeapon
+            } as IEquipItemRequest, 
+            this.props.onPageNothing,
+            this.props.onPageError);
     }
 
     private getBreadcrumbs(): IBreadcrumbRoute[] {

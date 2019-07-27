@@ -1,10 +1,14 @@
 import React from "react";
 import { is } from "../shared/is";
-import { VC_CREDITS } from "../shared/types";
+import { VC_CREDITS, ITEM_CLASS_WEAPON, CloudScriptFunctionNames } from "../shared/types";
 import styled, { UlNull } from "../styles";
 import { Callout, DirectionalHint } from 'office-ui-fabric-react/lib/Callout';
 import { DefaultButton } from "office-ui-fabric-react";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
+import { actionSetEquippedWeapon, actionSetEquippedArmor } from "../store/actions";
+import { PlayFabHelper } from "../shared/playfab";
+import { IEquipItemRequest } from "../../cloud-script/main";
+import { IWithPageProps, withPage } from "../containers/with-page";
 
 interface IState {
     isInventoryVisible: boolean;
@@ -49,7 +53,7 @@ const UlInventory = styled(UlNull)`
     }
 `;
 
-type Props = IWithAppStateProps;
+type Props = IWithAppStateProps & IWithPageProps;
 
 class PlayerBase extends React.Component<Props, IState> {
     private menuButtonElement = React.createRef<HTMLDivElement>();
@@ -118,8 +122,12 @@ class PlayerBase extends React.Component<Props, IState> {
                     directionalHint={DirectionalHint.bottomRightEdge}
                 >
                     <UlInventory>
-                        {this.props.appState.inventory.Inventory.map((i, index) => (
-                            <li key={index}>{i.DisplayName}</li>
+                        {this.props.appState.inventory.Inventory.map((item, index) => (
+                            <li key={index}>
+                                {!is.null(this.props.appState.equippedWeapon) && item.ItemId === this.props.appState.equippedWeapon.ItemId
+                                    ? (<React.Fragment>{item.DisplayName} (equipped)</React.Fragment>)
+                                    : (<button onClick={this.equipItem.bind(this, item, item.ItemClass === ITEM_CLASS_WEAPON)}>{item.DisplayName}</button>)}
+                            </li>
                         ))}
                     </UlInventory>
                 </Callout>
@@ -138,6 +146,29 @@ class PlayerBase extends React.Component<Props, IState> {
             isInventoryVisible: false,
         })
     }
+
+    private equipItem = (itemInstance: PlayFabClientModels.ItemInstance, isWeapon: boolean): void => {
+        const item = this.props.appState.catalog.find(i => i.ItemId === itemInstance.ItemId);
+
+        if(is.null(item)) {
+            // This shouldn't be possible
+            return;
+        }
+
+        this.props.dispatch(
+            isWeapon
+                ? actionSetEquippedWeapon(item)
+                : actionSetEquippedArmor(item));
+
+        PlayFabHelper.ExecuteCloudScript(
+            CloudScriptFunctionNames.equipItem,
+            {
+                itemId: itemInstance.ItemId,
+                isWeapon
+            } as IEquipItemRequest, 
+            this.props.onPageNothing,
+            this.props.onPageError);
+    }
 }
 
-export const Player = withAppState(PlayerBase);
+export const Player = withAppState(withPage(PlayerBase));

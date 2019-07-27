@@ -12,6 +12,8 @@ export enum ActionTypes {
     SET_PLANETS = "SET_PLANETS",
     SET_ENEMIES = "SET_ENEMIES",
     SUBTRACT_PLAYER_HP = "SUBTRACT_PLAYER_HP",
+    SET_EQUIPPED_WEAPON = "SET_EQUIPPED_WEAPON",
+    SET_EQUIPPED_ARMOR = "SET_EQUIPPED_ARMOR",
 }
 
 export interface IApplicationState {
@@ -27,6 +29,8 @@ export interface IApplicationState {
     planets: IPlanetData[];
     enemies: ITitleDataEnemies;
     storeNames: string[];
+    equippedWeapon: PlayFabClientModels.CatalogItem;
+    equippedArmor: PlayFabClientModels.CatalogItem;
 }
 
 export interface IAction<T> {

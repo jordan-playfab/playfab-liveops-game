@@ -1,6 +1,7 @@
 import React from "react";
-import { ITitleDataEnemy } from "../shared/types";
+import { ITitleDataEnemy, IWeaponItemCustomData } from "../shared/types";
 import { utilities } from "../shared/utilities";
+import { is } from "../shared/is";
 
 export interface IWithCombatProps {
     readonly combatPlayerHP: number;
@@ -9,7 +10,7 @@ export interface IWithCombatProps {
     readonly combatDamageTakenLastRound: number;
     readonly combatAttackedByIndexLastRound: number;
 
-    readonly onCombatStart: (enemies: ITitleDataEnemy[], playerHP: number) => void;
+    readonly onCombatStart: (enemies: ITitleDataEnemy[], playerHP: number, weapon: PlayFabClientModels.CatalogItem) => void;
     readonly onCombatPlayerAttack: (enemyIndex: number) => void;
     readonly onCombatEnemyAttack: () => IEnemyAttackReport;
     readonly onCombatAdvanceStage: () => void;
@@ -21,6 +22,8 @@ interface IState {
     stage: CombatStage;
     damageTakenLastRound: number;
     attackedByEnemyIndexLastRound: number;
+    playerWeapon: PlayFabClientModels.CatalogItem;
+    playerDamage: number;
 }
 
 export enum CombatStage {
@@ -43,10 +46,9 @@ export const withCombat = <P extends IWithCombatProps>(Component: React.Componen
             damageTakenLastRound: null,
             attackedByEnemyIndexLastRound: null,
             stage: CombatStage.Introduction,
+            playerWeapon: null,
+            playerDamage: 0,
         };
-        
-        // TODO: Get from weapon later
-        private readonly playerDamage = 10;
 
         public render(): React.ReactNode {
             return (
@@ -65,11 +67,13 @@ export const withCombat = <P extends IWithCombatProps>(Component: React.Componen
             );
         }
 
-        private start = (enemies: ITitleDataEnemy[], playerHP: number): void => {
+        private start = (enemies: ITitleDataEnemy[], playerHP: number, weapon: PlayFabClientModels.CatalogItem): void => {
             this.setState({
                 enemies,
                 playerHP,
                 stage: CombatStage.Introduction,
+                playerWeapon: weapon,
+                playerDamage: this.getPlayerDamage(weapon)
             });
         }
 
@@ -104,7 +108,7 @@ export const withCombat = <P extends IWithCombatProps>(Component: React.Componen
                     return prevState;
                 }
 
-                const enemyHP = prevState.enemies[enemyIndex].hp - this.playerDamage;
+                const enemyHP = prevState.enemies[enemyIndex].hp - this.state.playerDamage;
                 
                 if(enemyHP <= 0) {
                     // You killed an enemy
@@ -166,6 +170,22 @@ export const withCombat = <P extends IWithCombatProps>(Component: React.Componen
                     stage,
                 }
             });
+        }
+
+        private getPlayerDamage(weapon: PlayFabClientModels.CatalogItem): number {
+            if(is.null(weapon)) {
+                // Should not be possible!
+                return 1;
+            }
+
+            const data = JSON.parse(weapon.CustomData) as IWeaponItemCustomData;
+
+            if(is.null(data) || is.null(data.damage)) {
+                // TODO: Alert?
+                return 1;
+            }
+
+            return data.damage;
         }
     }
 }

@@ -130,6 +130,8 @@ const App = {
     UserData: {
         HP: "hp",
         MaxHP: "maxHP",
+        Weapon: "weapon",
+        Armor: "armor"
     },
     CatalogItems: {
         StartingPack: "StartingPack",
@@ -216,6 +218,8 @@ handlers.killedEnemyGroup = function(args: IKilledEnemyGroupRequest, context: an
 export interface IPlayerLoginResponse {
     didGrantStartingPack: boolean;
     playerHP: number;
+    equippedWeapon: string;
+    equippedArmor: string;
 }
 
 handlers.playerLogin = function(args: any, context: any): IPlayerLoginResponse {
@@ -223,6 +227,8 @@ handlers.playerLogin = function(args: any, context: any): IPlayerLoginResponse {
     const response: IPlayerLoginResponse = {
         didGrantStartingPack: false,
         playerHP: 0,
+        equippedArmor: null,
+        equippedWeapon: null,
     }
 
     // Give new players their starting items
@@ -234,7 +240,7 @@ handlers.playerLogin = function(args: any, context: any): IPlayerLoginResponse {
     }
 
     // Give new players some HP through title data
-    const userData = App.GetUserData(currentPlayerId, [App.UserData.HP]);
+    const userData = App.GetUserData(currentPlayerId, [App.UserData.HP, App.UserData.Armor, App.UserData.Weapon]);
 
     if(App.IsNull(userData.Data[App.UserData.HP])) {
         App.UpdateUserDataExisting({
@@ -244,6 +250,14 @@ handlers.playerLogin = function(args: any, context: any): IPlayerLoginResponse {
     }
     else {
         response.playerHP = parseInt(userData.Data[App.UserData.HP].Value);
+    }
+
+    if(!App.IsNull(userData.Data[App.UserData.Armor])) {
+        response.equippedArmor = userData.Data[App.UserData.Armor].Value;
+    }
+
+    if(!App.IsNull(userData.Data[App.UserData.Weapon])) {
+        response.equippedWeapon = userData.Data[App.UserData.Weapon].Value;
     }
 
     return response;
@@ -276,6 +290,28 @@ handlers.returnToHomeBase = function(args: any, context: any): IReturnToHomeBase
         maxHP
     };
 };
+
+export interface IEquipItemRequest {
+    itemId: string;
+    isWeapon: boolean;
+}
+
+handlers.equipItem = function(args: IEquipItemRequest, context: any): PlayFabServerModels.UpdateUserDataResult {
+    const dataKey = args.isWeapon
+        ? App.UserData.Weapon
+        : App.UserData.Armor;
+
+    const result = App.UpdateUserData(currentPlayerId, {
+        [dataKey]: args.itemId,
+    }, null, true);
+
+    App.WritePlayerEvent(currentPlayerId, "equipped_item", {
+        itemId: args.itemId,
+        isWeapon: args.isWeapon,
+    });
+
+    return result;
+}
 
 // ----- Helpers ----- //
 

@@ -34,6 +34,7 @@ export var CloudScriptFunctionNames;
     CloudScriptFunctionNames["killedEnemyGroup"] = "killedEnemyGroup";
     CloudScriptFunctionNames["playerLogin"] = "playerLogin";
     CloudScriptFunctionNames["returnToHomeBase"] = "returnToHomeBase";
+    CloudScriptFunctionNames["equipItem"] = "equipItem";
 })(CloudScriptFunctionNames || (CloudScriptFunctionNames = {}));
 export const VC_CREDITS = "CR";
 export const CATALOG_VERSION = "Main";

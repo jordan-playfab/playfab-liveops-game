@@ -113,6 +113,8 @@ const App = {
     UserData: {
         HP: "hp",
         MaxHP: "maxHP",
+        Weapon: "weapon",
+        Armor: "armor"
     },
     CatalogItems: {
         StartingPack: "StartingPack",
@@ -173,6 +175,8 @@ handlers.playerLogin = function (args, context) {
     const response = {
         didGrantStartingPack: false,
         playerHP: 0,
+        equippedArmor: null,
+        equippedWeapon: null,
     };
     // Give new players their starting items
     const inventory = App.GetUserInventory(currentPlayerId);
@@ -181,7 +185,7 @@ handlers.playerLogin = function (args, context) {
         App.GrantItemsToUser(currentPlayerId, [App.CatalogItems.StartingPack]);
     }
     // Give new players some HP through title data
-    const userData = App.GetUserData(currentPlayerId, [App.UserData.HP]);
+    const userData = App.GetUserData(currentPlayerId, [App.UserData.HP, App.UserData.Armor, App.UserData.Weapon]);
     if (App.IsNull(userData.Data[App.UserData.HP])) {
         App.UpdateUserDataExisting({
             [App.UserData.HP]: App.Config.StartingHP.toString(),
@@ -190,6 +194,12 @@ handlers.playerLogin = function (args, context) {
     }
     else {
         response.playerHP = parseInt(userData.Data[App.UserData.HP].Value);
+    }
+    if (!App.IsNull(userData.Data[App.UserData.Armor])) {
+        response.equippedArmor = userData.Data[App.UserData.Armor].Value;
+    }
+    if (!App.IsNull(userData.Data[App.UserData.Weapon])) {
+        response.equippedWeapon = userData.Data[App.UserData.Weapon].Value;
     }
     return response;
 };
@@ -209,6 +219,19 @@ handlers.returnToHomeBase = function (args, context) {
     return {
         maxHP
     };
+};
+handlers.equipItem = function (args, context) {
+    const dataKey = args.isWeapon
+        ? App.UserData.Weapon
+        : App.UserData.Armor;
+    const result = App.UpdateUserData(currentPlayerId, {
+        [dataKey]: args.itemId,
+    }, null, true);
+    App.WritePlayerEvent(currentPlayerId, "equipped_item", {
+        itemId: args.itemId,
+        isWeapon: args.isWeapon,
+    });
+    return result;
 };
 // ----- Helpers ----- //
 const isKilledEnemyGroupValid = function (args, planetData, enemyData) {
