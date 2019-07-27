@@ -64,7 +64,7 @@ const App = {
         
         // Is this a bundle of something we need to unpack?
         grantResult.ItemGrantResults.forEach(item => {
-            if(item.ItemClass.indexOf(App.CatalogItems.UnpackClassName) !== -1) {
+            if(!App.IsNull(item.ItemClass) && item.ItemClass.indexOf(App.CatalogItems.UnpackClassName) !== -1) {
                 App.ConsumeItem(playerId, item.ItemInstanceId, item.RemainingUses);
             }
         })
