@@ -8,7 +8,7 @@ export const actionSetEnemiesFromTitleData = (data: IStringDictionary, key: stri
     const enemyData = JSON.parse(data[key]) as ITitleDataEnemies;
     return action(ActionTypes.SET_ENEMIES, enemyData);
 };
-export const actionSetInventory = (inventory: PlayFabClientModels.GetUserInventoryResult) => action(ActionTypes.SET_INVENTORY, inventory);
+export const actionSetInventory = (inventory: Partial<PlayFabClientModels.GetUserInventoryResult>) => action(ActionTypes.SET_INVENTORY, inventory);
 export const actionSetPlanets = (planets: IPlanetData[]) => action(ActionTypes.SET_PLANETS, planets);
 export const actionSetPlanetsFromTitleData = (data: IStringDictionary, key: string) => {
     const planetData = JSON.parse(data[key]) as ITitleDataPlanets;

@@ -152,15 +152,13 @@ class PlayerPageBase extends React.Component<Props, IState> {
 
             CloudScriptHelper.login((response) => {
                 this.props.dispatch(actionSetPlayerHP(response.playerHP));
+                this.props.dispatch(actionSetPlayerLevel(response.level));
+                this.props.dispatch(actionSetPlayerXP(response.xp));
+                this.props.dispatch(actionSetInventory(response.inventory));
 
                 this.setState({
                     equipment: response.equipment
                 });
-
-                this.props.dispatch(actionSetPlayerLevel(response.level));
-                this.props.dispatch(actionSetPlayerXP(response.xp));
-                
-                this.getInventory();
             }, this.props.onPageError);
 
             PlayFabHelper.GetTitleData([TITLE_DATA_PLANETS, TITLE_DATA_STORES, TITLE_DATA_ENEMIES], (data) => {
@@ -176,12 +174,6 @@ class PlayerPageBase extends React.Component<Props, IState> {
             this.setState({
                 isLoggingIn: false,
             });
-        }, this.props.onPageError);
-    }
-
-    private getInventory(): void {
-        PlayFabHelper.GetUserInventory((inventory) => {
-            this.props.dispatch(actionSetInventory(inventory));
         }, this.props.onPageError);
     }
 

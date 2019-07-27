@@ -235,6 +235,7 @@ handlers.killedEnemyGroup = function (args, context) {
         itemsGranted.push(itemGranted);
     }
     response.itemsGranted = itemsGranted;
+    App.WritePlayerEvent(currentPlayerId, `combat_finished_on_${args.planet}_area_${args.area}_versus_${args.enemyGroup}_enemies`, null);
     return response;
 };
 handlers.playerLogin = function (args, context) {
@@ -245,6 +246,7 @@ handlers.playerLogin = function (args, context) {
         equipment: {},
         xp: 0,
         level: 1,
+        inventory: null
     };
     // Give new players their starting items
     const inventory = App.GetUserInventory(currentPlayerId);
@@ -252,6 +254,11 @@ handlers.playerLogin = function (args, context) {
         response.didGrantStartingPack = true;
         App.GrantItemsToUser(currentPlayerId, [App.CatalogItems.StartingPack]);
     }
+    response.inventory = {
+        Inventory: inventory.Inventory,
+        VirtualCurrency: inventory.VirtualCurrency,
+        VirtualCurrencyRechargeTimes: inventory.VirtualCurrencyRechargeTimes
+    };
     // Give new players some HP using title data
     const userData = App.GetUserData(currentPlayerId, [App.UserData.HP, App.UserData.Equipment]);
     if (App.IsNull(userData.Data[App.UserData.HP])) {
@@ -283,8 +290,8 @@ handlers.playerLogin = function (args, context) {
 handlers.returnToHomeBase = function (args, context) {
     const hpAndMaxHP = App.GetUserData(currentPlayerId, [App.UserData.HP, App.UserData.MaxHP]);
     const maxHP = parseInt(hpAndMaxHP.Data[App.UserData.MaxHP].Value);
+    App.WritePlayerEvent(currentPlayerId, "travel_to_home_base", null);
     if (hpAndMaxHP.Data[App.UserData.HP].Value === hpAndMaxHP.Data[App.UserData.MaxHP].Value) {
-        App.WritePlayerEvent(currentPlayerId, "travel_to_home_base", null);
         return {
             maxHP
         };
@@ -292,7 +299,6 @@ handlers.returnToHomeBase = function (args, context) {
     App.UpdateUserData(currentPlayerId, {
         [App.UserData.HP]: hpAndMaxHP.Data[App.UserData.MaxHP].Value,
     }, null, true);
-    App.WritePlayerEvent(currentPlayerId, "travel_to_home_base_restore_hp", null);
     return {
         maxHP
     };

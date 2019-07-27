@@ -98,8 +98,8 @@ class PlanetPageBase extends React.Component<Props, IState> {
                 )}
                 <p>Rewards:</p>
                 <ul>
-                    {this.state.itemsGranted.map((name, index) => (
-                        <li key={index}>{name}</li>
+                    {this.state.itemsGranted.map((itemId, index) => (
+                        <li key={index}>{this.props.appState.catalog.find(i => i.ItemId === itemId).DisplayName}</li>
                     ))}
                 </ul>
                 

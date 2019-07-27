@@ -22,6 +22,7 @@
 - [x] Player title data to equip weapons and armor
 - [x] Improve equipping with multiple slots
 - [ ] Don't allow you to buy items you already have
+- [ ] Why isn't HP being set when gaining a level?
 
 # Pages
 

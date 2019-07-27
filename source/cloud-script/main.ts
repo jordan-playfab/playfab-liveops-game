@@ -299,6 +299,8 @@ handlers.killedEnemyGroup = function(args: IKilledEnemyGroupRequest, context: an
 
     response.itemsGranted = itemsGranted;
 
+    App.WritePlayerEvent(currentPlayerId, `combat_finished_on_${args.planet}_area_${args.area}_versus_${args.enemyGroup}_enemies`, null);
+
     return response;
 };
 
@@ -308,6 +310,7 @@ export interface IPlayerLoginResponse {
     equipment: IStringDictionary;
     xp: number;
     level: number;
+    inventory: Partial<PlayFabClientModels.GetUserInventoryResult>;
 }
 
 handlers.playerLogin = function(args: any, context: any): IPlayerLoginResponse {
@@ -318,6 +321,7 @@ handlers.playerLogin = function(args: any, context: any): IPlayerLoginResponse {
         equipment: {},
         xp: 0,
         level: 1,
+        inventory: null
     }
 
     // Give new players their starting items
@@ -327,6 +331,12 @@ handlers.playerLogin = function(args: any, context: any): IPlayerLoginResponse {
         response.didGrantStartingPack = true;
         App.GrantItemsToUser(currentPlayerId, [App.CatalogItems.StartingPack]);
     }
+
+    response.inventory = {
+        Inventory: inventory.Inventory,
+        VirtualCurrency: inventory.VirtualCurrency,
+        VirtualCurrencyRechargeTimes: inventory.VirtualCurrencyRechargeTimes
+    };
 
     // Give new players some HP using title data
     const userData = App.GetUserData(currentPlayerId, [App.UserData.HP, App.UserData.Equipment]);
@@ -370,10 +380,9 @@ handlers.returnToHomeBase = function(args: any, context: any): IReturnToHomeBase
     const hpAndMaxHP = App.GetUserData(currentPlayerId, [App.UserData.HP, App.UserData.MaxHP]);
 
     const maxHP = parseInt(hpAndMaxHP.Data[App.UserData.MaxHP].Value);
+    App.WritePlayerEvent(currentPlayerId, "travel_to_home_base", null);
 
     if(hpAndMaxHP.Data[App.UserData.HP].Value === hpAndMaxHP.Data[App.UserData.MaxHP].Value) {
-        App.WritePlayerEvent(currentPlayerId, "travel_to_home_base", null);
-
         return {
             maxHP
         };
@@ -382,8 +391,6 @@ handlers.returnToHomeBase = function(args: any, context: any): IReturnToHomeBase
     App.UpdateUserData(currentPlayerId, {
         [App.UserData.HP]: hpAndMaxHP.Data[App.UserData.MaxHP].Value,
     }, null, true);
-
-    App.WritePlayerEvent(currentPlayerId, "travel_to_home_base_restore_hp", null);
 
     return {
         maxHP
