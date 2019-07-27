@@ -1,25 +1,51 @@
 // ----- Title data ----- //
 
 export interface ITitleDataPlanets {
-    [key: string]: IPlanetData;
+    planets: IPlanetData[];
 }
 
 export interface IPlanetData {
-    Areas: string[];
-    TreasureChestCount: number;
-    EnemyCount: number;
+    name: string;
+    areas: IPlanetArea[];
 }
 
-// ----- Cloud Script results ----- //
+export interface IPlanetArea {
+    name: string;
+    enemyGroups: string[];
+}
 
-export interface IKilledEnemyResult {
-    kills: number;
+export interface ITitleDataEnemies {
+    enemies: ITitleDataEnemy[];
+    enemyGroups: ITitleDataEnemyGroup[];
+}
+
+export interface ITitleDataEnemy {
+    name: string;
+    hp: number;
+    damage: number;
+    xp: number;
+}
+
+export interface ITitleDataEnemyGroup {
+    name: string;
+    enemies: string[];
+    droptable: string;
+}
+
+export interface ITitleDataLevel {
+    level: number;
+    xp: number;
     itemGranted: string;
+    hpGranted: number;
+}
+
+// ----- Catalog item custom data ----- //
+
+export interface IWeaponItemCustomData {
+    damage: number;
 }
 
 // ----- App interfaces ----- //
-
-export const VC_CREDITS = "CR";
 
 export interface IStringDictionary {
     [key: string]: string;
@@ -29,35 +55,54 @@ export interface INumberDictionary {
     [key: string]: number;
 }
 
+export interface IAnyDictionary {
+    [key: string]: any;
+}
+
 interface IProgressStage {
     key: string;
     title: string;
+    filename: string;
 }
 
 export const PROGRESS_STAGES: IProgressStage[] = [{
     key: "currency",
     title: "Currency",
+    filename: "virtual-currency.json"
 },
 {
     key: "catalog",
     title: "Catalog",
+    filename: "catalogs.json"
 },
 {
     key: "droptable",
     title: "Drop tables",
+    filename: "drop-tables.json"
 },
 {
     key: "store",
     title: "Store",
+    filename: "stores.json"
 },
 {
     key: "titledata",
-    title: "Title data"
+    title: "Title data",
+    filename: "title-data.json"
 },
 {
     key: "cloudscript",
     title: "Cloud Script",
+    filename: "cloud-script.json"
 }];
 
+export const VC_CREDITS = "CR";
+
 export const CATALOG_VERSION = "Main";
+
 export const TITLE_DATA_STORES = "Stores";
+export const TITLE_DATA_PLANETS = "Planets";
+export const TITLE_DATA_ENEMIES = "Enemies";
+
+export const ITEM_CLASS_WEAPON = "weapon";
+export const ITEM_CLASS_ARMOR = "armor";

@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { is } from "../shared/is";
 import { VC_CREDITS, INumberDictionary } from "../shared/types";
 import { UlInline } from "../styles";
@@ -6,7 +6,6 @@ import { DefaultButton, DetailsList, IColumn } from "office-ui-fabric-react";
 
 interface IStoreProps {
     store: PlayFabClientModels.GetStoreItemsResult;
-    buyResult: string;
     catalogItems: PlayFabClientModels.CatalogItem[];
     playerWallet: INumberDictionary;
     onBuy: (itemID: string, currency: string, price: number) => void;
@@ -16,9 +15,6 @@ export class Store extends React.Component<IStoreProps> {
     public render(): React.ReactNode {
         return (
             <React.Fragment>
-                {!is.null(this.props.buyResult) && (
-                    <p>{this.props.buyResult}</p>
-                )}
                 <UlInline>
                     <DetailsList
                         items={this.props.store.Store}

@@ -1,141 +1,32 @@
-import * as React from "react";
+import React from "react";
+import { Provider } from "react-redux";
 import { Router } from "./router";
-import { ITitleDataPlanets } from "./shared/types";
-import { is } from "./shared/is";
-import { PlayFabHelper } from "./shared/playfab";
-import { titleHelper } from "./shared/title-helper";
 import { GlobalStyle, defaultTheme, ThemeProvider } from "./styles";
+import { reduxStore } from "./store/store";
+import { AppStateContainer } from "./containers/app-state-container";
+import { Store } from "redux";
 
-interface IState {
-    titleID: string;
-    player: PlayFabClientModels.LoginResult;
-    playerName: string;
-    catalog: PlayFabClientModels.CatalogItem[];
-    inventory: PlayFabClientModels.GetUserInventoryResult;
-    stores: PlayFabClientModels.GetStoreItemsResult[];
-    titleData: {
-        Planets: ITitleDataPlanets,
-    };
+interface IProps {
+    store: Store;
 }
 
-export default class App extends React.Component<{}, IState> {
-    constructor() {
-        super(undefined);
+type Props = IProps;
 
-        this.state = {
-            titleID: null,
-            player: null,
-            playerName: null,
-            catalog: null,
-            inventory: null,
-            stores: null,
-            titleData: {
-                Planets: null,
-            },
-        };
+export class App extends React.Component<Props> {
+    public static defaultProps: Partial<Props> = {
+        store: reduxStore,
     }
 
     public render(): React.ReactNode {
         return (
             <ThemeProvider theme={defaultTheme}>
-                <React.Fragment>
+                <Provider store={this.props.store}>
                     <GlobalStyle />
-                    <Router
-                        titleID={this.state.titleID}
-                        saveTitleID={this.saveTitleID}
-                        player={this.state.player}
-                        playerName={this.state.playerName}
-                        savePlayer={this.savePlayer}
-                        planets={this.state.titleData.Planets}
-                        refreshPlanets={this.refreshPlanets}
-                        inventory={this.state.inventory}
-                        refreshInventory={this.refreshInventory}
-                        stores={this.state.stores}
-                        refreshStores={this.refreshStores}
-                        catalog={this.state.catalog}
-                        refreshCatalog={this.refreshCatalog}
-                    />
-                </React.Fragment>
+                    <AppStateContainer>
+                        <Router />
+                    </AppStateContainer>
+                </Provider>
             </ThemeProvider>
         );
-    }
-
-    private saveTitleID = (titleID: string): void => {
-        if(is.null(titleID)) {
-            titleID = "";
-            this.savePlayer(null, null);
-        }
-
-        this.setState({
-            titleID,
-        });
-
-        PlayFab.settings.titleId = titleID;
-
-        titleHelper.set(titleID);
-    }
-
-    private savePlayer = (player: PlayFabClientModels.LoginResult, playerName: string): void => {
-        this.setState({
-            player,
-            playerName,
-        });
-    }
-
-    private refreshPlanets = (callback?: () => void): void => {
-        PlayFabHelper.getTitleData(["Planets"], (data) => {
-            this.setState((prevState) => {
-                return {
-                    titleData: {
-                        ...prevState.titleData,
-                        Planets: JSON.parse(data["Planets"]),
-                    }
-                }
-            }, () => {
-                if(!is.null(callback)) {
-                    callback();
-                }
-            });
-        }, (error) => {
-            // TODO: Something
-        });
-    }
-
-    private refreshInventory = (): void => {
-        PlayFabHelper.getInventory((inventory) => {
-            this.setState({
-                inventory
-            });
-        }, (error) => {
-            // TODO: Something
-        });
-    }
-
-    private refreshStores = (callback?: () => void): void => {
-        PlayFabHelper.getStores((stores) => {
-            this.setState({
-                stores
-            }, () => {
-                if(!is.null(callback)) {
-                    callback();
-                }
-            });
-        }, (error) => {
-            // TODO: Something
-        });
-    }
-
-    private refreshCatalog = (callback?: () => void): void => {
-        PlayFabHelper.getCatalog((catalog) => {
-            this.setState({
-                catalog
-            }, () => {
-                if(!is.null(callback)) {
-                    callback();
-                }
-            });
-        }, (error) => {
-            // TODO: Something
-        });
     }
 }

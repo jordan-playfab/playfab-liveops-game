@@ -9,7 +9,7 @@
                 "CR": 25
             },
             "Tags": [],
-            "CustomData": "{\"Damage\":\"5\"}",
+            "CustomData": "{\"damage\":5}",
             "Consumable": {},
             "CanBecomeCharacter": false,
             "IsStackable": false,
@@ -26,7 +26,7 @@
                 "CR": 100
             },
             "Tags": [],
-            "CustomData": "{\"Damage\":\"25\"}",
+            "CustomData": "{\"damage\":25}",
             "Consumable": {},
             "CanBecomeCharacter": false,
             "IsStackable": false,
@@ -43,7 +43,7 @@
                 "CR": 500
             },
             "Tags": [],
-            "CustomData": "{\"Damage\":\"50\"}",
+            "CustomData": "{\"damage\":50}",
             "Consumable": {},
             "CanBecomeCharacter": false,
             "IsStackable": false,
@@ -159,6 +159,52 @@
                 "BundledResultTables": [],
                 "BundledVirtualCurrencies": {
                     "CR": 50
+                }
+            },
+            "CanBecomeCharacter": false,
+            "IsStackable": false,
+            "IsTradable": false,
+            "IsLimitedEdition": false,
+            "InitialLimitedEditionCount": 0
+        },
+        {
+            "ItemId": "StartingPack",
+            "ItemClass": "unpack",
+            "CatalogVersion": "Main",
+            "DisplayName": "Starting equipment pack",
+            "VirtualCurrencyPrices": {},
+            "Tags": [],
+            "Consumable": {
+                "UsageCount": 1
+            },
+            "Bundle": {
+                "BundledItems": [],
+                "BundledResultTables": [],
+                "BundledVirtualCurrencies": {
+                    "CR": 100
+                }
+            },
+            "CanBecomeCharacter": false,
+            "IsStackable": false,
+            "IsTradable": false,
+            "IsLimitedEdition": false,
+            "InitialLimitedEditionCount": 0
+        },
+        {
+            "ItemId": "HugeCreditPack",
+            "ItemClass": "unpack",
+            "CatalogVersion": "Main",
+            "DisplayName": "Huge credit pack",
+            "VirtualCurrencyPrices": {},
+            "Tags": [],
+            "Consumable": {
+                "UsageCount": 1
+            },
+            "Bundle": {
+                "BundledItems": [],
+                "BundledResultTables": [],
+                "BundledVirtualCurrencies": {
+                    "CR": 100
                 }
             },
             "CanBecomeCharacter": false,

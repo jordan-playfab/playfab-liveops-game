@@ -33,6 +33,12 @@ module.exports = {
 					enforce: true,
 					chunks: "all",
 				},
+				data: {
+					test: /[\\/]source[\\/]data[\\/]/,
+					name: "data",
+					enforce: true,
+					chunks: "all"
+				}
 			},
 		},
 	},

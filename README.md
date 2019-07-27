@@ -20,3 +20,11 @@ npm run build
 ```
 file:///<source path>/game/index.html
 ```
+
+# Cloud Script
+
+Compile the `main.ts` file in `/source/cloud-script` using this command:
+
+``` bash
+npm run cloudscript
+```

@@ -1,7 +1,6 @@
-import * as React from "react";
+import React from "react";
 import { TextField } from 'office-ui-fabric-react/lib/TextField';
 import { PrimaryButton, MessageBar, MessageBarType, Spinner } from 'office-ui-fabric-react';
-import { IRouterProps } from "../router";
 import { is } from "../shared/is";
 import { Redirect } from "react-router";
 import { routes } from "../routes";
@@ -9,24 +8,50 @@ import { PlayFabHelper } from "../shared/playfab";
 import { RouteComponentProps } from "react-router";
 import { Page } from "../components/page";
 import { DivConfirm, UlInline } from "../styles";
+import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
+import { actionSetPlayerId, actionSetPlayerName, actionSetCatalog, actionSetInventory, actionSetPlanetsFromTitleData, actionSetStoreNamesFromTitleData, actionSetPlayerHP, actionSetEnemiesFromTitleData, actionSetEquipmentMultiple, actionSetPlayerLevel, actionSetPlayerXP } from "../store/actions";
+import { TITLE_DATA_PLANETS, CATALOG_VERSION, TITLE_DATA_STORES, TITLE_DATA_ENEMIES, IStringDictionary } from "../shared/types";
+import { IWithPageProps, withPage } from "../containers/with-page";
+import { IPlayerLoginResponse } from "../../cloud-script/main";
+import { IEquipItemInstance } from "../store/types";
+import { CloudScriptHelper } from "../shared/cloud-script";
 
-type Props = IRouterProps & RouteComponentProps;
+type Props = RouteComponentProps & IWithAppStateProps & IWithPageProps;
 
 interface IState {
-    playerID: string;
-    error: string;
+    playerName: string;
     isLoggingIn: boolean;
+    equipment: IStringDictionary;
 }
 
-export class PlayerPage extends React.Component<Props, IState> {
+class PlayerPageBase extends React.Component<Props, IState> {
     constructor(props: Props) {
         super(props);
 
         this.state = {
-            playerID: null,
-            error: null,
+            playerName: null,
             isLoggingIn: false,
+            equipment: null,
         };
+    }
+
+    public componentDidUpdate(): void {
+        const shouldTryAndEquip = !is.null(this.props.appState.inventory) && !is.null(this.props.appState.inventory.Inventory) && !is.null(this.state.equipment);
+
+        if(shouldTryAndEquip) {
+            const equipmentArray = Object.keys(this.state.equipment).map(slot => {
+                return {
+                    slot,
+                    item: this.props.appState.inventory.Inventory.find(i => i.ItemInstanceId === this.state.equipment[slot])
+                } as IEquipItemInstance;
+            });
+
+            this.props.dispatch(actionSetEquipmentMultiple(equipmentArray));
+
+            this.setState({
+                equipment: null,
+            });
+        }
     }
 
     public render(): React.ReactNode {
@@ -37,16 +62,16 @@ export class PlayerPage extends React.Component<Props, IState> {
         return (
             <Page {...this.props}>
                 <h2>
-                    {is.null(this.props.playerName)
-                        ? "Play Game"
-                        : "Choose Your Destination"}
+                    {this.props.appState.hasPlayerId
+                        ? "Choose Your Destination"
+                        : "Play Game"}
                 </h2>
-                {!is.null(this.state.error) && (
-                    <MessageBar messageBarType={MessageBarType.error}>{this.state.error}</MessageBar>
+                {!is.null(this.props.pageError) && (
+                    <MessageBar messageBarType={MessageBarType.error}>{this.props.pageError}</MessageBar>
                 )}
-                {is.null(this.props.player)
-                    ? this.renderPlayerLogin()
-                    : this.renderPlanetMenu()}
+                {this.props.appState.hasPlayerId
+                    ? this.renderPlanetMenu()
+                    : this.renderPlayerLogin()}
             </Page>
         );
     }
@@ -71,18 +96,29 @@ export class PlayerPage extends React.Component<Props, IState> {
     }
 
     private renderPlanetMenu(): React.ReactNode {
-        if(is.null(this.props.planets)) {
+        if(is.null(this.props.appState.planets)) {
             return <Spinner label="Loading planets" />;
+        }
+
+        if(is.null(this.props.appState.equipment) || is.null(this.props.appState.equipment.weapon)) {
+            return (
+                <React.Fragment>
+                    <p>You can't go into the field without a weapon! Buy one at home base.</p>
+                    <UlInline>
+                        <li key={"homebase"}><PrimaryButton text="Home base" onClick={this.sendToHomeBase} /></li>
+                    </UlInline>
+                </React.Fragment>
+            );
         }
 
         return (
             <UlInline>
                 <li key={"homebase"}><PrimaryButton text="Home base" onClick={this.sendToHomeBase} /></li>
-                {Object.keys(this.props.planets).map((name) => (
-                    <li key={name}><PrimaryButton text={`Fly to ${name}`} onClick={this.sendToPlanet.bind(this, name)} /></li>
+                {this.props.appState.planets.map((planet) => (
+                    <li key={planet.name}><PrimaryButton text={`Fly to ${planet.name}`} onClick={this.sendToPlanet.bind(this, planet.name)} /></li>
                 ))}
             </UlInline>
-        )
+        );
     }
 
     private sendToHomeBase = (): void => {
@@ -95,32 +131,55 @@ export class PlayerPage extends React.Component<Props, IState> {
 
     private setLocalPlayerID = (_: any, newValue: string): void => {
         this.setState({
-            playerID: newValue,
+            playerName: newValue,
         });
     }
 
     private login = (): void => {
+        this.props.onPageClearError();
+
         this.setState({
-            error: null,
             isLoggingIn: true,
         });
 
-        PlayFabHelper.login(this.props, this.state.playerID, (player) => {
-            this.props.savePlayer(player, this.state.playerID);
-            this.props.refreshPlanets();
-            this.props.refreshInventory();
-            this.props.refreshCatalog();
+        PlayFabHelper.LoginWithCustomID(this.props.appState.titleId, this.state.playerName, (player) => {
+            this.props.dispatch(actionSetPlayerId(player.PlayFabId));
+            this.props.dispatch(actionSetPlayerName(this.state.playerName));
+
+            if(player.NewlyCreated) {
+                PlayFabHelper.UpdateUserTitleDisplayName(this.state.playerName, this.props.onPageNothing, this.props.onPageError);
+            }
+
+            CloudScriptHelper.login((response) => {
+                this.props.dispatch(actionSetPlayerHP(response.playerHP));
+                this.props.dispatch(actionSetPlayerLevel(response.level));
+                this.props.dispatch(actionSetPlayerXP(response.xp));
+                this.props.dispatch(actionSetInventory(response.inventory));
+
+                this.setState({
+                    equipment: response.equipment
+                });
+            }, this.props.onPageError);
+
+            PlayFabHelper.GetTitleData([TITLE_DATA_PLANETS, TITLE_DATA_STORES, TITLE_DATA_ENEMIES], (data) => {
+                this.props.dispatch(actionSetPlanetsFromTitleData(data, TITLE_DATA_PLANETS));
+                this.props.dispatch(actionSetStoreNamesFromTitleData(data, TITLE_DATA_STORES));
+                this.props.dispatch(actionSetEnemiesFromTitleData(data, TITLE_DATA_ENEMIES));
+            }, this.props.onPageError);
+            
+            PlayFabHelper.GetCatalogItems(CATALOG_VERSION, (catalog) => {
+                this.props.dispatch(actionSetCatalog(catalog));
+            }, this.props.onPageError)
+            
             this.setState({
                 isLoggingIn: false,
             });
-        }, (message) => {
-            this.setState({
-                error: message,
-            })
-        });
+        }, this.props.onPageError);
     }
 
     private isValid(): boolean {
-        return !is.null(this.props.titleID);
+        return this.props.appState.hasTitleId;
     }
 }
+
+export const PlayerPage = withAppState(withPage(PlayerPageBase));

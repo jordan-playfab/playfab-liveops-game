@@ -1,5 +1,4 @@
-import * as React from "react";
-import { IRouterProps } from "../router";
+import React from "react";
 import { is } from "../shared/is";
 import { Redirect, RouteComponentProps } from "react-router";
 import { routes } from "../routes";
@@ -7,22 +6,27 @@ import { Store } from "../components/store";
 import { PlayFabHelper } from "../shared/playfab";
 import { Page, IBreadcrumbRoute } from "../components/page";
 import { UlInline } from "../styles";
-import { PrimaryButton } from "office-ui-fabric-react";
-
-type Props = IRouterProps & RouteComponentProps;
+import { PrimaryButton, Spinner } from "office-ui-fabric-react";
+import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
+import { actionSetInventory, actionSetStores, actionSetPlayerHP, actionSetEquipmentSingle } from "../store/actions";
+import { CATALOG_VERSION } from "../shared/types";
+import { IWithPageProps, withPage } from "../containers/with-page";
+import { IReturnToHomeBaseResponse } from "../../cloud-script/main";
+import { getSlotTypeFromItemClass, EquipmentSlotTypes } from "../store/types";
+import { CloudScriptHelper } from "../shared/cloud-script";
 
 interface IState {
     selectedStore: string;
-    buyResult: string;
 }
 
-export class HomeBasePage extends React.Component<Props, IState> {
+type Props = RouteComponentProps & IWithAppStateProps & IWithPageProps;
+
+class HomeBasePageBase extends React.Component<Props, IState> {
     constructor(props: Props) {
         super(props);
 
         this.state = {
             selectedStore: null,
-            buyResult: null,
         };
     }
 
@@ -31,7 +35,8 @@ export class HomeBasePage extends React.Component<Props, IState> {
             return;
         }
 
-        this.props.refreshStores();
+        this.loadStores();
+        this.restorePlayerHP();
     }
 
     public render(): React.ReactNode {
@@ -55,16 +60,19 @@ export class HomeBasePage extends React.Component<Props, IState> {
     }
 
     public renderStores(): React.ReactNode {
-        if(is.null(this.props.stores)) {
-            return null;
+        if(is.null(this.props.appState.stores)) {
+            return (
+                <Spinner label="Loading stores" />
+            );
         }
 
         if(is.null(this.state.selectedStore)) {
             return (
                 <React.Fragment>
+                    <p>Your health has been restored.</p>
                     <h3>Stores</h3>
                     <UlInline>
-                        {this.props.stores.map((store, index) => (
+                        {this.props.appState.stores.map((store, index) => (
                             <li key={index}><PrimaryButton text={store.MarketingData.DisplayName} onClick={this.openStore.bind(this, store.StoreId)} /></li>
                         ))}
                     </UlInline>
@@ -78,9 +86,8 @@ export class HomeBasePage extends React.Component<Props, IState> {
             <Store
                 store={store}
                 onBuy={this.onBuyFromStore}
-                buyResult={this.state.buyResult}
-                catalogItems={this.props.catalog}
-                playerWallet={this.props.inventory.VirtualCurrency}
+                catalogItems={this.props.appState.catalog}
+                playerWallet={this.props.appState.inventory.VirtualCurrency}
             />
         )
     }
@@ -91,28 +98,59 @@ export class HomeBasePage extends React.Component<Props, IState> {
         });
     }
 
-    private onBuyFromStore = (itemID: string, currency: string, price: number): void => {
-        PlayFabHelper.buyFromStore(this.state.selectedStore, itemID, currency, price,
+    private onBuyFromStore = (itemId: string, currency: string, price: number): void => {
+        PlayFabHelper.PurchaseItem(CATALOG_VERSION, this.state.selectedStore, itemId, currency, price,
             (data) => {
                 if(!is.null(data.errorMessage)) {
-                    this.setState({
-                        buyResult: data.errorMessage,
-                    });
+                    this.props.onPageError(data.errorMessage);
                     return;
                 }
 
-                this.setState({
-                    buyResult: `Bought a ${data.Items[0].DisplayName}`,
-                }, () => {
-                    this.props.refreshInventory();
-                });
-            }, (error) => {
-                console.log("Got an error of " + error);
-                this.setState({
-                    buyResult: error,
-                });
-            }
-        )
+                PlayFabHelper.GetUserInventory(inventory => {
+                    this.props.dispatch(actionSetInventory(inventory));
+                    this.checkForEquipItem(inventory, data.Items[0].ItemInstanceId);
+                }, this.props.onPageError);
+        }, this.props.onPageError);
+    }
+
+    private checkForEquipItem(inventory: PlayFabClientModels.GetUserInventoryResult, itemInstanceId: string): void {
+        const item = inventory.Inventory.find(i => i.ItemInstanceId === itemInstanceId);
+
+        if(is.null(item)) {
+            // TODO: Should be impossible
+            return;
+        }
+
+        const slot = getSlotTypeFromItemClass(item.ItemClass);
+
+        if(is.null(slot)) {
+            // No worries, it's not equippable.
+            return;
+        }
+
+        // Do you have no equipment at all? If so, you're equipping this.
+        if(is.null(this.props.appState.equipment)) {
+            this.equipItem(item, slot);
+            return;
+        }
+
+        // Do you already have something in this slot?
+        if(!is.null(this.props.appState.equipment[slot])) {
+            // You do! No worries.
+            return;
+        }
+
+        // You don't! Equip this thing.
+        this.equipItem(item, slot);
+    }
+
+    private equipItem(item: PlayFabClientModels.ItemInstance, slot: EquipmentSlotTypes): void {
+        this.props.dispatch(actionSetEquipmentSingle(item, slot));
+
+        CloudScriptHelper.equipItem([{
+            itemInstanceId: item.ItemInstanceId,
+            slot
+        }], this.props.onPageNothing, this.props.onPageError);
     }
 
     private getBreadcrumbs(): IBreadcrumbRoute[] {
@@ -139,12 +177,43 @@ export class HomeBasePage extends React.Component<Props, IState> {
     }
 
     private isValid(): boolean {
-        return !is.null(this.props.titleID) && !is.null(this.props.player);
+        return this.props.appState.hasTitleId && this.props.appState.hasPlayerId;
     }
 
     private getStore(): PlayFabClientModels.GetStoreItemsResult {
         return is.null(this.state.selectedStore)
             ? null
-            : this.props.stores.find(s => s.StoreId === this.state.selectedStore);
+            : this.props.appState.stores.find(s => s.StoreId === this.state.selectedStore);
+    }
+
+    private loadStores(): void {
+        let stores: PlayFabClientModels.GetStoreItemsResult[] = [];
+
+        this.props.appState.storeNames.forEach(storeId => {
+            PlayFabHelper.GetStoreItems(CATALOG_VERSION, storeId, (data) => {
+                stores.push(data);
+
+                if(stores.length === this.props.appState.storeNames.length) {
+                    stores = stores.sort((a, b) => {
+                        if(a.MarketingData.DisplayName < b.MarketingData.DisplayName) {
+                            return -1;
+                        }
+                        else if(a.MarketingData.DisplayName > b.MarketingData.DisplayName) {
+                            return 1;
+                        }
+                        return 0;
+                    })
+                    this.props.dispatch(actionSetStores(stores));
+                }
+            }, this.props.onPageError)
+        });
+    }
+
+    private restorePlayerHP(): void {
+        CloudScriptHelper.returnToHomeBase((response) => {
+            this.props.dispatch(actionSetPlayerHP(response.maxHP));
+        }, this.props.onPageError);
     }
 }
+
+export const HomeBasePage = withAppState(withPage(HomeBasePageBase));
