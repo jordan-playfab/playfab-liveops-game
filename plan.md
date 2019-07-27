@@ -14,7 +14,7 @@
 - [x] Watch mode
 - [x] Improve PlayFab helper
 - [ ] Actual loot in looter shooter
-- [ ] Leveling and increasing HP
+- [x] Leveling and increasing HP
 - [x] Production build
 - [ ] Put player ID in URL
 - [ ] Put everything in URL, make page refreshable
