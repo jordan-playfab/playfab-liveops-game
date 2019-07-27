@@ -25,8 +25,7 @@ interface IState {
 
 export enum CombatStage {
     Introduction,
-    Player,
-    Enemy,
+    Fighting,
     Dead,
     Victory
 }
@@ -77,7 +76,7 @@ export const withCombat = <P extends IWithCombatProps>(Component: React.Componen
         private onEnemyAttack = (): void => {
             // Pick someone to attack
             const attackingEnemyIndex = utilities.getRandomInteger(0, this.state.enemies.length - 1);
-            const damage = this.state.enemies[attackingEnemyIndex].damage;
+            const damage = utilities.getRandomInteger(0, this.state.enemies[attackingEnemyIndex].damage); // TODO: Weigh against player stats
             const playerHP = this.state.playerHP - damage;
 
             this.setState(prevState => {
@@ -91,7 +90,6 @@ export const withCombat = <P extends IWithCombatProps>(Component: React.Componen
                 else {
                     return {
                         ...prevState,
-                        stage: CombatStage.Enemy,
                         attackedByEnemyIndexLastRound: attackingEnemyIndex,
                         damageTakenLastRound: damage,
                         playerHP
@@ -147,7 +145,7 @@ export const withCombat = <P extends IWithCombatProps>(Component: React.Componen
                 }
             }, () => {
                 // If the battle's not over, the enemy gets to attack
-                if(this.state.stage === CombatStage.Player) {
+                if(this.state.stage === CombatStage.Fighting) {
                     this.onEnemyAttack();
                 }
             });
@@ -159,13 +157,7 @@ export const withCombat = <P extends IWithCombatProps>(Component: React.Componen
 
                 switch(this.state.stage) {
                     case CombatStage.Introduction:
-                        stage = CombatStage.Player;
-                        break;
-                    case CombatStage.Player:
-                        stage = CombatStage.Enemy;
-                        break;
-                    case CombatStage.Enemy:
-                        stage = CombatStage.Player;
+                        stage = CombatStage.Fighting;
                         break;
                 }
 

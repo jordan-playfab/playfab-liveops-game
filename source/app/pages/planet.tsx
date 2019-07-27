@@ -2,21 +2,22 @@ import React from "react";
 import { is } from "../shared/is";
 import { PlayFabHelper } from "../shared/playfab";
 import { RouteComponentProps, Redirect } from "react-router";
-import { IPlanetData, TITLE_DATA_PLANETS, TITLE_DATA_ENEMIES } from "../shared/types";
+import { IPlanetData, CloudScriptFunctionNames } from "../shared/types";
 import { routes } from "../routes";
 import { Page, IBreadcrumbRoute } from "../components/page";
 import { UlInline } from "../styles";
 import { PrimaryButton } from "office-ui-fabric-react";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
-import { actionSetInventory, actionSetPlanetsFromTitleData, actionSetEnemiesFromTitleData } from "../store/actions";
+import { actionSetInventory } from "../store/actions";
 import { IWithPageProps, withPage } from "../containers/with-page";
 import { utilities } from "../shared/utilities";
 import { Combat } from "../components/combat";
+import { IKilledEnemyGroupRequest, IKilledEnemyGroupResponse } from "../../cloud-script/main";
 
 interface IState {
     areaName: string;
     enemyGroupName: string;
-    isLoading: boolean;
+    itemGranted: string;
 }
 
 interface IPlanetPageRouteProps {
@@ -30,30 +31,10 @@ class PlanetPageBase extends React.Component<Props, IState> {
         super(props);
 
         this.state = {
-            isLoading: true,
             areaName: null,
             enemyGroupName: null,
+            itemGranted: null,
         }
-    }
-
-    public componentDidMount(): void {
-        if(!this.isValid()) {
-            return;
-        }
-
-        this.props.onPageClearError();
-
-        PlayFabHelper.GetTitleData([TITLE_DATA_PLANETS, TITLE_DATA_ENEMIES], (data) => {
-            this.props.dispatch(actionSetPlanetsFromTitleData(data, TITLE_DATA_PLANETS));
-            this.props.dispatch(actionSetEnemiesFromTitleData(data, TITLE_DATA_ENEMIES));
-            
-            this.setState({
-                isLoading: false,
-            });
-        }, this.props.onPageError);
-
-        PlayFabHelper.GetUserInventory(inventory => this.props.dispatch(actionSetInventory(inventory)),
-            this.props.onPageError);
     }
 
     public render(): React.ReactNode {
@@ -73,14 +54,6 @@ class PlanetPageBase extends React.Component<Props, IState> {
     }
 
     private renderPlanet(): React.ReactNode {
-        if(this.state.isLoading) {
-            return null;
-        }
-
-        return this.renderArea();
-    }
-
-    private renderArea(): React.ReactNode {
         const planet = this.getPlanetData();
 
         if(is.null(this.state.areaName)) {
@@ -98,9 +71,20 @@ class PlanetPageBase extends React.Component<Props, IState> {
 
         return (
             <React.Fragment>
+                {this.renderItemGranted()}
                 {this.renderCombat()}
             </React.Fragment>
         );
+    }
+
+    private renderItemGranted(): React.ReactNode {
+        if(is.null(this.state.itemGranted)) {
+            return null;
+        }
+
+        return (
+            <p>Good job in combat! You won a {this.state.itemGranted}!</p>
+        )
     }
 
     private renderCombat(): React.ReactNode {
@@ -113,9 +97,50 @@ class PlanetPageBase extends React.Component<Props, IState> {
                 area={this.state.areaName}
                 enemyGroup={enemyGroup}
                 enemies={enemyData}
-                onFinished={this.setArea.bind(this, null)}
+                onCombatOver={this.onCombatFinished}
+                onLeaveCombat={this.onLeaveCombat}
             />
         );
+    }
+
+    private onCombatFinished = (): void => {
+        // I'm going to assume that if you're alive, you won
+        if(this.props.appState.playerHP === 0) {
+            return;
+        }
+
+        const combatReport: IKilledEnemyGroupRequest = {
+            area: this.state.areaName,
+            enemyGroup: this.state.enemyGroupName,
+            planet: this.getPlanetName(),
+            playerHP: this.props.appState.playerHP,
+        };
+
+        PlayFabHelper.ExecuteCloudScript(
+            CloudScriptFunctionNames.killedEnemyGroup,
+            combatReport,
+            (data) => {
+                const response = data.FunctionResult as IKilledEnemyGroupResponse;
+
+                if(!is.null(response.errorMessage)) {
+                    this.props.onPageError(`Error when finishing combat: ${response.errorMessage}`);
+                }
+                else {
+                    this.setState({
+                        itemGranted: response.itemGranted
+                    });
+
+                    this.refreshInventory();
+                }
+            }, this.props.onPageError);
+    }
+
+    private onLeaveCombat = (): void => {
+        this.setArea(null);
+    }
+
+    private refreshInventory(): void {
+        PlayFabHelper.GetUserInventory(data => this.props.dispatch(actionSetInventory(data)), this.props.onPageError);
     }
 
     private setArea = (area: string): void => {
@@ -123,6 +148,7 @@ class PlanetPageBase extends React.Component<Props, IState> {
             this.setState({
                 areaName: null,
                 enemyGroupName: null,
+                itemGranted: null,
             });
 
             return;
@@ -142,7 +168,8 @@ class PlanetPageBase extends React.Component<Props, IState> {
 
         this.setState({
             areaName: area,
-            enemyGroupName: thisArea.enemyGroups[enemyGroupIndex]
+            enemyGroupName: thisArea.enemyGroups[enemyGroupIndex],
+            itemGranted: null,
         });
     }
 
@@ -153,9 +180,7 @@ class PlanetPageBase extends React.Component<Props, IState> {
     private getPlanetData(): IPlanetData {
         const planetName = this.getPlanetName();
 
-        return is.null(this.props.appState.planets)
-            ? null
-            : this.props.appState.planets.find(p => p.name === planetName);
+        return this.props.appState.planets.find(p => p.name === planetName);
     }
 
     private getPlanetName(): string {
@@ -163,10 +188,6 @@ class PlanetPageBase extends React.Component<Props, IState> {
     }
 
     private getPageTitle(): string {
-        if(this.state.isLoading) {
-            return "Loading...";
-        }
-
         if(!is.null(this.state.areaName)) {
             return `${this.state.areaName} Region`;
         }

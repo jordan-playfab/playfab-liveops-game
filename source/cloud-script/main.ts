@@ -7,19 +7,6 @@ declare var currentPlayerId: string;
 declare var server: any;
 declare var handlers: any;
 
-interface IKilledEnemyGroupRequest {
-    planet: string;
-    area: string;
-    enemyGroup: string;
-    damageTaken: number;
-}
-
-interface IKilledEnemyGroupResponse {
-    isError: boolean;
-    errorMessage?: string;
-    itemGranted?: string;
-}
-
 "use strict";
 const App = {
     IsNull(data: any): boolean {
@@ -39,8 +26,9 @@ const App = {
             TableId: tableId
         }).ResultItemId;
     },
-    GetPlayerStatistics(statisticNames: string[]): PlayFabServerModels.StatisticValue[] {
+    GetPlayerStatistics(playerId: string, statisticNames: string[]): PlayFabServerModels.StatisticValue[] {
         return server.GetPlayerStatistics({
+            PlayFabId: playerId,
             StatisticNames: statisticNames,
         }).Statistics;
     },
@@ -92,6 +80,28 @@ const App = {
                 : App.Config.PermissionPrivate
         });
     },
+    UpdateUserDataExisting(dictionary: IStringDictionary, isPublic: boolean): PlayFabServerModels.UpdateUserDataResult {
+        const userData = App.GetUserData(currentPlayerId, Object.keys(dictionary));
+    
+        Object.keys(dictionary).forEach(key => {
+            userData.Data[key] = {
+                Value: dictionary[key],
+                LastUpdated: new Date().toString(),
+                Permission: isPublic
+                    ? App.Config.PermissionPublic
+                    : App.Config.PermissionPrivate
+            };
+        });
+    
+        // Turn this UserDataRecordDictionary into a plain IStringDictionary
+        const userDataStringDictionary = Object.keys(userData.Data).reduce((dictionary: IStringDictionary, key: string) => {
+            dictionary[key] = userData.Data[key].Value;
+    
+            return dictionary;
+        }, {} as IStringDictionary);
+    
+        return App.UpdateUserData(currentPlayerId, userDataStringDictionary, null, true);
+    },
     Statistics: {
         Kills: "kills",
         HP: "hp"
@@ -117,45 +127,30 @@ const App = {
     }
 };
 
-const isKilledEnemyGroupValid = function(args: IKilledEnemyGroupRequest, planetData: IPlanetData[], enemyData: ITitleDataEnemies): string {
-    const planet = planetData.find(p => p.name === args.planet);
-    
-    if(planet === undefined) {
-        return `Planet ${args.planet} not found.`;
-    }
+// ----- Callable functions ----- //
 
-    const area = planet.areas.find(a => a.name === args.area);
+export interface IKilledEnemyGroupRequest {
+    planet: string;
+    area: string;
+    enemyGroup: string;
+    playerHP: number;
+}
 
-    if(area === undefined) {
-        return `Area ${args.area} not found on planet ${args.planet}.`;
-    }
-
-    const enemyGroup = area.enemyGroups.find(e => e === args.enemyGroup);
-
-    if(enemyGroup === undefined) {
-        return `Enemy group ${args.enemyGroup} not found in area ${args.area} on planet ${args.planet}.`;
-    }
-
-    const fullEnemyGroup = enemyData.enemyGroups.find(e => e.name === args.enemyGroup);
-
-    if(fullEnemyGroup === undefined) {
-        return `Enemy group ${args.enemyGroup} not found.`;
-    }
-
-    return undefined;
-};
+export interface IKilledEnemyGroupResponse {
+    errorMessage?: string;
+    itemGranted?: string;
+}
 
 handlers.killedEnemyGroup = function(args: IKilledEnemyGroupRequest, context: any): IKilledEnemyGroupResponse {
     const planetsAndEnemies = App.GetTitleData([App.TitleData.Planets, App.TitleData.Enemies]);
-    const planetData = (planetsAndEnemies.Planets as ITitleDataPlanets).planets;
-    const enemyData = (planetsAndEnemies.Enemies as ITitleDataEnemies);
+    const planetData = (JSON.parse(planetsAndEnemies[App.TitleData.Planets]) as ITitleDataPlanets).planets;
+    const enemyData = (JSON.parse(planetsAndEnemies[App.TitleData.Enemies]) as ITitleDataEnemies);
 
     // Ensure the data submitted is valid
     const errorMessage = isKilledEnemyGroupValid(args, planetData, enemyData);
 
     if(!App.IsNull(errorMessage)) {
         return {
-            isError: true,
             errorMessage,
         };
     }
@@ -164,45 +159,38 @@ handlers.killedEnemyGroup = function(args: IKilledEnemyGroupRequest, context: an
     const fullEnemyGroup = enemyData.enemyGroups.find(e => e.name === args.enemyGroup);
 
     // Update player statistics
-    const statistics = App.GetPlayerStatistics([App.Statistics.Kills, App.Statistics.HP]);
-
+    const statistics = App.GetPlayerStatistics(currentPlayerId, [App.Statistics.Kills]);
     const statisticUpdates: PlayFabServerModels.StatisticUpdate[] = [];
     
     if(!App.IsNull(statistics)) {
         const killStatistic = statistics.find(s => s.StatisticName === App.Statistics.Kills);
-        const hpStatistic = statistics.find(s => s.StatisticName === App.Statistics.HP);
+        const startingKills = App.IsNull(killStatistic)
+            ? 0
+            : killStatistic.Value;
 
-        if(!App.IsNull(killStatistic)) {
-            statisticUpdates.push({
-                StatisticName: App.Statistics.Kills,
-                Value: killStatistic.Value + fullEnemyGroup.enemies.length,
-            });
-        }
+        statisticUpdates.push({
+            StatisticName: App.Statistics.Kills,
+            Value: startingKills + fullEnemyGroup.enemies.length,
+        });
 
-        if(!App.IsNull(hpStatistic)) {
-            // Can't go below zero health
-            statisticUpdates.push({
-                StatisticName: App.Statistics.HP,
-                Value: Math.max(0, hpStatistic.Value - args.damageTaken),
-            });
-        }
-    }
-
-    if(statisticUpdates.length !== 0) {
         App.UpdatePlayerStatistics(currentPlayerId, statisticUpdates);
     }
 
-    // Grant items if they're lucky
+    // Also update your HP, which is stored in user data
+    App.UpdateUserDataExisting({
+        [App.UserData.HP]: args.playerHP.toString()
+    }, true);
+
+    // Grant items
     let itemGranted: string = null;
 
-    if(fullEnemyGroup.droptable && fullEnemyGroup.dropchance && Math.random() <= fullEnemyGroup.dropchance) {
-        itemGranted = App.EvaluateRandomResultTable(undefined, fullEnemyGroup.droptable);
+    if(!App.IsNull(fullEnemyGroup.droptable)) {
+        itemGranted = App.EvaluateRandomResultTable(null, fullEnemyGroup.droptable);
 
         App.GrantItemsToUser(currentPlayerId, [itemGranted]);
     }
 
     return {
-        isError: false,
         itemGranted
     };
 };
@@ -231,26 +219,43 @@ handlers.playerLogin = function(args: any, context: any): IPlayerLoginResponse {
     const userData = App.GetUserData(currentPlayerId, [App.UserData.HP]);
 
     if(App.IsNull(userData.Data[App.UserData.HP])) {
-        response.playerHP = App.Config.StartingHP;
-
-        userData.Data[App.UserData.HP] = {
-            Value: App.Config.StartingHP.toString(),
-            LastUpdated: new Date().toString(),
-            Permission: App.Config.PermissionPublic
-        };
-
-        // Turn this UserDataRecordDictionary into a plain IStringDictionary
-        const userDataStringDictionary = Object.keys(userData.Data).reduce((dictionary: IStringDictionary, key: string) => {
-            dictionary[key] = userData.Data[key].Value;
-
-            return dictionary;
-        }, {} as IStringDictionary);
-
-        App.UpdateUserData(currentPlayerId, userDataStringDictionary, null, true);
+        App.UpdateUserDataExisting({
+            [App.UserData.HP]: App.Config.StartingHP.toString()
+        }, true);
     }
     else {
         response.playerHP = parseInt(userData.Data[App.UserData.HP].Value);
     }
 
     return response;
-}
+};
+
+// ----- Helpers ----- //
+
+const isKilledEnemyGroupValid = function(args: IKilledEnemyGroupRequest, planetData: IPlanetData[], enemyData: ITitleDataEnemies): string {
+    const planet = planetData.find(p => p.name === args.planet);
+    
+    if(planet === undefined) {
+        return `Planet ${args.planet} not found.`;
+    }
+
+    const area = planet.areas.find(a => a.name === args.area);
+
+    if(area === undefined) {
+        return `Area ${args.area} not found on planet ${args.planet}.`;
+    }
+
+    const enemyGroup = area.enemyGroups.find(e => e === args.enemyGroup);
+
+    if(enemyGroup === undefined) {
+        return `Enemy group ${args.enemyGroup} not found in area ${args.area} on planet ${args.planet}.`;
+    }
+
+    const fullEnemyGroup = enemyData.enemyGroups.find(e => e.name === args.enemyGroup);
+
+    if(fullEnemyGroup === undefined) {
+        return `Enemy group ${args.enemyGroup} not found.`;
+    }
+
+    return undefined;
+};

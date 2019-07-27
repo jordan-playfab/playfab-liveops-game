@@ -7,12 +7,12 @@
 - [ ] How to go further
 - [x] Enemy groups
 - [x] Give new players something
-- [ ] Actual combat engine with reports at the end
-- [ ] Player HP and damage taking
+- [x] Actual combat engine with reports at the end
+- [x] Player HP and damage taking
 - [x] Use Redux
 - [x] Create page HOC to handle errors and maybe more later
 - [ ] Watch mode
-- [ ] Improve PlayFab helper
+- [x] Improve PlayFab helper
 - [ ] Actual loot in looter shooter
 - [ ] Production build
 - [ ] Use memory router

@@ -29,7 +29,6 @@ export interface ITitleDataEnemyGroup {
     name: string;
     enemies: string[];
     droptable: string;
-    dropchance: number;
 }
 
 // ----- Catalog item custom data ----- //

@@ -10,7 +10,8 @@ interface IProps {
     area: string;
     enemyGroup: ITitleDataEnemyGroup;
     enemies: ITitleDataEnemy[];
-    onFinished: () => void;
+    onCombatOver: () => void;
+    onLeaveCombat: () => void;
 }
 
 type Props = IProps & IWithCombatProps & IWithAppStateProps;
@@ -23,6 +24,10 @@ class CombatBase extends React.PureComponent<Props> {
     public componentDidUpdate(prevProps: Props): void {
         if(this.props.combatPlayerHP !== this.props.appState.playerHP) {
             this.props.dispatch(actionSetPlayerHP(this.props.combatPlayerHP));
+        }
+
+        if(prevProps.combatStage !== CombatStage.Victory && this.props.combatStage === CombatStage.Victory) {
+            this.props.onCombatOver();
         }
     }
 
@@ -47,7 +52,7 @@ class CombatBase extends React.PureComponent<Props> {
                     <React.Fragment>
                         {this.renderPlayer()}
                         <p>You are dead. Sorry about that!</p>
-                        <button onClick={this.props.onFinished}>Okay</button>
+                        <button onClick={this.props.onLeaveCombat}>Okay</button>
                     </React.Fragment>
                 );
             case CombatStage.Victory:
@@ -55,19 +60,19 @@ class CombatBase extends React.PureComponent<Props> {
                     <React.Fragment>
                         {this.renderPlayer()}
                         <p>You won. Good job!</p>
-                        <button onClick={this.props.onFinished}>Continue</button>
+                        <button onClick={this.props.onLeaveCombat}>Continue</button>
                     </React.Fragment>
                 );
-            case CombatStage.Enemy:
-                return this.renderEnemyStage();
+            case CombatStage.Fighting:
             default:
                 return (
                     <React.Fragment>
                         {this.renderPlayer()}
+                        {this.renderEnemyAttackReport()}
                         <p>Enemies:</p>
                         <ul>
                             {this.props.combatEnemies.map((e, index) => (
-                                <li key={index}><button onClick={this.props.onCombatPlayerAttack.bind(this, index)}>{e.name} ({e.hp} HP)</button></li>
+                                <li key={index}><button onClick={this.props.onCombatPlayerAttack.bind(this, index)}>Shoot {e.name} ({e.hp} HP)</button></li>
                             ))}
                         </ul>
                     </React.Fragment>
@@ -75,17 +80,13 @@ class CombatBase extends React.PureComponent<Props> {
         }
     }
 
-    private renderEnemyStage(): React.ReactNode {
+    private renderEnemyAttackReport(): React.ReactNode {
         if(is.null(this.props.combatAttackedByIndexLastRound)) {
             return null;
         }
 
         return (
-            <React.Fragment>
-                {this.renderPlayer()}
-                <p>The enemy {this.props.combatEnemies[this.props.combatAttackedByIndexLastRound].name} hit you for {this.props.combatDamageTakenLastRound} damage.</p>
-                <button onClick={this.props.onCombatAdvanceStage}>Continue</button>
-            </React.Fragment>
+            <p>The enemy {this.props.combatEnemies[this.props.combatAttackedByIndexLastRound].name} hit you for {this.props.combatDamageTakenLastRound} damage.</p>
         );
     }
 

@@ -9,8 +9,8 @@ import { RouteComponentProps } from "react-router";
 import { Page } from "../components/page";
 import { DivConfirm, UlInline } from "../styles";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
-import { actionSetPlayerId, actionSetPlayerName, actionSetCatalog, actionSetInventory, actionSetPlanetsFromTitleData, actionSetStoreNamesFromTitleData, actionSetPlayerHP } from "../store/actions";
-import { TITLE_DATA_PLANETS, CloudScriptFunctionNames, CATALOG_VERSION, TITLE_DATA_STORES } from "../shared/types";
+import { actionSetPlayerId, actionSetPlayerName, actionSetCatalog, actionSetInventory, actionSetPlanetsFromTitleData, actionSetStoreNamesFromTitleData, actionSetPlayerHP, actionSetEnemiesFromTitleData } from "../store/actions";
+import { TITLE_DATA_PLANETS, CloudScriptFunctionNames, CATALOG_VERSION, TITLE_DATA_STORES, TITLE_DATA_ENEMIES } from "../shared/types";
 import { IWithPageProps, withPage } from "../containers/with-page";
 import { IPlayerLoginResponse } from "../../cloud-script/main";
 
@@ -123,9 +123,10 @@ class PlayerPageBase extends React.Component<Props, IState> {
                 this.getInventory();
             }, this.props.onPageError);
 
-            PlayFabHelper.GetTitleData([TITLE_DATA_PLANETS, TITLE_DATA_STORES], (data) => {
+            PlayFabHelper.GetTitleData([TITLE_DATA_PLANETS, TITLE_DATA_STORES, TITLE_DATA_ENEMIES], (data) => {
                 this.props.dispatch(actionSetPlanetsFromTitleData(data, TITLE_DATA_PLANETS));
                 this.props.dispatch(actionSetStoreNamesFromTitleData(data, TITLE_DATA_STORES));
+                this.props.dispatch(actionSetEnemiesFromTitleData(data, TITLE_DATA_ENEMIES));
             }, this.props.onPageError);
             
             PlayFabHelper.GetCatalogItems(CATALOG_VERSION, (catalog) => {
