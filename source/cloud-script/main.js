@@ -6,10 +6,17 @@ const App = {
             || (typeof data === "string" && data.length === 0)
             || (data.constructor === Array && data.length === 0);
     },
-    GetTitleData(keys) {
-        return server.GetTitleData({
+    GetTitleData(keys, isJSON) {
+        const data = server.GetTitleData({
             Keys: keys
         }).Data;
+        if (!isJSON) {
+            return data;
+        }
+        return Object.keys(data).reduce((dictionary, key) => {
+            dictionary[key] = JSON.parse(data[key]);
+            return dictionary;
+        }, {});
     },
     EvaluateRandomResultTable(catalogVersion, tableId) {
         return server.EvaluateRandomResultTable({
@@ -88,6 +95,13 @@ const App = {
         }, {});
         return App.UpdateUserData(currentPlayerId, userDataStringDictionary, null, true);
     },
+    WritePlayerEvent(playerId, eventName, body) {
+        server.WritePlayerEvent({
+            PlayFabId: playerId,
+            EventName: eventName,
+            Body: body,
+        });
+    },
     Statistics: {
         Kills: "kills",
         HP: "hp"
@@ -98,6 +112,7 @@ const App = {
     },
     UserData: {
         HP: "hp",
+        MaxHP: "maxHP",
     },
     CatalogItems: {
         StartingPack: "StartingPack",
@@ -113,9 +128,9 @@ const App = {
     }
 };
 handlers.killedEnemyGroup = function (args, context) {
-    const planetsAndEnemies = App.GetTitleData([App.TitleData.Planets, App.TitleData.Enemies]);
-    const planetData = JSON.parse(planetsAndEnemies[App.TitleData.Planets]).planets;
-    const enemyData = JSON.parse(planetsAndEnemies[App.TitleData.Enemies]);
+    const planetsAndEnemies = App.GetTitleData([App.TitleData.Planets, App.TitleData.Enemies], true);
+    const planetData = planetsAndEnemies[App.TitleData.Planets].planets;
+    const enemyData = planetsAndEnemies[App.TitleData.Enemies];
     // Ensure the data submitted is valid
     const errorMessage = isKilledEnemyGroupValid(args, planetData, enemyData);
     if (!App.IsNull(errorMessage)) {
@@ -169,13 +184,31 @@ handlers.playerLogin = function (args, context) {
     const userData = App.GetUserData(currentPlayerId, [App.UserData.HP]);
     if (App.IsNull(userData.Data[App.UserData.HP])) {
         App.UpdateUserDataExisting({
-            [App.UserData.HP]: App.Config.StartingHP.toString()
+            [App.UserData.HP]: App.Config.StartingHP.toString(),
+            [App.UserData.MaxHP]: App.Config.StartingHP.toString(),
         }, true);
     }
     else {
         response.playerHP = parseInt(userData.Data[App.UserData.HP].Value);
     }
     return response;
+};
+handlers.returnToHomeBase = function (args, context) {
+    const hpAndMaxHP = App.GetUserData(currentPlayerId, [App.UserData.HP, App.UserData.MaxHP]);
+    const maxHP = parseInt(hpAndMaxHP.Data[App.UserData.MaxHP].Value);
+    if (hpAndMaxHP.Data[App.UserData.HP].Value === hpAndMaxHP.Data[App.UserData.MaxHP].Value) {
+        App.WritePlayerEvent(currentPlayerId, "travel_to_home_base", null);
+        return {
+            maxHP
+        };
+    }
+    App.UpdateUserData(currentPlayerId, {
+        [App.UserData.HP]: hpAndMaxHP.Data[App.UserData.MaxHP].Value,
+    }, null, true);
+    App.WritePlayerEvent(currentPlayerId, "travel_to_home_base_restore_hp", null);
+    return {
+        maxHP
+    };
 };
 // ----- Helpers ----- //
 const isKilledEnemyGroupValid = function (args, planetData, enemyData) {

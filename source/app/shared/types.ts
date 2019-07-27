@@ -47,6 +47,10 @@ export interface INumberDictionary {
     [key: string]: number;
 }
 
+export interface IAnyDictionary {
+    [key: string]: any;
+}
+
 interface IProgressStage {
     key: string;
     title: string;
@@ -87,6 +91,7 @@ export const PROGRESS_STAGES: IProgressStage[] = [{
 export enum CloudScriptFunctionNames {
     killedEnemyGroup = "killedEnemyGroup",
     playerLogin = "playerLogin",
+    returnToHomeBase = "returnToHomeBase",
 }
 
 export const VC_CREDITS = "CR";

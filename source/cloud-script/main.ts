@@ -1,6 +1,6 @@
 /// <reference path="../../node_modules/playfab-web-sdk/src/Typings/PlayFab/PlayFabClientApi.d.ts" />
 /// <reference path="../../node_modules/playfab-web-sdk/src/Typings/PlayFab/PlayFabAdminApi.d.ts" />
-import { ITitleDataPlanets, ITitleDataEnemies, IPlanetData, IStringDictionary } from "../app/shared/types";
+import { ITitleDataPlanets, ITitleDataEnemies, IPlanetData, IStringDictionary, IAnyDictionary } from "../app/shared/types";
 
 // PlayFab-supplied global variables
 declare var currentPlayerId: string;
@@ -15,10 +15,20 @@ const App = {
             || (typeof data === "string" && data.length === 0)
             || (data.constructor === Array && data.length === 0);
     },
-    GetTitleData(keys: string[]): any {
-        return server.GetTitleData({
+    GetTitleData(keys: string[], isJSON: boolean): any {
+        const data = server.GetTitleData({
             Keys: keys
         }).Data;
+
+        if(!isJSON) {
+            return data;
+        }
+
+        return Object.keys(data).reduce((dictionary, key) => {
+            dictionary[key] = JSON.parse(data[key]);
+
+            return dictionary;
+        }, {} as IAnyDictionary);
     },
     EvaluateRandomResultTable(catalogVersion: string, tableId: string): string {
         return server.EvaluateRandomResultTable({
@@ -102,6 +112,13 @@ const App = {
     
         return App.UpdateUserData(currentPlayerId, userDataStringDictionary, null, true);
     },
+    WritePlayerEvent(playerId: string, eventName: string, body: IAnyDictionary): void {
+        server.WritePlayerEvent({
+            PlayFabId: playerId,
+            EventName: eventName,
+            Body: body,
+        });
+    },
     Statistics: {
         Kills: "kills",
         HP: "hp"
@@ -112,6 +129,7 @@ const App = {
     },
     UserData: {
         HP: "hp",
+        MaxHP: "maxHP",
     },
     CatalogItems: {
         StartingPack: "StartingPack",
@@ -142,9 +160,9 @@ export interface IKilledEnemyGroupResponse {
 }
 
 handlers.killedEnemyGroup = function(args: IKilledEnemyGroupRequest, context: any): IKilledEnemyGroupResponse {
-    const planetsAndEnemies = App.GetTitleData([App.TitleData.Planets, App.TitleData.Enemies]);
-    const planetData = (JSON.parse(planetsAndEnemies[App.TitleData.Planets]) as ITitleDataPlanets).planets;
-    const enemyData = (JSON.parse(planetsAndEnemies[App.TitleData.Enemies]) as ITitleDataEnemies);
+    const planetsAndEnemies = App.GetTitleData([App.TitleData.Planets, App.TitleData.Enemies], true);
+    const planetData = (planetsAndEnemies[App.TitleData.Planets] as ITitleDataPlanets).planets;
+    const enemyData = (planetsAndEnemies[App.TitleData.Enemies] as ITitleDataEnemies);
 
     // Ensure the data submitted is valid
     const errorMessage = isKilledEnemyGroupValid(args, planetData, enemyData);
@@ -220,7 +238,8 @@ handlers.playerLogin = function(args: any, context: any): IPlayerLoginResponse {
 
     if(App.IsNull(userData.Data[App.UserData.HP])) {
         App.UpdateUserDataExisting({
-            [App.UserData.HP]: App.Config.StartingHP.toString()
+            [App.UserData.HP]: App.Config.StartingHP.toString(),
+            [App.UserData.MaxHP]: App.Config.StartingHP.toString(),
         }, true);
     }
     else {
@@ -228,6 +247,34 @@ handlers.playerLogin = function(args: any, context: any): IPlayerLoginResponse {
     }
 
     return response;
+};
+
+export interface IReturnToHomeBaseResponse {
+    maxHP: number;
+}
+
+handlers.returnToHomeBase = function(args: any, context: any): IReturnToHomeBaseResponse {
+    const hpAndMaxHP = App.GetUserData(currentPlayerId, [App.UserData.HP, App.UserData.MaxHP]);
+
+    const maxHP = parseInt(hpAndMaxHP.Data[App.UserData.MaxHP].Value);
+
+    if(hpAndMaxHP.Data[App.UserData.HP].Value === hpAndMaxHP.Data[App.UserData.MaxHP].Value) {
+        App.WritePlayerEvent(currentPlayerId, "travel_to_home_base", null);
+
+        return {
+            maxHP
+        };
+    }
+
+    App.UpdateUserData(currentPlayerId, {
+        [App.UserData.HP]: hpAndMaxHP.Data[App.UserData.MaxHP].Value,
+    }, null, true);
+
+    App.WritePlayerEvent(currentPlayerId, "travel_to_home_base_restore_hp", null);
+
+    return {
+        maxHP
+    };
 };
 
 // ----- Helpers ----- //

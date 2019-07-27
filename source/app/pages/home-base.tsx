@@ -8,9 +8,10 @@ import { Page, IBreadcrumbRoute } from "../components/page";
 import { UlInline } from "../styles";
 import { PrimaryButton } from "office-ui-fabric-react";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
-import { actionSetInventory, actionSetStores } from "../store/actions";
-import { CATALOG_VERSION } from "../shared/types";
+import { actionSetInventory, actionSetStores, actionSetPlayerHP } from "../store/actions";
+import { CATALOG_VERSION, CloudScriptFunctionNames } from "../shared/types";
 import { IWithPageProps, withPage } from "../containers/with-page";
+import { IReturnToHomeBaseResponse } from "../../cloud-script/main";
 
 interface IState {
     selectedStore: string;
@@ -35,6 +36,7 @@ class HomeBasePageBase extends React.Component<Props, IState> {
         }
 
         this.loadStores();
+        this.restorePlayerHP();
     }
 
     public render(): React.ReactNode {
@@ -59,7 +61,9 @@ class HomeBasePageBase extends React.Component<Props, IState> {
 
     public renderStores(): React.ReactNode {
         if(is.null(this.props.appState.stores)) {
-            return null;
+            return (
+                <p>Your health has been restored.</p>
+            );
         }
 
         if(is.null(this.state.selectedStore)) {
@@ -163,6 +167,14 @@ class HomeBasePageBase extends React.Component<Props, IState> {
                 }
             }, this.props.onPageError)
         });
+    }
+
+    private restorePlayerHP(): void {
+        PlayFabHelper.ExecuteCloudScript(CloudScriptFunctionNames.returnToHomeBase, null, (data) => {
+            const response = data.FunctionResult as IReturnToHomeBaseResponse;
+
+            this.props.dispatch(actionSetPlayerHP(response.maxHP));
+        }, this.props.onPageError);
     }
 }
 
