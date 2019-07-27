@@ -138,8 +138,8 @@ class PlayerBase extends React.Component<Props, IState> {
                         {this.props.appState.inventory.Inventory.map((item, index) => (
                             <li key={index}>
                                 {is.inArray(equippedItemInstanceIds, item.ItemInstanceId)
-                                    ? (<button onClick={this.equipItem.bind(this, item)}>{item.DisplayName}</button>)
-                                    : (<React.Fragment>{item.DisplayName} (equipped)</React.Fragment>)}
+                                    ? (<React.Fragment>{item.DisplayName} (equipped)</React.Fragment>)
+                                    : (<button onClick={this.equipItem.bind(this, item)}>{item.DisplayName}</button>)}
                             </li>
                         ))}
                     </UlInventory>

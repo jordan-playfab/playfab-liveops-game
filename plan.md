@@ -20,7 +20,7 @@
 - [ ] Put everything in URL, make page refreshable
 - [ ] Credits page
 - [x] Player title data to equip weapons and armor
-- [ ] Improve equipping with multiple slots
+- [x] Improve equipping with multiple slots
 - [ ] Don't allow you to buy items you already have
 
 # Pages
