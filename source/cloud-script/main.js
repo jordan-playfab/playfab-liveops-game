@@ -140,22 +140,41 @@ handlers.killedEnemyGroup = function (args, context) {
             errorMessage,
         };
     }
+    const response = {};
     // Data is valid, continue
     const fullEnemyGroup = enemyData.enemyGroups.find(e => e.name === args.enemyGroup);
     // Update player statistics
-    const statistics = App.GetPlayerStatistics(currentPlayerId, [App.Statistics.Kills]);
+    const statistics = App.GetPlayerStatistics(currentPlayerId, [App.Statistics.Kills, App.Statistics.XP]);
     const statisticUpdates = [];
-    if (!App.IsNull(statistics)) {
-        const killStatistic = statistics.find(s => s.StatisticName === App.Statistics.Kills);
-        const startingKills = App.IsNull(killStatistic)
-            ? 0
-            : killStatistic.Value;
-        statisticUpdates.push({
-            StatisticName: App.Statistics.Kills,
-            Value: startingKills + fullEnemyGroup.enemies.length,
-        });
-        App.UpdatePlayerStatistics(currentPlayerId, statisticUpdates);
-    }
+    // Update number of kills
+    const killStatistic = statistics.find(s => s.StatisticName === App.Statistics.Kills);
+    const startingKills = App.IsNull(killStatistic)
+        ? 0
+        : killStatistic.Value;
+    const newKills = startingKills + fullEnemyGroup.enemies.length;
+    response.kills = newKills;
+    statisticUpdates.push({
+        StatisticName: App.Statistics.Kills,
+        Value: newKills,
+    });
+    // How much XP you earned from that enemy group
+    const xpStatistic = statistics.find(s => s.StatisticName === App.Statistics.XP);
+    const startingXP = App.IsNull(xpStatistic)
+        ? 0
+        : xpStatistic.Value;
+    const newXP = fullEnemyGroup.enemies
+        .map(e => enemyData.enemies.find(e2 => e2.name === e).xp)
+        .reduce((totalXP, enemyXP) => {
+        return totalXP + enemyXP;
+    }, startingXP);
+    response.xp = newXP;
+    statisticUpdates.push({
+        StatisticName: App.Statistics.XP,
+        Value: newXP,
+    });
+    // Do both updates
+    App.UpdatePlayerStatistics(currentPlayerId, statisticUpdates);
+    // TODO: Did you gain a level?
     // Also update your HP, which is stored in user data
     App.UpdateUserDataExisting({
         [App.UserData.HP]: args.playerHP.toString()
@@ -166,9 +185,8 @@ handlers.killedEnemyGroup = function (args, context) {
         itemGranted = App.EvaluateRandomResultTable(null, fullEnemyGroup.droptable);
         App.GrantItemsToUser(currentPlayerId, [itemGranted]);
     }
-    return {
-        itemGranted
-    };
+    response.itemGranted = itemGranted;
+    return response;
 };
 handlers.playerLogin = function (args, context) {
     // If you're a new player with no money nor items, give you some cash and set your HP

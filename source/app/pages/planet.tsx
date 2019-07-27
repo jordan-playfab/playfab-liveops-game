@@ -8,7 +8,7 @@ import { Page, IBreadcrumbRoute } from "../components/page";
 import { UlInline } from "../styles";
 import { PrimaryButton } from "office-ui-fabric-react";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
-import { actionSetInventory } from "../store/actions";
+import { actionSetInventory, actionSetPlayerXP, actionSetPlayerLevel } from "../store/actions";
 import { IWithPageProps, withPage } from "../containers/with-page";
 import { utilities } from "../shared/utilities";
 import { Combat } from "../components/combat";
@@ -123,11 +123,23 @@ class PlanetPageBase extends React.Component<Props, IState> {
                 return;
             }
 
-            this.setState({
-                itemGranted: response.itemGranted
-            });
+            if(!is.null(response.itemGranted)) {
+                this.setState({
+                    itemGranted: response.itemGranted
+                });
 
-            this.refreshInventory();
+                this.refreshInventory();
+            }
+
+            // TODO: Tell the user how much XP they got and whether they gained a level
+
+            if(!is.null(response.xp)) {
+                this.props.dispatch(actionSetPlayerXP(response.xp));
+            }
+
+            if(!is.null(response.level)) {
+                this.props.dispatch(actionSetPlayerLevel(response.level));
+            }
         }, this.props.onPageError);
     }
 

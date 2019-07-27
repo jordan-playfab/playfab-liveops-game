@@ -159,6 +159,9 @@ export interface IKilledEnemyGroupRequest {
 export interface IKilledEnemyGroupResponse {
     errorMessage?: string;
     itemGranted?: string;
+    kills?: number
+    xp?: number;
+    level?: number;
 }
 
 handlers.killedEnemyGroup = function(args: IKilledEnemyGroupRequest, context: any): IKilledEnemyGroupResponse {
@@ -175,26 +178,52 @@ handlers.killedEnemyGroup = function(args: IKilledEnemyGroupRequest, context: an
         };
     }
 
+    const response: IKilledEnemyGroupResponse = {};
+
     // Data is valid, continue
     const fullEnemyGroup = enemyData.enemyGroups.find(e => e.name === args.enemyGroup);
 
     // Update player statistics
-    const statistics = App.GetPlayerStatistics(currentPlayerId, [App.Statistics.Kills]);
+    const statistics = App.GetPlayerStatistics(currentPlayerId, [App.Statistics.Kills, App.Statistics.XP]);
     const statisticUpdates: PlayFabServerModels.StatisticUpdate[] = [];
     
-    if(!App.IsNull(statistics)) {
-        const killStatistic = statistics.find(s => s.StatisticName === App.Statistics.Kills);
-        const startingKills = App.IsNull(killStatistic)
-            ? 0
-            : killStatistic.Value;
+    // Update number of kills
+    const killStatistic = statistics.find(s => s.StatisticName === App.Statistics.Kills);
+    const startingKills = App.IsNull(killStatistic)
+        ? 0
+        : killStatistic.Value;
+    const newKills = startingKills + fullEnemyGroup.enemies.length;
 
-        statisticUpdates.push({
-            StatisticName: App.Statistics.Kills,
-            Value: startingKills + fullEnemyGroup.enemies.length,
-        });
+    response.kills = newKills;
 
-        App.UpdatePlayerStatistics(currentPlayerId, statisticUpdates);
-    }
+    statisticUpdates.push({
+        StatisticName: App.Statistics.Kills,
+        Value: newKills,
+    });
+
+    // How much XP you earned from that enemy group
+    const xpStatistic = statistics.find(s => s.StatisticName === App.Statistics.XP);
+    const startingXP = App.IsNull(xpStatistic)
+        ? 0
+        : xpStatistic.Value;
+
+    const newXP = fullEnemyGroup.enemies
+        .map(e => enemyData.enemies.find(e2 => e2.name === e).xp)
+        .reduce((totalXP, enemyXP) => {
+            return totalXP + enemyXP;
+        }, startingXP);
+
+    response.xp = newXP;
+
+    statisticUpdates.push({
+        StatisticName: App.Statistics.XP,
+        Value: newXP,
+    });
+
+    // Do both updates
+    App.UpdatePlayerStatistics(currentPlayerId, statisticUpdates);
+
+    // TODO: Did you gain a level?
 
     // Also update your HP, which is stored in user data
     App.UpdateUserDataExisting({
@@ -210,9 +239,9 @@ handlers.killedEnemyGroup = function(args: IKilledEnemyGroupRequest, context: an
         App.GrantItemsToUser(currentPlayerId, [itemGranted]);
     }
 
-    return {
-        itemGranted
-    };
+    response.itemGranted = itemGranted;
+
+    return response;
 };
 
 export interface IPlayerLoginResponse {

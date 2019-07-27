@@ -23,6 +23,7 @@ export interface ITitleDataEnemy {
     name: string;
     hp: number;
     damage: number;
+    xp: number;
 }
 
 export interface ITitleDataEnemyGroup {

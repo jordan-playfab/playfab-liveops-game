@@ -187,13 +187,22 @@ class HomeBasePageBase extends React.Component<Props, IState> {
     }
 
     private loadStores(): void {
-        const stores: PlayFabClientModels.GetStoreItemsResult[] = [];
+        let stores: PlayFabClientModels.GetStoreItemsResult[] = [];
 
         this.props.appState.storeNames.forEach(storeId => {
             PlayFabHelper.GetStoreItems(CATALOG_VERSION, storeId, (data) => {
                 stores.push(data);
 
                 if(stores.length === this.props.appState.storeNames.length) {
+                    stores = stores.sort((a, b) => {
+                        if(a.MarketingData.DisplayName < b.MarketingData.DisplayName) {
+                            return -1;
+                        }
+                        else if(a.MarketingData.DisplayName > b.MarketingData.DisplayName) {
+                            return 1;
+                        }
+                        return 0;
+                    })
                     this.props.dispatch(actionSetStores(stores));
                 }
             }, this.props.onPageError)
