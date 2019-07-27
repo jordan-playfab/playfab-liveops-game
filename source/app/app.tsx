@@ -1,10 +1,11 @@
 import React from "react";
+import { Store } from "redux";
 import { Provider } from "react-redux";
+
 import { Router } from "./router";
 import { GlobalStyle, defaultTheme, ThemeProvider } from "./styles";
 import { reduxStore } from "./store/store";
 import { AppStateContainer } from "./containers/app-state-container";
-import { Store } from "redux";
 
 interface IProps {
     store: Store;

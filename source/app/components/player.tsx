@@ -19,7 +19,7 @@ const DivPlayerWrapper = styled.div`
     flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 2px solid ${s => s.theme.colorBorder200};
+    border-bottom: 2px solid ${s => s.theme.color.border200};
     padding: 0.5em 0;
 `;
 

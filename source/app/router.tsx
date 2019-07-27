@@ -1,6 +1,11 @@
 import React from "react";
 import { Switch, Route, HashRouter } from "react-router-dom";
+
 import { routes } from "./routes";
+import { is } from "./shared/is";
+import { IWithAppStateProps, withAppState } from "./containers/with-app-state";
+import { actionSetTitleId } from "./store/actions";
+import { utilities } from "./shared/utilities";
 
 import { HomePage } from "./pages/home";
 import { PlayerPage } from "./pages/player";
@@ -9,10 +14,7 @@ import NotFound from "./pages/not-found";
 import { HomeBasePage } from "./pages/home-base";
 import { UploadPage } from "./pages/upload";
 import { DownloadPage } from "./pages/download";
-import { IWithAppStateProps, withAppState } from "./containers/with-app-state";
-import { is } from "./shared/is";
-import { actionSetTitleId } from "./store/actions";
-import { utilities } from "./shared/utilities";
+
 import { LevelPage } from "./pages/level";
 
 type Props = IWithAppStateProps;

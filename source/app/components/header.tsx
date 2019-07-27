@@ -25,7 +25,7 @@ const DivTitleID = styled.div`
 
 const PTagline = styled.p`
     text-align: center;
-    border-bottom: 2px solid ${s => s.theme.colorBorder200};
+    border-bottom: 2px solid ${s => s.theme.color.border200};
     padding-bottom: 1em;
 `;
 

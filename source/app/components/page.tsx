@@ -13,8 +13,8 @@ const MainTag = styled.main`
     max-width: 60em;
     margin: 2em auto;
     padding: 1em;
-    background-color: ${s => s.theme.colorBackground000};
-    border: 4px solid ${s => s.theme.colorBorder200};
+    background-color: ${s => s.theme.color.background000};
+    border: 4px solid ${s => s.theme.color.border200};
     border-radius: 0.5em;
 `;
 
