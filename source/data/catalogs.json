@@ -192,6 +192,7 @@
         },
         {
             "ItemId": "HugeCreditPack",
+            "ItemClass": "unpack",
             "CatalogVersion": "Main",
             "DisplayName": "Huge credit pack",
             "VirtualCurrencyPrices": {},
