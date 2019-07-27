@@ -11,12 +11,10 @@
 - [x] Player HP and damage taking
 - [x] Use Redux
 - [x] Create page HOC to handle errors and maybe more later
-- [ ] Watch mode
+- [x] Watch mode
 - [x] Improve PlayFab helper
 - [ ] Actual loot in looter shooter
-- [ ] Production build
-- [ ] Use memory router
-- [ ] Launch using web server
+- [x] Production build
 - [ ] Put player ID in URL
 - [ ] Put everything in URL, make page refreshable
 - [ ] Credits page

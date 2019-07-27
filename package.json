@@ -4,7 +4,10 @@
   "description": "A demo game in HTML",
   "main": "index.js",
   "scripts": {
-    "build": "webpack"
+    "build": "webpack",
+    "watch": "webpack --watch",
+    "production": "webpack -p",
+    "cloudscript": "tsc -p ./source/cloud-script/tsconfig.json"
   },
   "author": "Microsoft Hackathon",
   "license": "MIT",

@@ -26,5 +26,5 @@ file:///<source path>/game/index.html
 Compile the `main.ts` file in `/source/cloud-script` using this command:
 
 ``` bash
-tsc -p tsconfig.json
+npm run cloudscript
 ```
