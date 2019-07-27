@@ -247,6 +247,7 @@ handlers.playerLogin = function(args: any, context: any): IPlayerLoginResponse {
             [App.UserData.HP]: App.Config.StartingHP.toString(),
             [App.UserData.MaxHP]: App.Config.StartingHP.toString(),
         }, true);
+        response.playerHP = App.Config.StartingHP;
     }
     else {
         response.playerHP = parseInt(userData.Data[App.UserData.HP].Value);

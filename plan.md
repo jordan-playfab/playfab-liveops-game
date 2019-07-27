@@ -19,7 +19,9 @@
 - [ ] Put player ID in URL
 - [ ] Put everything in URL, make page refreshable
 - [ ] Credits page
-- [ ] Player title data to equip weapons and armor
+- [x] Player title data to equip weapons and armor
+- [ ] Improve equipping with multiple slots
+- [ ] Don't allow you to buy items you already have
 
 # Pages
 

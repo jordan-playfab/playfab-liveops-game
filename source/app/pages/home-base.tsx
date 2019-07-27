@@ -6,7 +6,7 @@ import { Store } from "../components/store";
 import { PlayFabHelper } from "../shared/playfab";
 import { Page, IBreadcrumbRoute } from "../components/page";
 import { UlInline } from "../styles";
-import { PrimaryButton } from "office-ui-fabric-react";
+import { PrimaryButton, Spinner } from "office-ui-fabric-react";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { actionSetInventory, actionSetStores, actionSetPlayerHP, actionSetEquippedWeapon } from "../store/actions";
 import { CATALOG_VERSION, CloudScriptFunctionNames, ITEM_CLASS_WEAPON } from "../shared/types";
@@ -62,13 +62,14 @@ class HomeBasePageBase extends React.Component<Props, IState> {
     public renderStores(): React.ReactNode {
         if(is.null(this.props.appState.stores)) {
             return (
-                <p>Your health has been restored.</p>
+                <Spinner label="Loading stores" />
             );
         }
 
         if(is.null(this.state.selectedStore)) {
             return (
                 <React.Fragment>
+                    <p>Your health has been restored.</p>
                     <h3>Stores</h3>
                     <UlInline>
                         {this.props.appState.stores.map((store, index) => (
