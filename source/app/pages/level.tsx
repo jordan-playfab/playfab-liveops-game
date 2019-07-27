@@ -9,6 +9,13 @@ interface IState {
     maxLevel: number;
     xpToLevel1: number;
     xpToLevel50: number;
+    xpPerLevelMultiplier: number;
+}
+
+interface ILevelObject {
+    level: number;
+    xp: number;
+    itemGranted: string;
 }
 
 type Props = RouteComponentProps & IWithAppStateProps & IWithPageProps;
@@ -17,10 +24,12 @@ class LevelPageBase extends React.Component<Props, IState> {
     constructor(props: Props) {
         super(props);
 
+        // TODO: Allow the user to tweak these values
         this.state = {
             maxLevel: 50,
             xpToLevel1: 100,
             xpToLevel50: 10000,
+            xpPerLevelMultiplier: 1.15,
         };
     }
 
@@ -37,16 +46,20 @@ class LevelPageBase extends React.Component<Props, IState> {
     }
 
     private renderLevelCurve(): React.ReactNode {
-        const xpPerLevel: number[] = [];
+        const xpPerLevel: ILevelObject[] = [];
 
         for(let i = 0; i < this.state.maxLevel; i++) {
             let xp = this.calculateLevelCurve(i);
 
             if(i > 0) {
-                xp += (xpPerLevel[i - 1] * 1.15);
+                xp += (xpPerLevel[i - 1].xp * this.state.xpPerLevelMultiplier);
             }
 
-            xpPerLevel.push(Math.floor(xp));
+            xpPerLevel.push({
+                level: i + 1,
+                xp: Math.floor(xp),
+                itemGranted: null,
+            });
         }
         
         return (
@@ -55,12 +68,12 @@ class LevelPageBase extends React.Component<Props, IState> {
                     multiline
                     rows={20}
                     label="XP per level title data"
-                    value={JSON.stringify(xpPerLevel, null, 0)}
+                    value={JSON.stringify(xpPerLevel, null, 4)}
                 />
                 
                 <ul>
                     {xpPerLevel.map((xp, index) => (
-                        <li key={index}>Level {index + 1}: {xp}</li>
+                        <li key={index}>Level {index + 1}: {xp.xp}</li>
                     ))}
                 </ul>
             </React.Fragment>
