@@ -1,6 +1,6 @@
 import React from "react";
-import { TextField } from 'office-ui-fabric-react/lib/TextField';
-import { PrimaryButton, MessageBar, MessageBarType, Spinner } from 'office-ui-fabric-react';
+import { TextField } from "office-ui-fabric-react/lib/TextField";
+import { PrimaryButton, MessageBar, MessageBarType, Spinner } from "office-ui-fabric-react";
 import { is } from "../shared/is";
 import { routes } from "../routes";
 import { PlayFabHelper } from "../shared/playfab";
@@ -140,7 +140,7 @@ class LoginPageBase extends React.Component<Props, IState> {
             this.setState({
                 isLoggingIn: false,
             }, () => {
-                this.props.history.push(routes.Guide(this.props.appState.titleId, this.props.appState.playerId));
+                this.props.history.push(routes.Guide(this.props.appState.titleId));
             });
         }
     }

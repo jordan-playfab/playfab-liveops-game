@@ -16,8 +16,7 @@
 - [ ] Actual loot in looter shooter
 - [x] Leveling and increasing HP
 - [x] Production build
-- [ ] Put player ID in URL
-- [ ] Put everything in URL, make page refreshable
+- [x] Put title ID in URL
 - [ ] Credits page
 - [x] Player title data to equip weapons and armor
 - [x] Improve equipping with multiple slots

@@ -78,7 +78,7 @@ class PageBase extends React.PureComponent<Props> {
                 text: "Director",
                 key: "director",
                 onClick: this.onBreadcrumbClicked,
-                href: routes.Guide(this.props.appState.titleId, this.props.appState.playerId),
+                href: routes.Guide(this.props.appState.titleId),
             }]
             .concat(this.props.breadcrumbs.map((b, index) => ({
                     key: index.toString(),
@@ -125,11 +125,6 @@ class PageBase extends React.PureComponent<Props> {
 		if(this.props.match.params.titleid !== this.props.appState.titleId) {
             PlayFab.settings.titleId = this.props.match.params.titleid;
 			this.props.dispatch(actionSetTitleId(this.props.match.params.titleid));
-		}
-        
-        // This was setting playerid to null immediately after we logged in. Super bad.
-		if(!is.null(this.props.match.params.playerid) && this.props.match.params.playerid !== this.props.appState.playerId) {
-			this.props.dispatch(actionSetPlayerId(this.props.match.params.playerid));
 		}
 	}
 }

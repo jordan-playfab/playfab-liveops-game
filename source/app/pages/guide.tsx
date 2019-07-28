@@ -1,5 +1,5 @@
 import React from "react";
-import { RouteComponentProps } from "react-router-dom";
+import { RouteComponentProps, Redirect } from "react-router-dom";
 import { PrimaryButton, DefaultButton, Spinner } from "office-ui-fabric-react";
 
 import { Page } from "../components/page";
@@ -12,8 +12,12 @@ type Props = RouteComponentProps & IWithAppStateProps;
 
 class GuidePageBase extends React.Component<Props> {
     public render(): React.ReactNode {
-        if(!this.props.appState.hasTitleId || !this.props.appState.hasPlayerId) {
+        if(!this.props.appState.hasTitleId) {
             return null;
+        }
+
+        if(!this.props.appState.hasPlayerId) {
+            return (<Redirect to={routes.Login(this.props.appState.titleId)} />);
         }
 
         return (
@@ -54,11 +58,11 @@ class GuidePageBase extends React.Component<Props> {
     }
 
     private sendToHomeBase = (): void => {
-        this.props.history.push(routes.Headquarters(this.props.appState.titleId, this.props.appState.playerId));
+        this.props.history.push(routes.Headquarters(this.props.appState.titleId));
     }
 
     private sendToPlanet = (name: string): void => {
-        this.props.history.push(routes.Planet(this.props.appState.titleId, this.props.appState.playerId, name));
+        this.props.history.push(routes.Planet(this.props.appState.titleId, name));
     }
 }
 

@@ -55,11 +55,6 @@ export const withAppState = <P extends IWithAppStateProps>(Component: React.Comp
                 PlayFab.settings.titleId = params.titleid;
                 this.context.dispatch(actionSetTitleId(params.titleid));
             }
-            
-            // This was setting playerid to null immediately after we logged in. Super bad.
-            if(!is.null(params.playerid) && params.playerid !== this.context.appState.playerId) {
-                this.context.dispatch(actionSetPlayerId(params.playerid));
-            }
         }
     }
 }

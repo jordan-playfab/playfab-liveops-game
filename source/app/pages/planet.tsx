@@ -43,8 +43,12 @@ class PlanetPageBase extends React.Component<Props, IState> {
     }
 
     public render(): React.ReactNode {
-        if(!this.isValid()) {
-            return <Redirect to={routes.Index()} />;
+        if(!this.props.appState.hasTitleId) {
+            return null;
+        }
+        
+        if(!this.props.appState.hasPlayerId) {
+            return (<Redirect to={routes.Login(this.props.appState.titleId)} />);
         }
 
         return (
@@ -222,10 +226,6 @@ class PlanetPageBase extends React.Component<Props, IState> {
         });
     }
 
-    private isValid(): boolean {
-        return this.props.appState.hasTitleId && this.props.appState.hasPlayerId;
-    }
-
     private getPlanetData(): IPlanetData {
         const planetName = this.getPlanetName();
 
@@ -253,7 +253,7 @@ class PlanetPageBase extends React.Component<Props, IState> {
 
         const breadcrumbs: IBreadcrumbRoute[] = [{
             text: planetName,
-            href: routes.Planet(this.props.appState.titleId, this.props.appState.playerId, planetName),
+            href: routes.Planet(this.props.appState.titleId, planetName),
             onClick: is.null(this.state.areaName)
                 ? null
                 : () => {

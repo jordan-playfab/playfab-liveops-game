@@ -5,7 +5,7 @@ import { routeNames } from "./routes";
 import { IWithAppStateProps, withAppState } from "./containers/with-app-state";
 
 import { IndexPage } from "./pages";
-import { LoginPage } from "./pages/player";
+import { LoginPage } from "./pages/login";
 import { PlanetPage } from "./pages/planet";
 import { NotFoundPage } from "./pages/not-found";
 import { HomeBasePage } from "./pages/home-base";
