@@ -7,6 +7,7 @@ import { RouteComponentProps } from "react-router";
 import { routes } from "../routes";
 import { is } from "../shared/is";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
+import { actionSetTitleId, actionSetPlayerId } from "../store/actions";
 
 const MainTag = styled.main`
     width: 85%;
@@ -33,9 +34,17 @@ export interface IBreadcrumbRoute {
     onClick?: () => void;
 }
 
-type Props = IProps & RouteComponentProps & IWithAppStateProps;
+type Props = IProps & RouteComponentProps<any> & IWithAppStateProps;
 
 class PageBase extends React.PureComponent<Props> {
+	public componentDidMount(): void {
+		this.checkForURIParameters();
+	}
+
+	public componentDidUpdate(): void {
+		this.checkForURIParameters();
+	}
+
     public render(): React.ReactNode {
         return (
             <MainTag>
@@ -62,7 +71,7 @@ class PageBase extends React.PureComponent<Props> {
                 text: "Director",
                 key: "director",
                 onClick: this.onBreadcrumbClicked,
-                href: routes.Player,
+                href: routes.Guide(this.props.appState.titleId, this.props.appState.playerId),
             }]
             .concat(this.props.breadcrumbs.map((b, index) => ({
                     key: index.toString(),
@@ -104,6 +113,16 @@ class PageBase extends React.PureComponent<Props> {
 
         this.props.history.push(item.href);
     }
+
+	private checkForURIParameters(): void {
+		if(this.props.match.params.titleid !== this.props.appState.titleId) {
+			this.props.dispatch(actionSetTitleId(this.props.match.params.titleid));
+		}
+		
+		if(this.props.match.params.playerid !== this.props.appState.playerId) {
+			this.props.dispatch(actionSetPlayerId(this.props.match.params.playerid));
+		}
+	}
 }
 
 export const Page = withAppState(PageBase);

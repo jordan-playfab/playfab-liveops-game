@@ -51,7 +51,7 @@ class DownloadPageBase extends React.PureComponent<Props, IState> {
 
     public render(): React.ReactNode {
         if(!this.props.appState.hasTitleId) {
-            return <Redirect to={routes.Home} />;
+            return <Redirect to={routes.Index()} />;
         }
 
         return (

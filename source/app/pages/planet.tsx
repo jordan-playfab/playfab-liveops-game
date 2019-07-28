@@ -44,7 +44,7 @@ class PlanetPageBase extends React.Component<Props, IState> {
 
     public render(): React.ReactNode {
         if(!this.isValid()) {
-            return <Redirect to={routes.Home} />;
+            return <Redirect to={routes.Index()} />;
         }
 
         return (
@@ -252,7 +252,7 @@ class PlanetPageBase extends React.Component<Props, IState> {
 
         const breadcrumbs: IBreadcrumbRoute[] = [{
             text: planetName,
-            href: routes.Planet.replace(":name", planetName),
+            href: routes.Planet(this.props.appState.titleId, this.props.appState.playerId, planetName),
             onClick: is.null(this.state.areaName)
                 ? null
                 : () => {

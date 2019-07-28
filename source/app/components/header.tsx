@@ -58,7 +58,6 @@ class HeaderBase extends React.PureComponent<Props> {
 
     private resetTitleId = (): void => {
         PlayFab.settings.titleId = null;
-        utilities.setTitleId(null);
         this.props.dispatch(actionSetTitleId(null));
     }
 }

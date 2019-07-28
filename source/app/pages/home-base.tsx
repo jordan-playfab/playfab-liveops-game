@@ -41,7 +41,7 @@ class HomeBasePageBase extends React.Component<Props, IState> {
 
     public render(): React.ReactNode {
         if(!this.isValid()) {
-            return <Redirect to={routes.Home} />;
+            return <Redirect to={routes.Index()} />;
         }
 
         const store = this.getStore();
@@ -156,7 +156,7 @@ class HomeBasePageBase extends React.Component<Props, IState> {
     private getBreadcrumbs(): IBreadcrumbRoute[] {
         const breadcrumbs: IBreadcrumbRoute[] = [{
             text: "Home Base",
-            href: routes.HomeBase,
+            href: routes.Headquarters(this.props.appState.titleId, this.props.appState.playerId),
             onClick: is.null(this.state.selectedStore)
                 ? null
                 : () => {

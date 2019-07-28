@@ -56,7 +56,7 @@ class PlayerPageBase extends React.Component<Props, IState> {
 
     public render(): React.ReactNode {
         if(!this.isValid()) {
-            return <Redirect to={routes.Home} />;
+            return <Redirect to={routes.Index()} />;
         }
 
         return (
@@ -122,11 +122,11 @@ class PlayerPageBase extends React.Component<Props, IState> {
     }
 
     private sendToHomeBase = (): void => {
-        this.props.history.push(routes.HomeBase);
+        this.props.history.push(routes.Headquarters(this.props.appState.titleId, this.props.appState.playerId));
     }
 
     private sendToPlanet = (name: string): void => {
-        this.props.history.push(routes.Planet.replace(":name", name));
+        this.props.history.push(routes.Planet(this.props.appState.titleId, this.props.appState.playerId, name));
     }
 
     private setLocalPlayerID = (_: any, newValue: string): void => {

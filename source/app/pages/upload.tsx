@@ -48,7 +48,7 @@ class UploadPageBase extends React.Component<Props, IState> {
 
     public render(): React.ReactNode {
         if(!this.isValid()) {
-            return <Redirect to={routes.Home} />;
+            return <Redirect to={routes.Index()} />;
         }
 
         return (
@@ -102,7 +102,7 @@ class UploadPageBase extends React.Component<Props, IState> {
             return (
                 <React.Fragment>
                     <h2>All done!</h2>
-                    <PrimaryButton text="Play game" onClick={this.goToPage.bind(this, routes.Player)} />
+                    <PrimaryButton text="Play game" onClick={this.goToPage.bind(this, routes.Guide)} />
                 </React.Fragment>
             );
         }
