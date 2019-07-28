@@ -26,6 +26,7 @@ const DivPage = styled.div`
 interface IProps {
     title?: string;
     breadcrumbs?: IBreadcrumbRoute[];
+    shouldShowPlayerInfo?: boolean;
 }
 
 export interface IBreadcrumbRoute {
@@ -37,6 +38,10 @@ export interface IBreadcrumbRoute {
 type Props = IProps & RouteComponentProps<any> & IWithAppStateProps;
 
 class PageBase extends React.PureComponent<Props> {
+    public static defaultProps: Partial<Props> = {
+        shouldShowPlayerInfo: false,
+    }
+
 	public componentDidMount(): void {
 		this.checkForURIParameters();
 	}
@@ -49,7 +54,9 @@ class PageBase extends React.PureComponent<Props> {
         return (
             <MainTag>
                 <Header {...this.props} />
-                <Player />
+                {this.props.shouldShowPlayerInfo && (
+                    <Player />
+                )}
                 <DivPage>
                     {this.renderBreadcrumbs()}
                     {!is.null(this.props.title) && (

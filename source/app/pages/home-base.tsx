@@ -53,6 +53,7 @@ class HomeBasePageBase extends React.Component<Props, IState> {
                 title={is.null(store)
                     ? "Welcome to Home Base"
                     : store.MarketingData.DisplayName}
+                shouldShowPlayerInfo
             >
                 {this.renderStores()}
             </Page>

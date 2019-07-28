@@ -52,6 +52,7 @@ class PlanetPageBase extends React.Component<Props, IState> {
                 {...this.props}
                 title={this.getPageTitle()}
                 breadcrumbs={this.getBreadcrumbs()}
+                shouldShowPlayerInfo
             >
                 {this.renderPlanet()}
             </Page>

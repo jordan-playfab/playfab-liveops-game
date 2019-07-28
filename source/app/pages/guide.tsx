@@ -20,6 +20,7 @@ class GuidePageBase extends React.Component<Props> {
             <Page
                 {...this.props}
                 title="Guide"
+                shouldShowPlayerInfo
             >
                 {this.renderPlanetMenu()}
             </Page>
