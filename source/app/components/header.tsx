@@ -5,7 +5,8 @@ import { is } from "../shared/is";
 import styled from "../styles";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { actionSetTitleId } from "../store/actions";
-import { utilities } from "../shared/utilities";
+import { RouteComponentProps } from "react-router-dom";
+import { routes } from "../routes";
 
 const HeaderWrapper = styled.header`
     position: relative;
@@ -37,7 +38,7 @@ const ButtonReset = styled(DefaultButton)`
     margin-top: 0.2em;
 `;
 
-type Props = IWithAppStateProps;
+type Props = RouteComponentProps<any> & IWithAppStateProps;
 
 class HeaderBase extends React.PureComponent<Props> {
     public render(): React.ReactNode {
@@ -59,6 +60,7 @@ class HeaderBase extends React.PureComponent<Props> {
     private resetTitleId = (): void => {
         PlayFab.settings.titleId = null;
         this.props.dispatch(actionSetTitleId(null));
+        this.props.history.push(routes.Index());
     }
 }
 

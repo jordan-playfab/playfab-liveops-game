@@ -1,8 +1,9 @@
 import React from "react";
+import { Dispatch } from "redux";
+import { connect } from "react-redux";
+
 import { IApplicationState, IAction } from "../store/types";
 import { AppStateProvider, IWithAppStateProps } from "./with-app-state";
-import { connect } from "react-redux";
-import { Dispatch } from "redux";
 
 interface IPropsFromState {
     appState: IApplicationState;

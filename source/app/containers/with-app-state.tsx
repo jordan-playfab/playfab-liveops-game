@@ -1,7 +1,11 @@
-import { IApplicationState } from "../store/types";
 import React from "react";
 import { Dispatch } from "redux";
-import { IEquipItemInstanceRequest, IEquipItemRequest } from "../../cloud-script/main";
+import { RouteComponentProps } from "react-router";
+
+import { IApplicationState } from "../store/types";
+import { IEquipItemInstanceRequest } from "../../cloud-script/main";
+import { actionSetTitleId, actionSetPlayerId } from "../store/actions";
+import { is } from "../shared/is";
 
 const AppStateContext = React.createContext<IWithAppStateProps>(null);
 export const AppStateProvider = AppStateContext.Provider;
@@ -27,6 +31,35 @@ export const withAppState = <P extends IWithAppStateProps>(Component: React.Comp
                     dispatch={this.context.dispatch}
                 />
             );
+        }
+
+        public componentDidMount(): void {
+            this.checkForURIParameters();
+        }
+
+        public componentDidUpdate(): void {
+            this.checkForURIParameters();
+        }
+
+        private checkForURIParameters(): void {
+            // I'm cheating, but I can't figure out how to tell this HOC that there
+            // *might* be RouteComponentProps coming in from the parent component.
+            // Got an idea that'll compile? Send in a pull request!
+            if(is.null((this.props as any).match) || is.null((this.props as any).match.params)) {
+                return;
+            }
+
+            const params = (this.props as any).match.params;
+
+            if(params.titleid !== this.context.appState.titleId) {
+                PlayFab.settings.titleId = params.titleid;
+                this.context.dispatch(actionSetTitleId(params.titleid));
+            }
+            
+            // This was setting playerid to null immediately after we logged in. Super bad.
+            if(!is.null(params.playerid) && params.playerid !== this.context.appState.playerId) {
+                this.context.dispatch(actionSetPlayerId(params.playerid));
+            }
         }
     }
 }

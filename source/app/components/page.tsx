@@ -48,7 +48,7 @@ class PageBase extends React.PureComponent<Props> {
     public render(): React.ReactNode {
         return (
             <MainTag>
-                <Header />
+                <Header {...this.props} />
                 <Player />
                 <DivPage>
                     {this.renderBreadcrumbs()}
@@ -116,10 +116,12 @@ class PageBase extends React.PureComponent<Props> {
 
 	private checkForURIParameters(): void {
 		if(this.props.match.params.titleid !== this.props.appState.titleId) {
+            PlayFab.settings.titleId = this.props.match.params.titleid;
 			this.props.dispatch(actionSetTitleId(this.props.match.params.titleid));
 		}
-		
-		if(this.props.match.params.playerid !== this.props.appState.playerId) {
+        
+        // This was setting playerid to null immediately after we logged in. Super bad.
+		if(!is.null(this.props.match.params.playerid) && this.props.match.params.playerid !== this.props.appState.playerId) {
 			this.props.dispatch(actionSetPlayerId(this.props.match.params.playerid));
 		}
 	}

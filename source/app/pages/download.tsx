@@ -9,6 +9,7 @@ import { PROGRESS_STAGES, CATALOG_VERSION, TITLE_DATA_STORES } from "../shared/t
 import { PlayFabHelper } from "../shared/playfab";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { withPage, IWithPageProps } from "../containers/with-page";
+import { Link } from "react-router-dom";
 
 interface IState {
     secretKey: string;
@@ -51,11 +52,12 @@ class DownloadPageBase extends React.PureComponent<Props, IState> {
 
     public render(): React.ReactNode {
         if(!this.props.appState.hasTitleId) {
-            return <Redirect to={routes.Index()} />;
+            return null;
         }
 
         return (
             <Page {...this.props} title="Download Data">
+                <p><Link to={routes.MainMenu(this.props.appState.titleId)}>&laquo; Back to main menu</Link></p>
                 {!is.null(this.props.pageError) && (
                     <MessageBar messageBarType={MessageBarType.error}>{this.props.pageError}</MessageBar>
                 )}

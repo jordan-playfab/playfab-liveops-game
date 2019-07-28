@@ -16,6 +16,7 @@ import CloudScript from "../../data/cloud-script.json";
 import DropTables from "../../data/drop-tables.json";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { IWithPageProps, withPage } from "../containers/with-page";
+import { Link } from "react-router-dom";
 
 interface IState {
     secretKey: string;
@@ -47,12 +48,13 @@ class UploadPageBase extends React.Component<Props, IState> {
     }
 
     public render(): React.ReactNode {
-        if(!this.isValid()) {
-            return <Redirect to={routes.Index()} />;
+        if(!this.props.appState.hasTitleId) {
+            return null;
         }
 
         return (
             <Page {...this.props} title="Upload Data">
+                <p><Link to={routes.MainMenu(this.props.appState.titleId)}>&laquo; Back to main menu</Link></p>
                 {!is.null(this.props.pageError) && (
                     <MessageBar messageBarType={MessageBarType.error}>{this.props.pageError}</MessageBar>
                 )}
@@ -199,10 +201,6 @@ class UploadPageBase extends React.Component<Props, IState> {
                 this.advanceUpload();
             }
         });
-    }
-
-    private isValid(): boolean {
-        return this.props.appState.hasTitleId;
     }
 }
 

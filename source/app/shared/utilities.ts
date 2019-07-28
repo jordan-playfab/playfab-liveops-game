@@ -11,7 +11,7 @@ function formatRoute(original: string, ...args: string[]): string {
         return "";
     }
 
-    const replaceRegEx = new RegExp("((?:\:)[a-z]+)", "g");
+    const replaceRegEx = new RegExp("((?:\:)[a-z]+)");
 
     let returnString = original;
 
