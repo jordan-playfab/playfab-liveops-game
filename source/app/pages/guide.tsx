@@ -17,7 +17,7 @@ class GuidePageBase extends React.Component<Props> {
         }
 
         if(!this.props.appState.hasPlayerId) {
-            return (<Redirect to={routes.Login(this.props.appState.titleId)} />);
+            return (<Redirect to={routes.MainMenu(this.props.appState.titleId)} />);
         }
 
         return (
