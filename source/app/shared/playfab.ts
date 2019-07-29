@@ -1,16 +1,13 @@
-/// <reference path="../../../node_modules/playfab-web-sdk/src/Typings/PlayFab/PlayFabClientApi.d.ts" />
-/// <reference path="../../../node_modules/playfab-web-sdk/src/Typings/PlayFab/PlayFabAdminApi.d.ts" />
 import "playfab-web-sdk/src/PlayFab/PlayFabClientApi.js";
 import "playfab-web-sdk/src/PlayFab/PlayFabAdminApi.js";
-import { IRouterProps } from "../router";
-import { IStringDictionary, CATALOG_VERSION, TITLE_DATA_STORES } from "./types";
+
+import { IStringDictionary } from "./types";
 import { is } from "./is";
 
-
-function login(props: IRouterProps, customID: string, success: (data: PlayFabClientModels.LoginResult) => void, error: (message: string) => void): void {
+function LoginWithCustomID(titleId: string, customId: string, success: (data: PlayFabClientModels.LoginResult) => void, error: (message: string) => void): void {
     PlayFab.ClientApi.LoginWithCustomID({
-        TitleId: props.titleID,
-        CustomId: customID,
+        TitleId: titleId,
+        CustomId: customId,
         CreateAccount: true,
     }, (result, problem) => {
         if(!is.null(problem)) {
@@ -18,11 +15,6 @@ function login(props: IRouterProps, customID: string, success: (data: PlayFabCli
         }
 
         if(result.code === 200) {
-            if(result.data.NewlyCreated) {
-                // Doesn't matter if it succeeds or fails
-                updateDisplayName(customID, () => {}, () => {});
-            }
-
             success(result.data);
         }
         else {
@@ -31,9 +23,9 @@ function login(props: IRouterProps, customID: string, success: (data: PlayFabCli
     });
 }
 
-function updateDisplayName(customID: string, success: (data: PlayFabClientModels.UpdateUserTitleDisplayNameResult) => void, error: (message: string) => void): void {
+function UpdateUserTitleDisplayName(displayName: string, success: (data: PlayFabClientModels.UpdateUserTitleDisplayNameResult) => void, error: (message: string) => void): void {
     PlayFab.ClientApi.UpdateUserTitleDisplayName({
-        DisplayName: customID,
+        DisplayName: displayName,
     }, (result, problem) => {
         if(!is.null(problem)) {
             return error(problem.errorMessage);
@@ -48,7 +40,7 @@ function updateDisplayName(customID: string, success: (data: PlayFabClientModels
     })
 }
 
-function getInventory(success: (data: PlayFabClientModels.GetUserInventoryResult) => void, error: (message: string) => void) {
+function GetUserInventory(success: (data: PlayFabClientModels.GetUserInventoryResult) => void, error: (message: string) => void) {
     PlayFab.ClientApi.GetUserInventory({},
         (result, problem) => {
             if(!is.null(problem)) {
@@ -65,7 +57,7 @@ function getInventory(success: (data: PlayFabClientModels.GetUserInventoryResult
     );
 }
 
-function getTitleData(keys: string[], success: (data: IStringDictionary) => void, error: (message: string) => void): void {
+function GetTitleData(keys: string[], success: (data: IStringDictionary) => void, error: (message: string) => void): void {
     PlayFab.ClientApi.GetTitleData({
         Keys: keys,
     }, (result, problem) => {
@@ -82,7 +74,7 @@ function getTitleData(keys: string[], success: (data: IStringDictionary) => void
     });
 }
 
-function getStatistics(keys: string[], success: (data: PlayFabClientModels.StatisticValue[]) => void, error: (message: string) => void): void {
+function GetPlayerStatistics(keys: string[], success: (data: PlayFabClientModels.StatisticValue[]) => void, error: (message: string) => void): void {
     PlayFab.ClientApi.GetPlayerStatistics({
         StatisticNames: keys,
     }, (result, problem) => {
@@ -99,7 +91,7 @@ function getStatistics(keys: string[], success: (data: PlayFabClientModels.Stati
     });
 }
 
-function updateStatistic(statistic: string, amount: number, success: (data: PlayFabClientModels.UpdatePlayerStatisticsResult) => void, error: (message: string) => void): void {
+function UpdatePlayerStatistics(statistic: string, amount: number, success: (data: PlayFabClientModels.UpdatePlayerStatisticsResult) => void, error: (message: string) => void): void {
     PlayFab.ClientApi.UpdatePlayerStatistics({
         Statistics: [{
             StatisticName: statistic,
@@ -119,10 +111,10 @@ function updateStatistic(statistic: string, amount: number, success: (data: Play
     });
 }
 
-function executeCloudScript(functionName: string, args: any, success: (data: PlayFabClientModels.ExecuteCloudScriptResult) => void, error: (message: string) => void): void {
+function ExecuteCloudScript(functionName: string, functionParameter: any, success: (data: PlayFabClientModels.ExecuteCloudScriptResult) => void, error: (message: string) => void): void {
     PlayFab.ClientApi.ExecuteCloudScript({
         FunctionName: functionName,
-        FunctionParameter: args,
+        FunctionParameter: functionParameter,
     }, (result, problem) => {
         if(!is.null(problem)) {
             return error(problem.errorMessage);
@@ -142,44 +134,30 @@ function executeCloudScript(functionName: string, args: any, success: (data: Pla
     })
 }
 
-function getStores(success: (data: PlayFabClientModels.GetStoreItemsResult[]) => void, error: (message: string) => void): void {
-    const stores: PlayFabClientModels.GetStoreItemsResult[] = [];
+function GetStoreItems(catalogVersion: string, storeId: string, success: (data: PlayFabClientModels.GetStoreItemsResult) => void, error: (message: string) => void): void {
+    PlayFab.ClientApi.GetStoreItems({
+        CatalogVersion: catalogVersion,
+        StoreId: storeId,
+    }, (result, problem) => {
+        if(!is.null(problem)) {
+            return error(problem.errorMessage);
+        }
 
-    getTitleData([TITLE_DATA_STORES], (data) => {
-        const storeNames = JSON.parse(data[TITLE_DATA_STORES]) as string[];
-
-        storeNames.forEach((storeName) => {
-            PlayFab.ClientApi.GetStoreItems({
-                CatalogVersion: CATALOG_VERSION,
-                StoreId: storeName,
-            }, (result, problem) => {
-                if(!is.null(problem)) {
-                    return error(problem.errorMessage);
-                }
-
-                if(result.code === 200) {
-                    stores.push(result.data);
-
-                    if(stores.length === storeNames.length) {
-                        success(stores);
-                    }
-                }
-                else {
-                    error(result.errorMessage);
-                }
-            });
-        })
-    }, (error) => {
-        // TODO: Nothing
+        if(result.code === 200) {
+            success(result.data);
+        }
+        else {
+            error(result.errorMessage);
+        }
     });
 }
 
-function buyFromStore(storeID: string, itemID: string, currency: string, price: number, success: (data: PlayFabClientModels.PurchaseItemResult) => void, error: (message: string) => void): void {
+function PurchaseItem(catalogVersion: string, storeId: string, itemId: string, currency: string, price: number, success: (data: PlayFabClientModels.PurchaseItemResult) => void, error: (message: string) => void): void {
     PlayFab.ClientApi.PurchaseItem({
-        CatalogVersion: CATALOG_VERSION,
-        ItemId: itemID,
+        CatalogVersion: catalogVersion,
+        ItemId: itemId,
         Price: price,
-        StoreId: storeID,
+        StoreId: storeId,
         VirtualCurrency: currency,
     }, (result, errorResult) => {
         if(is.null(result)) {
@@ -196,9 +174,9 @@ function buyFromStore(storeID: string, itemID: string, currency: string, price: 
     })
 }
 
-function getCatalog(success: (data: PlayFabClientModels.CatalogItem[]) => void, error: (message: string) => void): void {
+function GetCatalogItems(catalogVersion: string, success: (data: PlayFabClientModels.CatalogItem[]) => void, error: (message: string) => void): void {
     PlayFab.ClientApi.GetCatalogItems({
-        CatalogVersion: CATALOG_VERSION,
+        CatalogVersion: catalogVersion,
     }, (result, problem) => {
         if(!is.null(problem)) {
             return error(problem.errorMessage);
@@ -213,7 +191,7 @@ function getCatalog(success: (data: PlayFabClientModels.CatalogItem[]) => void, 
     })
 }
 
-function adminAddVirtualCurrencies(secretKey: string, currencies: PlayFabAdminModels.VirtualCurrencyData[], success: () => void, error: (message: string) => void): void {
+function AdminAPIAddVirtualCurrencyTypes(secretKey: string, currencies: PlayFabAdminModels.VirtualCurrencyData[], success: () => void, error: (message: string) => void): void {
     PlayFab.settings.developerSecretKey = secretKey;
 
     PlayFab.AdminApi.AddVirtualCurrencyTypes({
@@ -234,7 +212,7 @@ function adminAddVirtualCurrencies(secretKey: string, currencies: PlayFabAdminMo
     });
 }
 
-function adminSetCatalogItems(secretKey: string, items: PlayFabAdminModels.CatalogItem[], catalogVersion: string, setAsDefault: boolean, success: () => void, error: (message: string) => void): void {
+function AdminAPISetCatalogItems(secretKey: string, items: PlayFabAdminModels.CatalogItem[], catalogVersion: string, setAsDefault: boolean, success: () => void, error: (message: string) => void): void {
     PlayFab.settings.developerSecretKey = secretKey;
 
     PlayFab.AdminApi.SetCatalogItems({
@@ -257,7 +235,7 @@ function adminSetCatalogItems(secretKey: string, items: PlayFabAdminModels.Catal
     });
 }
 
-function adminSetStoreItems(secretKey: string, storeID: string, store: PlayFabAdminModels.StoreItem[], storeMarketing: PlayFabAdminModels.StoreMarketingModel, catalogVersion: string, success: () => void, error: (message: string) => void): void {
+function AdminAPISetStoreItems(secretKey: string, storeID: string, store: PlayFabAdminModels.StoreItem[], storeMarketing: PlayFabAdminModels.StoreMarketingModel, catalogVersion: string, success: () => void, error: (message: string) => void): void {
     PlayFab.settings.developerSecretKey = secretKey;
 
     PlayFab.AdminApi.SetStoreItems({
@@ -281,7 +259,7 @@ function adminSetStoreItems(secretKey: string, storeID: string, store: PlayFabAd
     });
 }
 
-function adminSetTitleData(secretKey: string, key: string, value: string, success: () => void, error: (message: string) => void): void {
+function AdminAPISetTitleData(secretKey: string, key: string, value: string, success: () => void, error: (message: string) => void): void {
     PlayFab.settings.developerSecretKey = secretKey;
 
     PlayFab.AdminApi.SetTitleData({
@@ -303,7 +281,7 @@ function adminSetTitleData(secretKey: string, key: string, value: string, succes
     });
 }
 
-function adminUpdateCloudScript(secretKey: string, file: string, publish: boolean, success: () => void, error: (message: string) => void): void {
+function AdminAPIUpdateCloudScript(secretKey: string, file: string, publish: boolean, success: () => void, error: (message: string) => void): void {
     PlayFab.settings.developerSecretKey = secretKey;
 
     PlayFab.AdminApi.UpdateCloudScript({
@@ -328,7 +306,7 @@ function adminUpdateCloudScript(secretKey: string, file: string, publish: boolea
     });
 }
 
-function adminUpdateDropTables(secretKey: string, tables: PlayFabAdminModels.RandomResultTable[], catalogVersion: string, success: () => void, error: (message: string) => void): void {
+function AdminAPIUpdateRandomResultTables(secretKey: string, tables: PlayFabAdminModels.RandomResultTable[], catalogVersion: string, success: () => void, error: (message: string) => void): void {
     PlayFab.settings.developerSecretKey = secretKey;
 
     PlayFab.AdminApi.UpdateRandomResultTables({
@@ -350,7 +328,7 @@ function adminUpdateDropTables(secretKey: string, tables: PlayFabAdminModels.Ran
     });
 }
 
-function adminListVirtualCurrency(secretKey: string, success: (data: PlayFabAdminModels.ListVirtualCurrencyTypesResult) => void, error: (message: string) => void): void {
+function AdminAPIListVirtualCurrencyTypes(secretKey: string, success: (data: PlayFabAdminModels.ListVirtualCurrencyTypesResult) => void, error: (message: string) => void): void {
     PlayFab.settings.developerSecretKey = secretKey;
 
     PlayFab.AdminApi.ListVirtualCurrencyTypes({
@@ -371,7 +349,7 @@ function adminListVirtualCurrency(secretKey: string, success: (data: PlayFabAdmi
     });
 }
 
-function adminGetCatalogItems(secretKey: string, catalogVersion: string, success: (data: PlayFabAdminModels.GetCatalogItemsResult) => void, error: (message: string) => void): void {
+function AdminAPIGetCatalogItems(secretKey: string, catalogVersion: string, success: (data: PlayFabAdminModels.GetCatalogItemsResult) => void, error: (message: string) => void): void {
     PlayFab.settings.developerSecretKey = secretKey;
 
     PlayFab.AdminApi.GetCatalogItems({
@@ -393,7 +371,7 @@ function adminGetCatalogItems(secretKey: string, catalogVersion: string, success
     });
 }
 
-function adminGetRandomResultTables(secretKey: string, catalogVersion: string, success: (data: PlayFabAdminModels.GetRandomResultTablesResult) => void, error: (message: string) => void): void {
+function AdminAPIGetRandomResultTables(secretKey: string, catalogVersion: string, success: (data: PlayFabAdminModels.GetRandomResultTablesResult) => void, error: (message: string) => void): void {
     PlayFab.settings.developerSecretKey = secretKey;
 
     PlayFab.AdminApi.GetRandomResultTables({
@@ -415,7 +393,7 @@ function adminGetRandomResultTables(secretKey: string, catalogVersion: string, s
     });
 }
 
-function adminGetStores(secretKey: string, catalogVersion: string, storeID: string, success: (data: PlayFabAdminModels.GetStoreItemsResult) => void, error: (message: string) => void): void {
+function AdminAPIGetStoreItems(secretKey: string, catalogVersion: string, storeID: string, success: (data: PlayFabAdminModels.GetStoreItemsResult) => void, error: (message: string) => void): void {
     PlayFab.settings.developerSecretKey = secretKey;
 
     PlayFab.AdminApi.GetStoreItems({
@@ -438,7 +416,7 @@ function adminGetStores(secretKey: string, catalogVersion: string, storeID: stri
     });
 }
 
-function adminGetTitleData(secretKey: string, keys: string[], success: (data: PlayFabAdminModels.GetTitleDataResult) => void, error: (message: string) => void): void {
+function AdminAPIGetTitleData(secretKey: string, keys: string[], success: (data: PlayFabAdminModels.GetTitleDataResult) => void, error: (message: string) => void): void {
     PlayFab.settings.developerSecretKey = secretKey;
 
     PlayFab.AdminApi.GetTitleData({
@@ -460,7 +438,7 @@ function adminGetTitleData(secretKey: string, keys: string[], success: (data: Pl
     });
 }
 
-function adminGetCloudScriptRevision(secretKey: string, version: number, revision: number, success: (data: PlayFabAdminModels.GetCloudScriptRevisionResult) => void, error: (message: string) => void): void {
+function AdminAPIGetCloudScriptRevision(secretKey: string, version: number, revision: number, success: (data: PlayFabAdminModels.GetCloudScriptRevisionResult) => void, error: (message: string) => void): void {
     PlayFab.settings.developerSecretKey = secretKey;
 
     PlayFab.AdminApi.GetCloudScriptRevision({
@@ -484,25 +462,26 @@ function adminGetCloudScriptRevision(secretKey: string, version: number, revisio
 }
 
 export const PlayFabHelper = {
-    login,
-    getTitleData,
-    updateStatistic,
-    executeCloudScript,
-    getStatistics,
-    getInventory,
-    getStores,
-    buyFromStore,
-    getCatalog,
-    adminAddVirtualCurrencies,
-    adminSetCatalogItems,
-    adminSetStoreItems,
-    adminSetTitleData,
-    adminUpdateCloudScript,
-    adminUpdateDropTables,
-    adminListVirtualCurrency,
-    adminGetCatalogItems,
-    adminGetRandomResultTables,
-    adminGetStores,
-    adminGetTitleData,
-    adminGetCloudScriptRevision
+    LoginWithCustomID,
+    UpdateUserTitleDisplayName,
+    GetTitleData,
+    UpdatePlayerStatistics,
+    ExecuteCloudScript,
+    GetPlayerStatistics,
+    GetUserInventory,
+    GetStoreItems,
+    PurchaseItem,
+    GetCatalogItems,
+    AdminAPIAddVirtualCurrencyTypes,
+    AdminAPISetCatalogItems,
+    AdminAPISetStoreItems,
+    AdminAPISetTitleData,
+    AdminAPIUpdateCloudScript,
+    AdminAPIUpdateRandomResultTables,
+    AdminAPIListVirtualCurrencyTypes,
+    AdminAPIGetCatalogItems,
+    AdminAPIGetRandomResultTables,
+    AdminAPIGetStoreItems,
+    AdminAPIGetTitleData,
+    AdminAPIGetCloudScriptRevision
 };

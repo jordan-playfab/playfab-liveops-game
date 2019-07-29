@@ -1,14 +1,14 @@
-import * as React from "react";
+import React from "react";
 import { is } from "../shared/is";
 import { VC_CREDITS } from "../shared/types";
 import styled, { UlNull } from "../styles";
 import { Callout, DirectionalHint } from 'office-ui-fabric-react/lib/Callout';
 import { DefaultButton } from "office-ui-fabric-react";
-
-interface IProps {
-    playerName: string;
-    inventory: PlayFabClientModels.GetUserInventoryResult;
-}
+import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
+import { IWithPageProps, withPage } from "../containers/with-page";
+import { actionSetEquipmentSingle } from "../store/actions";
+import { getSlotTypeFromItemClass } from "../store/types";
+import { CloudScriptHelper } from "../shared/cloud-script";
 
 interface IState {
     isInventoryVisible: boolean;
@@ -19,7 +19,7 @@ const DivPlayerWrapper = styled.div`
     flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 2px solid ${s => s.theme.colorBorder200};
+    border-bottom: 2px solid ${s => s.theme.color.border200};
     padding: 0.5em 0;
 `;
 
@@ -53,10 +53,12 @@ const UlInventory = styled(UlNull)`
     }
 `;
 
-export class Player extends React.Component<IProps, IState> {
+type Props = IWithAppStateProps & IWithPageProps;
+
+class PlayerBase extends React.Component<Props, IState> {
     private menuButtonElement = React.createRef<HTMLDivElement>();
 
-    constructor(props: IProps) {
+    constructor(props: Props) {
         super(props);
 
         this.state = {
@@ -65,14 +67,14 @@ export class Player extends React.Component<IProps, IState> {
     }
 
     public render(): React.ReactNode {
-        if(is.null(this.props.playerName)) {
+        if(is.null(this.props.appState.playerName)) {
             return null;
         }
 
         return (
             <DivPlayerWrapper>
                 <DivPlayerName>
-                    <h3>{this.props.playerName}</h3>
+                    <h3>{this.props.appState.playerName} ({this.props.appState.playerHP} HP)</h3>
                 </DivPlayerName>
                 {this.renderCredits()}
                 {this.renderInventory()}
@@ -83,17 +85,17 @@ export class Player extends React.Component<IProps, IState> {
     private renderCredits(): React.ReactNode {
         let credits = 0;
 
-        if(!is.null(this.props.inventory) && !is.null(this.props.inventory.VirtualCurrency)) {
-            credits = this.props.inventory.VirtualCurrency[VC_CREDITS] || 0;
+        if(!is.null(this.props.appState.inventory) && !is.null(this.props.appState.inventory.VirtualCurrency)) {
+            credits = this.props.appState.inventory.VirtualCurrency[VC_CREDITS] || 0;
         }
 
         return (
-            <div>Credits: <strong>{credits}</strong></div>
+            <div>Credits: <strong>{credits}</strong> &middot; Level: <strong>{this.props.appState.playerLevel}</strong> &middot; XP: {this.props.appState.playerXP}</div>
         );
     }
 
     private renderInventory(): React.ReactNode {
-        if(is.null(this.props.inventory) || is.null(this.props.inventory.Inventory)) {
+        if(is.null(this.props.appState.inventory) || is.null(this.props.appState.inventory.Inventory) || is.null(this.props.appState.equipment)) {
             return (
                 <DivPlayerInventory>
                     <ButtonInventory text="No inventory" />
@@ -109,6 +111,19 @@ export class Player extends React.Component<IProps, IState> {
             ? this.hideInventory
             : this.showInventory;
 
+        const equippedItemInstanceIds = is.null(this.props.appState.equipment)
+                ? []
+                : Object.keys(this.props.appState.equipment).map(key => {
+                        // Ensure the instance ID actually exists
+                        const equipmentItem = this.props.appState.equipment[key];
+
+                        if(is.null(equipmentItem)) {
+                            return "";
+                        }
+                        
+                        return this.props.appState.equipment[key].ItemInstanceId;
+                });
+
         return (
             <DivPlayerInventory ref={this.menuButtonElement}>
                 <ButtonInventory text={buttonText} onClick={buttonEvent} />
@@ -120,8 +135,12 @@ export class Player extends React.Component<IProps, IState> {
                     directionalHint={DirectionalHint.bottomRightEdge}
                 >
                     <UlInventory>
-                        {this.props.inventory.Inventory.map((i, index) => (
-                            <li key={index}>{i.DisplayName}</li>
+                        {this.props.appState.inventory.Inventory.map((item, index) => (
+                            <li key={index}>
+                                {is.inArray(equippedItemInstanceIds, item.ItemInstanceId)
+                                    ? (<React.Fragment>{item.DisplayName} (equipped)</React.Fragment>)
+                                    : (<button onClick={this.equipItem.bind(this, item)}>{item.DisplayName}</button>)}
+                            </li>
                         ))}
                     </UlInventory>
                 </Callout>
@@ -140,4 +159,21 @@ export class Player extends React.Component<IProps, IState> {
             isInventoryVisible: false,
         })
     }
+
+    private equipItem = (item: PlayFabClientModels.ItemInstance): void => {
+        if(is.null(item)) {
+            // This shouldn't be possible
+            return;
+        }
+
+        const slot = getSlotTypeFromItemClass(item.ItemClass);
+        this.props.dispatch(actionSetEquipmentSingle(item, slot));
+
+        CloudScriptHelper.equipItem([{
+            itemInstanceId: item.ItemInstanceId,
+            slot
+        }], this.props.onPageNothing, this.props.onPageError);
+    }
 }
+
+export const Player = withAppState(withPage(PlayerBase));

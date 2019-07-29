@@ -2,21 +2,31 @@ import * as styledComponents from "styled-components";
 import { ThemedStyledComponentsModule, ThemeProps } from "styled-components";
 
 export interface ITheme {
-    colorBackground000: string;
-    colorBackground100: string;
+    color: IThemeColor;
+    font: IThemeFont;
+}
 
-    colorBorder200: string;
+interface IThemeColor {
+    background000: string;
+    background100: string;
 
-    fontNormal: string;
+    border200: string;
+}
+
+interface IThemeFont {
+    normal: string;
 }
 
 const defaultTheme: ITheme = {
-    colorBackground000: "#fff",
-    colorBackground100: "#faf9f8",
-    
-    colorBorder200: "#afafaf",
-
-    fontNormal: `system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;`,
+    color: {
+        background000: "#fff",
+        background100: "#faf9f8",
+        
+        border200: "#afafaf",
+    },
+    font: {
+        normal: `system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;`
+    },
 };
 
 const {
@@ -32,8 +42,8 @@ export interface IWithTheme extends ThemeProps<ITheme> { }
 
 const GlobalStyle = createGlobalStyle`
     html {
-        background-color: ${s => s.theme.colorBackground100};
-        font-family: ${s => s.theme.fontNormal};
+        background-color: ${s => s.theme.color.background100};
+        font-family: ${s => s.theme.font.normal};
         margin: 0;
         padding: 0;
     }

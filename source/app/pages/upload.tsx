@@ -1,6 +1,5 @@
-import * as React from "react";
+import React from "react";
 import { RouteComponentProps, Redirect } from "react-router";
-import { IRouterProps } from "../router";
 import { Page } from "../components/page";
 import { is } from "../shared/is";
 import { MessageBar, MessageBarType, TextField, PrimaryButton, ProgressIndicator } from "office-ui-fabric-react";
@@ -15,26 +14,26 @@ import Stores from "../../data/stores.json";
 import TitleData from "../../data/title-data.json";
 import CloudScript from "../../data/cloud-script.json";
 import DropTables from "../../data/drop-tables.json";
-
-type Props = IRouterProps & RouteComponentProps;
+import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
+import { IWithPageProps, withPage } from "../containers/with-page";
 
 interface IState {
     secretKey: string;
     hasSecretKey: boolean;
-    error: string;
     uploadProgress: number;
     storeCounter: number;
     titleDataCounter: number;
 }
 
-export class UploadPage extends React.Component<Props, IState> {
+type Props = RouteComponentProps & IWithAppStateProps & IWithPageProps;
+
+class UploadPageBase extends React.Component<Props, IState> {
     constructor(props: Props) {
         super(props);
 
         this.state = {
             secretKey: null,
             hasSecretKey: false,
-            error: null,
             uploadProgress: 0,
             storeCounter: 0,
             titleDataCounter: 0,
@@ -54,8 +53,8 @@ export class UploadPage extends React.Component<Props, IState> {
 
         return (
             <Page {...this.props} title="Upload Data">
-                {!is.null(this.state.error) && (
-                    <MessageBar messageBarType={MessageBarType.error}>{this.state.error}</MessageBar>
+                {!is.null(this.props.pageError) && (
+                    <MessageBar messageBarType={MessageBarType.error}>{this.props.pageError}</MessageBar>
                 )}
                 {this.state.hasSecretKey
                     ? this.renderUpload()
@@ -128,30 +127,30 @@ export class UploadPage extends React.Component<Props, IState> {
 
         switch(PROGRESS_STAGES[this.state.uploadProgress].key) {
             case "currency":
-                PlayFabHelper.adminAddVirtualCurrencies(this.state.secretKey, VirtualCurrencies.VirtualCurrencies, this.advanceUpload, this.loadError);
+                PlayFabHelper.AdminAPIAddVirtualCurrencyTypes(this.state.secretKey, VirtualCurrencies.VirtualCurrencies, this.advanceUpload, this.props.onPageError);
                 break;
             case "catalog":
-                PlayFabHelper.adminSetCatalogItems(this.state.secretKey, Catalogs.Catalog, CATALOG_VERSION, true, this.advanceUpload, this.loadError);
+                PlayFabHelper.AdminAPISetCatalogItems(this.state.secretKey, Catalogs.Catalog, CATALOG_VERSION, true, this.advanceUpload, this.props.onPageError);
                 break;
             case "droptable":
-                PlayFabHelper.adminUpdateDropTables(this.state.secretKey, this.mapDropTable(DropTables as any), CATALOG_VERSION, this.advanceUpload, this.loadError);
+                PlayFabHelper.AdminAPIUpdateRandomResultTables(this.state.secretKey, this.mapDropTable(DropTables as any), CATALOG_VERSION, this.advanceUpload, this.props.onPageError);
                 break;
             case "store":
                 Stores.data.forEach((s, index) => {
                     window.setTimeout(() => {
-                        PlayFabHelper.adminSetStoreItems(this.state.secretKey, s.StoreId, s.Store, s.MarketingData, CATALOG_VERSION, this.advanceStoreCounter, this.loadError);
+                        PlayFabHelper.AdminAPISetStoreItems(this.state.secretKey, s.StoreId, s.Store, s.MarketingData, CATALOG_VERSION, this.advanceStoreCounter, this.props.onPageError);
                     }, index * 500);
                 });
                 break;
             case "titledata":
                 Object.keys(TitleData.Data).forEach((key, index) => {
                     window.setTimeout(() => {
-                        PlayFabHelper.adminSetTitleData(this.state.secretKey, key, (TitleData.Data as IStringDictionary)[key], this.advanceTitleDataCounter, this.loadError);
+                        PlayFabHelper.AdminAPISetTitleData(this.state.secretKey, key, (TitleData.Data as IStringDictionary)[key], this.advanceTitleDataCounter, this.props.onPageError);
                     }, index * 500);
                 });
                 break;
             case "cloudscript":
-                PlayFabHelper.adminUpdateCloudScript(this.state.secretKey, CloudScript.Files[0].FileContents, true, this.advanceUpload, this.loadError);
+                PlayFabHelper.AdminAPIUpdateCloudScript(this.state.secretKey, CloudScript.Files[0].FileContents, true, this.advanceUpload, this.props.onPageError);
                 break;
         }
     }
@@ -168,10 +167,11 @@ export class UploadPage extends React.Component<Props, IState> {
     private advanceUpload = (): void => {
         // Can't let the system go too fast
         window.setTimeout(() => {
+            this.props.onPageClearError();
+
             this.setState((prevState) => {
                 return {
                     uploadProgress: prevState.uploadProgress + 1,
-                    error: null,
                 }
             });
         }, 500);
@@ -201,13 +201,9 @@ export class UploadPage extends React.Component<Props, IState> {
         });
     }
 
-    private loadError = (error: string): void => {
-        this.setState({
-            error,
-        });
-    }
-
     private isValid(): boolean {
-        return !is.null(this.props.titleID);
+        return this.props.appState.hasTitleId;
     }
 }
+
+export const UploadPage = withAppState(withPage(UploadPageBase));

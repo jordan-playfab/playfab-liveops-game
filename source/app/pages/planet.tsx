@@ -1,74 +1,45 @@
-import * as React from "react";
-import { IRouterProps } from "../router";
+import React from "react";
 import { is } from "../shared/is";
 import { PlayFabHelper } from "../shared/playfab";
 import { RouteComponentProps, Redirect } from "react-router";
-import { IPlanetData, IKilledEnemyResult } from "../shared/types";
+import { IPlanetData } from "../shared/types";
 import { routes } from "../routes";
-import { Player } from "../components/player";
-import { Header } from "../components/header";
-import { Link } from "react-router-dom";
 import { Page, IBreadcrumbRoute } from "../components/page";
 import { UlInline } from "../styles";
-import { PrimaryButton, DefaultButton, Spinner } from "office-ui-fabric-react";
+import { PrimaryButton } from "office-ui-fabric-react";
+import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
+import { actionSetInventory, actionSetPlayerXP, actionSetPlayerLevel, actionSetPlayerHP } from "../store/actions";
+import { IWithPageProps, withPage } from "../containers/with-page";
+import { utilities } from "../shared/utilities";
+import { Combat } from "../components/combat";
+import { IKilledEnemyGroupRequest } from "../../cloud-script/main";
+import { CloudScriptHelper } from "../shared/cloud-script";
 
 interface IState {
-    currentArea: string;
-    isLoading: boolean;
-    totalKills: number;
-    totalEnemies: number;
-    isShooting: boolean;
-    itemGranted: string;
+    areaName: string;
+    enemyGroupName: string;
+    itemsGranted: string[];
+    newLevel: number;
+    newXP: number;
 }
 
 interface IPlanetPageRouteProps {
     name: string;
 }
 
-type Props = IRouterProps & RouteComponentProps<IPlanetPageRouteProps>;
+type Props = RouteComponentProps<IPlanetPageRouteProps> & IWithAppStateProps & IWithPageProps;
 
-export class PlanetPage extends React.Component<Props, IState> {
+class PlanetPageBase extends React.Component<Props, IState> {
     constructor(props: Props) {
         super(props);
 
         this.state = {
-            isLoading: true,
-            isShooting: false,
-            currentArea: null,
-            totalKills: 0,
-            totalEnemies: 0,
-            itemGranted: null,
+            areaName: null,
+            enemyGroupName: null,
+            itemsGranted: null,
+            newLevel: null,
+            newXP: null,
         }
-    }
-
-    public componentDidMount(): void {
-        if(!this.isValid()) {
-            return;
-        }
-
-        this.props.refreshPlanets(() => {
-            const planet = this.getPlanetData();
-
-            this.setState({
-                isLoading: false,
-                totalEnemies: planet.EnemyCount,
-            });
-        });
-
-        PlayFabHelper.getStatistics(["kills"], (data) => {
-            if(is.null(data)) {
-                // No kills yet
-                return;
-            }
-
-            this.setState({
-                totalKills: data[0].Value,
-            });
-        }, (error) => {
-            // TODO: Something
-        });
-
-        this.props.refreshInventory();
     }
 
     public render(): React.ReactNode {
@@ -88,23 +59,15 @@ export class PlanetPage extends React.Component<Props, IState> {
     }
 
     private renderPlanet(): React.ReactNode {
-        if(this.state.isLoading) {
-            return null;
-        }
-
-        return this.renderArea();
-    }
-
-    private renderArea(): React.ReactNode {
         const planet = this.getPlanetData();
 
-        if(is.null(this.state.currentArea)) {
+        if(is.null(this.state.areaName)) {
             return (
                 <React.Fragment>
                     <h3>Choose a region to fight in:</h3>
                     <UlInline>
-                        {planet.Areas.map((areaName) => (
-                            <li key={areaName}><PrimaryButton text={areaName} onClick={this.setArea.bind(this, areaName)} /></li>
+                        {planet.areas.map((area) => (
+                            <li key={area.name}><PrimaryButton text={area.name} onClick={this.setArea.bind(this, area.name)} /></li>
                         ))}
                     </UlInline>
                 </React.Fragment>
@@ -113,77 +76,159 @@ export class PlanetPage extends React.Component<Props, IState> {
 
         return (
             <React.Fragment>
-                <p>There are {this.state.totalEnemies} enemies here.</p>
-                <p>Your total kills: {this.state.totalKills}.</p>
-                {this.renderShootButton()}
-                {!is.null(this.state.itemGranted) && (
-                    <p>You just got a {this.state.itemGranted}</p>
-                )}
+                {this.renderItemGranted()}
+                {this.renderCombat()}
             </React.Fragment>
         );
     }
 
-    private renderShootButton(): React.ReactNode {
-        if(this.state.totalEnemies === 0) {
-            return (
-                <p>No more enemies to shoot.</p>
-            );
-        }
-
-        if(this.state.isShooting) {
-            return (
-                <Spinner label="Firing!" />
-            );
+    private renderItemGranted(): React.ReactNode {
+        if(is.null(this.state.itemsGranted)) {
+            return null;
         }
 
         return (
-            <PrimaryButton text="Shoot enemy" onClick={this.shootEnemy} />
+            <React.Fragment>
+                <p>Good job in combat!</p>
+                {!is.null(this.state.newXP) && (
+                    <p>You gained {this.state.newXP} XP.</p>
+                )}
+                {!is.null(this.state.newLevel) && (
+                    <p>Congratulations! You are now level {this.state.newLevel}!</p>
+                )}
+                <p>Rewards:</p>
+                <ul>
+                    {this.state.itemsGranted.map((itemId, index) => (
+                        <li key={index}>{this.props.appState.catalog.find(i => i.ItemId === itemId).DisplayName}</li>
+                    ))}
+                </ul>
+                
+            </React.Fragment>
+            
+        )
+    }
+
+    private renderCombat(): React.ReactNode {
+        const enemyGroup = this.props.appState.enemies.enemyGroups.find(g => g.name === this.state.enemyGroupName);
+        const enemyData = enemyGroup.enemies.map(e => this.props.appState.enemies.enemies.find(d => d.name === e));
+
+        return (
+            <Combat
+                planet={this.getPlanetName()}
+                area={this.state.areaName}
+                enemyGroup={enemyGroup}
+                enemies={enemyData}
+                onCombatOver={this.onCombatFinished}
+                onLeaveCombat={this.onLeaveCombat}
+            />
         );
     }
 
-    private setArea = (currentArea: string): void => {
-        this.setState({
-            currentArea,
-        })
+    private onCombatFinished = (): void => {
+        // I'm going to assume that if you're alive, you won
+        if(this.props.appState.playerHP === 0) {
+            return;
+        }
+
+        const combatReport: IKilledEnemyGroupRequest = {
+            area: this.state.areaName,
+            enemyGroup: this.state.enemyGroupName,
+            planet: this.getPlanetName(),
+            playerHP: this.props.appState.playerHP,
+        };
+
+        CloudScriptHelper.killedEnemyGroup(combatReport, (response) => {
+            if(!is.null(response.errorMessage)) {
+                this.props.onPageError(`Error when finishing combat: ${response.errorMessage}`);
+                return;
+            }
+
+            if(!is.null(response.hp)) {
+                // Your HP might be filled when you level up
+                this.props.dispatch(actionSetPlayerHP(response.hp));
+            }
+
+            if(!is.null(response.itemsGranted)) {
+                this.setState({
+                    itemsGranted: response.itemsGranted
+                });
+
+                this.refreshInventory();
+            }
+
+            if(!is.null(response.xp)) {
+                this.setState({
+                    newXP: response.xp - this.props.appState.playerXP
+                });
+
+                this.props.dispatch(actionSetPlayerXP(response.xp));
+            }
+            else {
+                this.setState({
+                    newXP: null,
+                });
+            }
+
+            if(!is.null(response.level)) {
+                this.props.dispatch(actionSetPlayerLevel(response.level));
+                this.setState({
+                    newLevel: response.level,
+                });
+            }
+            else {
+                this.setState({
+                    newLevel: null,
+                });
+            }
+        }, this.props.onPageError);
     }
 
-    private shootEnemy = (): void => {
-        this.setState({
-            isShooting: true,
-            itemGranted: null,
-        });
+    private onLeaveCombat = (): void => {
+        this.setArea(null);
+    }
 
-        PlayFabHelper.executeCloudScript("killedEnemy", null, (data) => {
-            const result = data.FunctionResult as IKilledEnemyResult;
+    private refreshInventory(): void {
+        PlayFabHelper.GetUserInventory(data => this.props.dispatch(actionSetInventory(data)), this.props.onPageError);
+    }
 
-            this.setState((prevState) => {
-                return {
-                    totalKills: prevState.totalKills + 1,
-                    totalEnemies: prevState.totalEnemies - 1,
-                    isShooting: false,
-                    itemGranted: result.itemGranted,
-                };
-            });
-
-            if(!is.null(result.itemGranted)) {
-                this.props.refreshInventory();
-            }
-        }, (error) => {
-            // TODO: Something
+    private setArea = (area: string): void => {
+        if(is.null(area)) {
             this.setState({
-                isShooting: false,
+                areaName: null,
+                enemyGroupName: null,
+                itemsGranted: null,
             });
-        })
+
+            return;
+        }
+
+        // Pick an enemy group to fight
+        const thisArea = this.props.appState.planets
+            .find(p => p.name === this.getPlanetName())
+            .areas
+            .find(a => a.name === area);
+
+        if(is.null(thisArea)) {
+            return this.props.onPageError(`Area ${area} not found somehow`);
+        }
+
+        const enemyGroupIndex = utilities.getRandomInteger(0, thisArea.enemyGroups.length - 1);
+
+        this.setState({
+            areaName: area,
+            enemyGroupName: thisArea.enemyGroups[enemyGroupIndex],
+            itemsGranted: null,
+        });
     }
 
     private isValid(): boolean {
-        return !is.null(this.props.titleID) && !is.null(this.props.player);
+        return this.props.appState.hasTitleId && this.props.appState.hasPlayerId;
     }
 
     private getPlanetData(): IPlanetData {
-        return is.null(this.props.planets)
-            ? null
-            : this.props.planets[this.getPlanetName()];
+        const planetName = this.getPlanetName();
+
+        return this.props.appState.planets.find(p => p.name === planetName);
     }
 
     private getPlanetName(): string {
@@ -191,12 +236,8 @@ export class PlanetPage extends React.Component<Props, IState> {
     }
 
     private getPageTitle(): string {
-        if(this.state.isLoading) {
-            return "Loading...";
-        }
-
-        if(!is.null(this.state.currentArea)) {
-            return `${this.state.currentArea} Region`;
+        if(!is.null(this.state.areaName)) {
+            return `${this.state.areaName} Region`;
         }
 
         return `Welcome to ${this.getPlanetName()}`;
@@ -212,16 +253,16 @@ export class PlanetPage extends React.Component<Props, IState> {
         const breadcrumbs: IBreadcrumbRoute[] = [{
             text: planetName,
             href: routes.Planet.replace(":name", planetName),
-            onClick: is.null(this.state.currentArea)
+            onClick: is.null(this.state.areaName)
                 ? null
                 : () => {
                     this.setArea(null);
                 }
         }];
 
-        if(!is.null(this.state.currentArea)) {
+        if(!is.null(this.state.areaName)) {
             breadcrumbs.push({
-                text: this.state.currentArea,
+                text: this.state.areaName,
                 href: ""
             });
         }
@@ -229,3 +270,5 @@ export class PlanetPage extends React.Component<Props, IState> {
         return breadcrumbs;
     }
 }
+
+export const PlanetPage = withAppState(withPage(PlanetPageBase));

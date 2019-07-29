@@ -1,6 +1,5 @@
-import * as React from "react";
+import React from "react";
 import { RouteComponentProps, Redirect } from "react-router";
-import { IRouterProps } from "../router";
 import { Page } from "../components/page";
 import { MessageBar, MessageBarType, TextField, PrimaryButton, ProgressIndicator } from "office-ui-fabric-react";
 import { is } from "../shared/is";
@@ -8,13 +7,12 @@ import { DivConfirm, UlNull } from "../styles";
 import { routes } from "../routes";
 import { PROGRESS_STAGES, CATALOG_VERSION, TITLE_DATA_STORES } from "../shared/types";
 import { PlayFabHelper } from "../shared/playfab";
-
-type Props = IRouterProps & RouteComponentProps;
+import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
+import { withPage, IWithPageProps } from "../containers/with-page";
 
 interface IState {
     secretKey: string;
     hasSecretKey: boolean;
-    error: string;
     downloadProgress: number;
     storeCounter: number;
     titleDataCounter: number;
@@ -26,7 +24,9 @@ interface IDownloadContent {
     content: string;
 }
 
-export class DownloadPage extends React.Component<Props, IState> {
+type Props = RouteComponentProps & IWithAppStateProps & IWithPageProps;
+
+class DownloadPageBase extends React.PureComponent<Props, IState> {
     private storeCount = 0;
     private storeContent: any[] = [];
 
@@ -36,7 +36,6 @@ export class DownloadPage extends React.Component<Props, IState> {
         this.state = {
             secretKey: null,
             hasSecretKey: false,
-            error: null,
             downloadProgress: 0,
             storeCounter: 0,
             titleDataCounter: 0,
@@ -51,14 +50,14 @@ export class DownloadPage extends React.Component<Props, IState> {
     }
 
     public render(): React.ReactNode {
-        if(!this.isValid()) {
+        if(!this.props.appState.hasTitleId) {
             return <Redirect to={routes.Home} />;
         }
 
         return (
             <Page {...this.props} title="Download Data">
-                {!is.null(this.state.error) && (
-                    <MessageBar messageBarType={MessageBarType.error}>{this.state.error}</MessageBar>
+                {!is.null(this.props.pageError) && (
+                    <MessageBar messageBarType={MessageBarType.error}>{this.props.pageError}</MessageBar>
                 )}
                 {this.state.hasSecretKey
                     ? this.renderDownload()
@@ -126,51 +125,59 @@ export class DownloadPage extends React.Component<Props, IState> {
         return PROGRESS_STAGES[this.state.downloadProgress].title;
     }
 
+    private getProgressFilename(): string {
+        if(this.state.downloadProgress > PROGRESS_STAGES.length - 1) {
+            return null;
+        }
+
+        return PROGRESS_STAGES[this.state.downloadProgress].filename;
+    }
+
     private runDownload(): void {
         if(!this.state.hasSecretKey || this.state.downloadProgress > PROGRESS_STAGES.length - 1) {
             return;
         }
 
-        const title = this.getProgressTitle();
+        const filename = this.getProgressFilename();
 
         switch(PROGRESS_STAGES[this.state.downloadProgress].key) {
             case "currency":
-                PlayFabHelper.adminListVirtualCurrency(this.state.secretKey, (data) => {
-                    this.advanceDownload(title, data);
-                }, this.loadError);
+                PlayFabHelper.AdminAPIListVirtualCurrencyTypes(this.state.secretKey, (data) => {
+                    this.advanceDownload(filename, data);
+                }, this.props.onPageError);
                 break;
             case "catalog":
-                PlayFabHelper.adminGetCatalogItems(this.state.secretKey, CATALOG_VERSION, (data) => {
-                    this.advanceDownload(title, data);
-                }, this.loadError);
+                PlayFabHelper.AdminAPIGetCatalogItems(this.state.secretKey, CATALOG_VERSION, (data) => {
+                    this.advanceDownload(filename, data);
+                }, this.props.onPageError);
                 break;
             case "droptable":
-                PlayFabHelper.adminGetRandomResultTables(this.state.secretKey, CATALOG_VERSION, (data) => {
-                    this.advanceDownload(title, data);
-                }, this.loadError);
+                PlayFabHelper.AdminAPIGetRandomResultTables(this.state.secretKey, CATALOG_VERSION, (data) => {
+                    this.advanceDownload(filename, data);
+                }, this.props.onPageError);
                 break;
             case "store":
-                PlayFabHelper.adminGetTitleData(this.state.secretKey, [TITLE_DATA_STORES], (titleData) => {
+                PlayFabHelper.AdminAPIGetTitleData(this.state.secretKey, [TITLE_DATA_STORES], (titleData) => {
                     const storeNames = (JSON.parse(titleData.Data[TITLE_DATA_STORES]) as string[]);
                     this.storeCount = storeNames.length;
 
                     storeNames.forEach(name => {
-                        PlayFabHelper.adminGetStores(this.state.secretKey, CATALOG_VERSION, name, (storeData) => {
+                        PlayFabHelper.AdminAPIGetStoreItems(this.state.secretKey, CATALOG_VERSION, name, (storeData) => {
                             this.storeContent.push(storeData);
                             this.advanceStoreCounter();
-                        }, this.loadError);
+                        }, this.props.onPageError);
                     })
-                }, this.loadError);
+                }, this.props.onPageError);
                 break;
             case "titledata":
-                PlayFabHelper.adminGetTitleData(this.state.secretKey, null, (data) => {
-                    this.advanceDownload(title, data);
-                }, this.loadError)
+                PlayFabHelper.AdminAPIGetTitleData(this.state.secretKey, null, (data) => {
+                    this.advanceDownload(filename, data);
+                }, this.props.onPageError)
                 break;
             case "cloudscript":
-                PlayFabHelper.adminGetCloudScriptRevision(this.state.secretKey, null, null, (data) => {
-                    this.advanceDownload(title, data);
-                }, this.loadError);
+                PlayFabHelper.AdminAPIGetCloudScriptRevision(this.state.secretKey, null, null, (data) => {
+                    this.advanceDownload(filename, data);
+                }, this.props.onPageError);
                 break;
         }
     }
@@ -191,25 +198,16 @@ export class DownloadPage extends React.Component<Props, IState> {
         }, this.runDownload);
     }
 
-    private loadError = (error: string): void => {
-        this.setState({
-            error,
-        });
-    }
-
-    private isValid(): boolean {
-        return !is.null(this.props.titleID);
-    }
-
     private advanceDownload = (title: string, data: any): void => {
+        this.props.onPageClearError();
+
         this.setState((prevState) => {
             return {
                 downloadProgress: prevState.downloadProgress + 1,
                 downloadContent: prevState.downloadContent.concat([{
                     title,
                     content: JSON.stringify(data, null, 4),
-                }]),
-                error: null,
+                }])
             }
         });
     }
@@ -221,10 +219,12 @@ export class DownloadPage extends React.Component<Props, IState> {
             }
         }, () => {
             if(this.state.storeCounter >= this.storeCount) {
-                this.advanceDownload("Store", {
+                this.advanceDownload(this.getProgressFilename(), {
                     "data": this.storeContent
                 });
             }
         });
     }
 }
+
+export const DownloadPage = withAppState(withPage(DownloadPageBase));

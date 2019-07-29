@@ -1,13 +1,11 @@
-import * as React from "react";
-import { DefaultButton } from 'office-ui-fabric-react';
+import React from "react";
+import { DefaultButton } from "office-ui-fabric-react";
 
 import { is } from "../shared/is";
 import styled from "../styles";
-
-interface IProps {
-    titleID?: string;
-    resetTitleID: () => void;
-}
+import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
+import { actionSetTitleId } from "../store/actions";
+import { utilities } from "../shared/utilities";
 
 const HeaderWrapper = styled.header`
     position: relative;
@@ -27,7 +25,7 @@ const DivTitleID = styled.div`
 
 const PTagline = styled.p`
     text-align: center;
-    border-bottom: 2px solid ${s => s.theme.colorBorder200};
+    border-bottom: 2px solid ${s => s.theme.color.border200};
     padding-bottom: 1em;
 `;
 
@@ -39,20 +37,30 @@ const ButtonReset = styled(DefaultButton)`
     margin-top: 0.2em;
 `;
 
-export class Header extends React.PureComponent<IProps> {
+type Props = IWithAppStateProps;
+
+class HeaderBase extends React.PureComponent<Props> {
     public render(): React.ReactNode {
         return (
             <HeaderWrapper>
                 <H1Tag>Vanguard Outrider</H1Tag>
-                {!is.null(this.props.titleID) && (
+                {!is.null(this.props.appState.titleId) && (
                     <DivTitleID>
                         <div><strong>Title ID</strong></div>
-                        <div>{this.props.titleID}</div>
-                        <div><ButtonReset text="Reset" onClick={this.props.resetTitleID} /></div>
+                        <div>{this.props.appState.titleId}</div>
+                        <div><ButtonReset text="Reset" onClick={this.resetTitleId} /></div>
                     </DivTitleID>
                 )}
                 <PTagline>A looter shooter game simulation using <a href="https://playfab.com/" target="_blank">PlayFab</a></PTagline>
             </HeaderWrapper>
         );
     }
+
+    private resetTitleId = (): void => {
+        PlayFab.settings.titleId = null;
+        utilities.setTitleId(null);
+        this.props.dispatch(actionSetTitleId(null));
+    }
 }
+
+export const Header = withAppState(HeaderBase);

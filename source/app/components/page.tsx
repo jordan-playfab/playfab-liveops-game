@@ -1,20 +1,20 @@
-import * as React from "react";
+import React from "react";
 import { Breadcrumb, IBreadcrumbItem } from 'office-ui-fabric-react/lib/Breadcrumb';
 import styled from "../styles";
-import { IRouterProps } from "../router";
 import { Header } from "./header";
 import { Player } from "./player";
 import { RouteComponentProps } from "react-router";
 import { routes } from "../routes";
 import { is } from "../shared/is";
+import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 
 const MainTag = styled.main`
     width: 85%;
     max-width: 60em;
     margin: 2em auto;
     padding: 1em;
-    background-color: ${s => s.theme.colorBackground000};
-    border: 4px solid ${s => s.theme.colorBorder200};
+    background-color: ${s => s.theme.color.background000};
+    border: 4px solid ${s => s.theme.color.border200};
     border-radius: 0.5em;
 `;
 
@@ -33,14 +33,14 @@ export interface IBreadcrumbRoute {
     onClick?: () => void;
 }
 
-type Props = IProps & IRouterProps & RouteComponentProps;
+type Props = IProps & RouteComponentProps & IWithAppStateProps;
 
-export class Page extends React.PureComponent<Props> {
+class PageBase extends React.PureComponent<Props> {
     public render(): React.ReactNode {
         return (
             <MainTag>
-                <Header titleID={this.props.titleID} resetTitleID={this.resetTitleID} />
-                <Player inventory={this.props.inventory} playerName={this.props.playerName} />
+                <Header />
+                <Player />
                 <DivPage>
                     {this.renderBreadcrumbs()}
                     {!is.null(this.props.title) && (
@@ -95,10 +95,6 @@ export class Page extends React.PureComponent<Props> {
         );
     }
 
-    private resetTitleID = (): void => {
-        this.props.saveTitleID(null);
-    }
-
     private onBreadcrumbClicked = (e: React.MouseEvent<HTMLElement>, item: IBreadcrumbItem): void => {
         e.preventDefault();
 
@@ -109,3 +105,5 @@ export class Page extends React.PureComponent<Props> {
         this.props.history.push(item.href);
     }
 }
+
+export const Page = withAppState(PageBase);
