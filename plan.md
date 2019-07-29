@@ -27,11 +27,34 @@
 # Pages
 
 1. Introduction / what is this
+    - This is a demo game to show how PlayFab can be used to run live games.
+    - PlayFab is a backend platform for all kinds of video games.
+    - Sign up for a free account and return to this website with your title ID.
+    - (user enters title ID)
 1. Main menu
+    - First time here
+        - If this is your first time here, select LOAD INITIAL DATA to populate your game with currencies, catalogs, stores, and more.
+    - Already loaded initial data
+        - Click Play to create a new player or sign in as an existing player
+    - More features
+        - Download data from your title for easy use in our open source repository
+        - Tweak the algorithm used in (game name)'s leveling curve
     1. Play
+        - Enter your player name to login. This page will create a player with that name for you.
+        - PlayFab supports many types of logins, such as email and password, Facebook, Google, Apple, Steam, and more.
     1. Load initial data
+        - In order to play the game, you must populate it with game data. This page will create the title data, currencies, catalogs, stores, and Cloud Script for you.
+        - Get the secret key for your game by signing into PlayFab, then going to Settings > Secret Keys.
+        - This page does not store nor transmit your secret key to anyone except PlayFab, but it's a good idea to make a new key just in case.
     1. Download data
+        - Want to download your game changes? You can easily create the JSON files for this game's repository here.
+        - In order to download all the data from your game, this page needs your secret key.
+        - Get the secret key for your game by signing into PlayFab, then going to Settings > Secret Keys.
+        - This page does not store nor transmit your secret key to anyone except PlayFab, but it's a good idea to make a new key just in case.
     1. Credits
+        - Development: Jordan Roher
+        - Initial data: Ashton Summers
+        - PM & Azure build: Julio Colon
     1. Tutorial
     1. LiveOps techniques
 1. Game
@@ -43,23 +66,3 @@
     1. Planet
         1. Area
             1. Combat
-1. Load initial data
-1. Download data
-1. Credits
-1. Tutorial
-1. LiveOps techniques
-
-# Combat
-
-When you go to a planet and pick an area, the game selects a random enemy group for you to face.
-
-The player clicks on an enemy to shoot them with the equipped weapon. That counts as a turn.
-
-Every (random number) turns, the enemy fires and has a (random number) chance to do damage.
-
-Armor has a defense stat which, when divided by 100, indicates how much damage it blocks from the enemy.
-
-- Enemies have HP and damage
-- Player has HP
-- Player has guns
-- Guns have damage
