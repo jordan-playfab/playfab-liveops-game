@@ -85,16 +85,19 @@ class LoginPageBase extends React.Component<Props, IState> {
             this.props.dispatch(actionSetPlayerXP(response.xp));
             this.props.dispatch(actionSetInventory(response.inventory));
             this.loadEquipment(response);
+            this.goToGuide();
         }, this.props.onPageError);
 
         PlayFabHelper.GetTitleData([TITLE_DATA_PLANETS, TITLE_DATA_STORES, TITLE_DATA_ENEMIES], (data) => {
             this.props.dispatch(actionSetPlanetsFromTitleData(data, TITLE_DATA_PLANETS));
             this.props.dispatch(actionSetStoreNamesFromTitleData(data, TITLE_DATA_STORES));
             this.props.dispatch(actionSetEnemiesFromTitleData(data, TITLE_DATA_ENEMIES));
+            this.goToGuide();
         }, this.props.onPageError);
         
         PlayFabHelper.GetCatalogItems(CATALOG_VERSION, (catalog) => {
             this.props.dispatch(actionSetCatalog(catalog));
+            this.goToGuide();
         }, this.props.onPageError)
         
         this.goToGuide();
@@ -134,6 +137,15 @@ class LoginPageBase extends React.Component<Props, IState> {
     }
 
     private goToGuide(): void {
+        const haveDownloadedEverything = !is.null(this.props.appState.playerLevel)
+            && !is.null(this.props.appState.inventory)
+            && !is.null(this.props.appState.catalog)
+            && !is.null(this.props.appState.planets);
+
+        if(!haveDownloadedEverything) {
+            return;
+        }
+
         this.setState({
             isLoggingIn: false,
         }, () => {
