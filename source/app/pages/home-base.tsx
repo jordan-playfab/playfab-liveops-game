@@ -55,7 +55,7 @@ class HomeBasePageBase extends React.Component<Props, IState> {
                 {...this.props}
                 breadcrumbs={this.getBreadcrumbs()}
                 title={is.null(store)
-                    ? "Welcome to Home Base"
+                    ? "Headquarters"
                     : store.MarketingData.DisplayName}
                 shouldShowPlayerInfo
             >

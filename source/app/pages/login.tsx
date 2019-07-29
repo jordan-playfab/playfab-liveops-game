@@ -7,7 +7,7 @@ import { is } from "../shared/is";
 import { routes } from "../routes";
 import { PlayFabHelper } from "../shared/playfab";
 import { Page } from "../components/page";
-import { DivConfirm } from "../styles";
+import { DivConfirm, DivField } from "../styles";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { TITLE_DATA_PLANETS, CATALOG_VERSION, TITLE_DATA_STORES, TITLE_DATA_ENEMIES } from "../shared/types";
 import { IWithPageProps, withPage } from "../containers/with-page";
@@ -15,6 +15,7 @@ import { IEquipItemInstance } from "../store/types";
 import { CloudScriptHelper } from "../shared/cloud-script";
 import { IPlayerLoginResponse } from "../../cloud-script/main";
 import { actionSetPlayerId, actionSetPlayerName, actionSetCatalog, actionSetInventory, actionSetPlanetsFromTitleData, actionSetStoreNamesFromTitleData, actionSetPlayerHP, actionSetEnemiesFromTitleData, actionSetEquipmentMultiple, actionSetPlayerLevel, actionSetPlayerXP } from "../store/actions";
+import { BackLink } from "../components/back-link";
 
 type Props = RouteComponentProps & IWithAppStateProps & IWithPageProps;
 
@@ -44,18 +45,17 @@ class LoginPageBase extends React.Component<Props, IState> {
                     <MessageBar messageBarType={MessageBarType.error}>{this.props.pageError}</MessageBar>
                 )}
                 <form onSubmit={this.login}>
-                    <p>Start by entering a player ID. This can be a name (e.g. "James"), a GUID, or any other string.</p>
-                    <p>Type a player ID you've used before to load that player's data, or enter a new one to start over.</p>
-                    <p>This login happens using <a href="https://api.playfab.com/documentation/client/method/LoginWithCustomID">Custom ID</a>.</p>
-                    <fieldset>
-                        <legend>Player</legend>
+                    <h2>About</h2>
+                    <BackLink to={routes.MainMenu(this.props.appState.titleId)} label="Back to main menu" />
+                    <p>Enter your name to play. This will create a new player using <a href="https://api.playfab.com/documentation/client/method/LoginWithCustomID">Custom ID</a> or log you in with an existing account.</p>
+                    <DivField>
                         <TextField label="Player ID" onChange={this.onChangePlayerName} autoFocus />
-                        <DivConfirm>
-                            {this.state.isLoggingIn
-                                ? <Spinner label="Logging in" />
-                                : <PrimaryButton text="Login" onClick={this.login} />}
-                        </DivConfirm>
-                    </fieldset>
+                    </DivField>
+                    <DivConfirm>
+                        {this.state.isLoggingIn
+                            ? <Spinner label="Logging in" />
+                            : <PrimaryButton text="Login" onClick={this.login} />}
+                    </DivConfirm>
                 </form>
             </Page>
         );

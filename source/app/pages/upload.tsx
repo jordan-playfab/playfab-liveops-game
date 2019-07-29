@@ -1,9 +1,9 @@
 import React from "react";
-import { RouteComponentProps, Redirect } from "react-router";
+import { RouteComponentProps } from "react-router";
 import { Page } from "../components/page";
 import { is } from "../shared/is";
-import { MessageBar, MessageBarType, TextField, PrimaryButton, ProgressIndicator } from "office-ui-fabric-react";
-import { DivConfirm, DivField } from "../styles";
+import { MessageBar, MessageBarType, TextField, PrimaryButton, ProgressIndicator, Spinner } from "office-ui-fabric-react";
+import styled, { DivConfirm, DivField } from "../styles";
 import { PlayFabHelper } from "../shared/playfab";
 import { routes } from "../routes";
 import { IStringDictionary, PROGRESS_STAGES, CATALOG_VERSION } from "../shared/types";
@@ -16,9 +16,17 @@ import CloudScript from "../../data/cloud-script.json";
 import DropTables from "../../data/drop-tables.json";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { IWithPageProps, withPage } from "../containers/with-page";
-import { Link } from "react-router-dom";
 import { Grid } from "../components/grid";
 import { BackLink } from "../components/back-link";
+
+const SpinnerTag = styled(Spinner)`
+    justify-content: flex-start;
+    margin-top: ${s => s.theme.size.spacer2};
+`;
+
+const DivUploadComplete = styled.div`
+    margin-top: ${s => s.theme.size.spacer};
+`;
 
 interface IState {
     secretKey: string;
@@ -58,13 +66,10 @@ class UploadPageBase extends React.Component<Props, IState> {
 
         return (
             <Page {...this.props} title="Load Data">
-                {!is.null(this.props.pageError) && (
-                    <MessageBar messageBarType={MessageBarType.error}>{this.props.pageError}</MessageBar>
-                )}
                 <Grid grid8x4>
-                {this.state.hasSecretKey
-                    ? this.renderUpload()
-                    : this.renderForm()}
+                    {this.state.hasSecretKey
+                        ? this.renderUpload()
+                        : this.renderForm()}
                     <React.Fragment>
                         <h2>What this creates</h2>
                         <ul>
@@ -86,8 +91,8 @@ class UploadPageBase extends React.Component<Props, IState> {
             <React.Fragment>
                 <h2>About</h2>
                 <BackLink to={routes.MainMenu(this.props.appState.titleId)} label="Back to main menu" />
-                <p>In order to play the game, you must populate it with game data. This page will create everything you need to play.</p>
-                <p>Get the secret key for your game from <a href={this.createPlayFabLink("settings/secret-keys", true)} target="_blank">Settings &gt; Secret Keys</a>.</p>
+                <p>This page will populate your title with everything you need to play.</p>
+                <p>Get the secret key for your title from <a href={this.createPlayFabLink("settings/secret-keys", true)} target="_blank">Settings &gt; Secret Keys</a>.</p>
                 <p>This page does not store nor transmit your secret key to anyone except PlayFab.</p>
                 <form onSubmit={this.startUpload}>
                     <DivField>
@@ -105,14 +110,26 @@ class UploadPageBase extends React.Component<Props, IState> {
         if(this.state.uploadProgress >= PROGRESS_STAGES.length - 1) {
             return (
                 <React.Fragment>
-                    <h2>All done!</h2>
-                    <PrimaryButton text="Play game" onClick={this.goToPage.bind(this, routes.Guide)} />
+                    <h2>Upload complete</h2>
+                    <BackLink to={routes.MainMenu(this.props.appState.titleId)} label="Back to main menu" />
+                    <DivUploadComplete>
+                        <PrimaryButton text="Play game" onClick={this.goToPage.bind(this, routes.Login(this.props.appState.titleId))} />
+                    </DivUploadComplete>
                 </React.Fragment>
             );
         }
 
+        const spinnerTitle = `Creating ${this.getProgressTitle()}...`;
+
         return (
-            <ProgressIndicator label={this.getProgressTitle()} percentComplete={Math.min(1, (this.state.uploadProgress / PROGRESS_STAGES.length) + 0.1)} />
+            <React.Fragment>
+                <h2>Upload in progress</h2>
+                {!is.null(this.props.pageError) && (
+                    <MessageBar messageBarType={MessageBarType.error}>{this.props.pageError}</MessageBar>
+                )}
+                <SpinnerTag label={spinnerTitle} labelPosition="right" />
+                <ProgressIndicator percentComplete={Math.min(1, (this.state.uploadProgress / PROGRESS_STAGES.length) + 0.1)} />
+            </React.Fragment>
         );
     }
 
@@ -191,6 +208,10 @@ class UploadPageBase extends React.Component<Props, IState> {
     private advanceUpload = (): void => {
         // Can't let the system go too fast
         window.setTimeout(() => {
+            if(!is.null(this.props.pageError)) {
+                return;
+            }
+
             this.props.onPageClearError();
 
             this.setState((prevState) => {

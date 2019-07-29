@@ -72,27 +72,27 @@ interface IProgressStage {
 
 export const PROGRESS_STAGES: IProgressStage[] = [{
     key: "currency",
-    title: "Currency",
+    title: "currencies",
     filename: "virtual-currency.json"
 },
 {
     key: "catalog",
-    title: "Catalog",
+    title: "catalog",
     filename: "catalogs.json"
 },
 {
     key: "droptable",
-    title: "Drop tables",
+    title: "drop tables",
     filename: "drop-tables.json"
 },
 {
     key: "store",
-    title: "Store",
+    title: "stores",
     filename: "stores.json"
 },
 {
     key: "titledata",
-    title: "Title data",
+    title: "title data",
     filename: "title-data.json"
 },
 {

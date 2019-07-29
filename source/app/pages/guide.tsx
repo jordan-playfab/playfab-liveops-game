@@ -39,9 +39,9 @@ class GuidePageBase extends React.Component<Props> {
         if(is.null(this.props.appState.equipment) || is.null(this.props.appState.equipment.weapon)) {
             return (
                 <React.Fragment>
-                    <p>You can't go into the field without a weapon! Buy one at home base.</p>
+                    <p>You can't go into the field without a weapon! Buy one at headquarters.</p>
                     <UlInline>
-                        <li key={"homebase"}><PrimaryButton text="Home base" onClick={this.sendToHomeBase} /></li>
+                        <li key={"homebase"}><PrimaryButton text="Headquarters" onClick={this.sendToHeadquarters} /></li>
                     </UlInline>
                 </React.Fragment>
             );
@@ -49,7 +49,7 @@ class GuidePageBase extends React.Component<Props> {
 
         return (
             <UlInline>
-                <li key={"homebase"}><PrimaryButton text="Home base" onClick={this.sendToHomeBase} /></li>
+                <li key={"homebase"}><PrimaryButton text="Headquarters" onClick={this.sendToHeadquarters} /></li>
                 {this.props.appState.planets.map((planet) => (
                     <li key={planet.name}><PrimaryButton text={`Fly to ${planet.name}`} onClick={this.sendToPlanet.bind(this, planet.name)} /></li>
                 ))}
@@ -57,7 +57,7 @@ class GuidePageBase extends React.Component<Props> {
         );
     }
 
-    private sendToHomeBase = (): void => {
+    private sendToHeadquarters = (): void => {
         this.props.history.push(routes.Headquarters(this.props.appState.titleId));
     }
 
