@@ -9,20 +9,14 @@ import { RouteComponentProps } from "react-router-dom";
 import { routes } from "../routes";
 import logo from "../../../static/img/logo.png";
 
-const HeaderWrapper = styled.header`
-    position: relative;
-`;
-
 const H1Tag = styled.h1`
     text-align: center;
-`;
-
-const DivTitleID = styled.div`
-    position: absolute;
-    top: 0.5em;
-    right: 0.5em;
     margin: 0;
-    text-align: center;
+    padding 0;
+
+    img {
+        width: 256px;
+    }
 `;
 
 const ButtonReset = styled(DefaultButton)`
@@ -38,17 +32,17 @@ type Props = RouteComponentProps<any> & IWithAppStateProps;
 class HeaderBase extends React.PureComponent<Props> {
     public render(): React.ReactNode {
         return (
-            <HeaderWrapper>
-                <H1Tag>Vanguard Outrider</H1Tag>
-                <img src={logo  } />
+            <header>
+                <H1Tag><img src={logo} alt="Vanguard Outrider" /></H1Tag>
+                
                 {!is.null(this.props.appState.titleId) && (
-                    <DivTitleID>
+                    <div>
                         <div><strong>Title ID</strong></div>
                         <div>{this.props.appState.titleId}</div>
                         <div><ButtonReset text="Reset" onClick={this.resetTitleId} /></div>
-                    </DivTitleID>
+                    </div>
                 )}
-            </HeaderWrapper>
+            </header>
         );
     }
 
