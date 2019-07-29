@@ -2,7 +2,7 @@ import * as React from "react";
 import styled, { UlInline } from "../styles";
 
 const UlFooter = styled(UlInline)`
-    border-top: 2px solid ${s => s.theme.colorBorder200};
+    border-top: 2px solid ${s => s.theme.color.border200};
     margin-top: 1em;
     padding-top: 0.5em;
     display: flex;
