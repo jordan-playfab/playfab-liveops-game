@@ -249,10 +249,11 @@ handlers.playerLogin = function (args, context) {
         inventory: null
     };
     // Give new players their starting items
-    const inventory = App.GetUserInventory(currentPlayerId);
+    let inventory = App.GetUserInventory(currentPlayerId);
     if (App.IsNull(inventory.Inventory) && inventory.VirtualCurrency[App.VirtualCurrency.Credits] === 0) {
         response.didGrantStartingPack = true;
         App.GrantItemsToUser(currentPlayerId, [App.CatalogItems.StartingPack]);
+        inventory = App.GetUserInventory(currentPlayerId);
     }
     response.inventory = {
         Inventory: inventory.Inventory,
