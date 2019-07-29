@@ -77,7 +77,7 @@ class IndexPageBase extends React.Component<Props, IState> {
                             <H1Tag>A PlayFab Demo Game</H1Tag>
                         </DivMarketingCopy>
                         <p><a href="https://playfab.com" target="_blank">PlayFab</a> is a backend platform as a service for all kinds of video games. This website shows how PlayFab can be used to run live games.</p>
-                        <p><a href="https://developer.playfab.com" target="_blank">Sign up for a free account</a> and return to this website with your title ID (4+ alphanumeric characters). If you already have a PlayFab account, please make a new title.</p>
+                        <p><a href="https://developer.playfab.com" target="_blank">Sign up for a free account</a> and get your title ID (4+ alphanumeric characters). If you already have a PlayFab account, please make a new title.</p>
                         <DivFieldWrapper>
                             <TextField label="Title ID" onChange={this.onChangeTitleId} autoFocus />
                             <DivConfirm>
