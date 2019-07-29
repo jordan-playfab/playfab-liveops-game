@@ -79,7 +79,7 @@
                 "CR": 50
             },
             "Tags": [],
-            "CustomData": "{\"Defense\":\"5\"}",
+            "CustomData": "{\"block\":1,\"reduce\":5}",
             "Consumable": {},
             "CanBecomeCharacter": false,
             "IsStackable": false,
@@ -96,7 +96,7 @@
                 "CR": 150
             },
             "Tags": [],
-            "CustomData": "{\"Defense\":\"20\"}",
+            "CustomData": "{\"block\":3,\"reduce\":15}",
             "Consumable": {},
             "CanBecomeCharacter": false,
             "IsStackable": false,
@@ -113,7 +113,7 @@
                 "CR": 200
             },
             "Tags": [],
-            "CustomData": "{\"Defense\":\"20\"}",
+            "CustomData": "{\"block\":7,\"reduce\":25}",
             "Consumable": {},
             "CanBecomeCharacter": false,
             "IsStackable": false,

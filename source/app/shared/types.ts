@@ -45,6 +45,11 @@ export interface IWeaponItemCustomData {
     damage: number;
 }
 
+export interface IArmorItemCustomData {
+    block: number;
+    reduce: number;
+}
+
 // ----- App interfaces ----- //
 
 export interface IStringDictionary {

@@ -1,5 +1,5 @@
 import React from "react";
-import { ITitleDataEnemy, IWeaponItemCustomData } from "../shared/types";
+import { ITitleDataEnemy, IWeaponItemCustomData, IArmorItemCustomData } from "../shared/types";
 import { utilities } from "../shared/utilities";
 import { is } from "../shared/is";
 
@@ -10,7 +10,7 @@ export interface IWithCombatProps {
     readonly combatDamageTakenLastRound: number;
     readonly combatAttackedByIndexLastRound: number;
 
-    readonly onCombatStart: (enemies: ITitleDataEnemy[], playerHP: number, weapon: PlayFabClientModels.CatalogItem) => void;
+    readonly onCombatStart: (enemies: ITitleDataEnemy[], playerHP: number, weapon: PlayFabClientModels.CatalogItem, armor: PlayFabClientModels.CatalogItem) => void;
     readonly onCombatPlayerAttack: (enemyIndex: number) => void;
     readonly onCombatEnemyAttack: () => IEnemyAttackReport;
     readonly onCombatAdvanceStage: () => void;
@@ -24,6 +24,8 @@ interface IState {
     attackedByEnemyIndexLastRound: number;
     playerWeapon: PlayFabClientModels.CatalogItem;
     playerDamage: number;
+    playerArmor: PlayFabClientModels.CatalogItem;
+    playerArmorData: IArmorItemCustomData;
 }
 
 export enum CombatStage {
@@ -48,6 +50,13 @@ export const withCombat = <P extends IWithCombatProps>(Component: React.Componen
             stage: CombatStage.Introduction,
             playerWeapon: null,
             playerDamage: 0,
+            playerArmor: null,
+            playerArmorData: null,
+        };
+
+        private readonly zeroArmorData: IArmorItemCustomData = {
+            block: 0,
+            reduce: 0,
         };
 
         public render(): React.ReactNode {
@@ -67,21 +76,31 @@ export const withCombat = <P extends IWithCombatProps>(Component: React.Componen
             );
         }
 
-        private start = (enemies: ITitleDataEnemy[], playerHP: number, weapon: PlayFabClientModels.CatalogItem): void => {
+        private start = (enemies: ITitleDataEnemy[], playerHP: number, weapon: PlayFabClientModels.CatalogItem, armor: PlayFabClientModels.CatalogItem): void => {
             this.setState({
                 enemies,
                 playerHP,
                 stage: CombatStage.Introduction,
                 playerWeapon: weapon,
-                playerDamage: this.getPlayerDamage(weapon)
+                playerDamage: this.getPlayerDamage(weapon),
+                playerArmor: armor,
+                playerArmorData: this.getPlayerArmorCustomData(armor),
             });
         }
 
         private onEnemyAttack = (): void => {
             // Pick someone to attack
             const attackingEnemyIndex = utilities.getRandomInteger(0, this.state.enemies.length - 1);
-            const damage = utilities.getRandomInteger(0, this.state.enemies[attackingEnemyIndex].damage); // TODO: Weigh against player stats
+            let damage = utilities.getRandomInteger(0, this.state.enemies[attackingEnemyIndex].damage);
             const playerHP = this.state.playerHP - damage;
+            const armorData = this.state.playerArmorData;
+
+            if(damage < armorData.block) {
+                damage = 0;
+            }
+            else if(armorData.reduce > 0) {
+                damage = Math.floor(damage * (armorData.reduce / 100));
+            }    
 
             this.setState(prevState => {
                 if(playerHP <= 0) {
@@ -186,6 +205,22 @@ export const withCombat = <P extends IWithCombatProps>(Component: React.Componen
             }
 
             return data.damage;
+        }
+
+        private getPlayerArmorCustomData(armor: PlayFabClientModels.CatalogItem): IArmorItemCustomData {
+            if(is.null(armor)) {
+                // Should not be possible!
+                return this.zeroArmorData;
+            }
+
+            const data = JSON.parse(armor.CustomData) as IArmorItemCustomData;
+
+            if(is.null(data) || is.null(data.block) || is.null(data.reduce)) {
+                // TODO: Alert?
+                return this.zeroArmorData;
+            }
+
+            return data;
         }
     }
 }
