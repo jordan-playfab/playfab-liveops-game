@@ -1,5 +1,6 @@
 import * as styledComponents from "styled-components";
 import { ThemedStyledComponentsModule, ThemeProps } from "styled-components";
+import { FontSizes } from "@uifabric/styling";
 
 export interface ITheme {
     color: IThemeColor;
@@ -17,6 +18,7 @@ interface IThemeColor {
     border200: string;
 
     text000: string;
+    text700: string;
     text900: string;
 }
 
@@ -119,14 +121,8 @@ const colors = {
     translucent100: "rgba(217, 217, 217, 0.75)",
 };
 
-const fontSize: IThemeFontSize = {
-    h1: "2.441em",
-    h2: "1.935em",
-    h3: "1.536em",
-};
-
 const spacer = 1;
-const unit = "em";
+const unit = "rem";
 
 const defaultTheme: ITheme = {
     color: {
@@ -136,12 +132,17 @@ const defaultTheme: ITheme = {
         border200: colors.grey200,
 
         text000: colors.white,
+        text700: "rgb(96, 94, 92)",
         text900: colors.grey900,
     },
     font: {
-        normal: `system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;`
+        normal: `"Segoe UI Web (West European)", Segoe UI, -apple-system, BlinkMacSystemFont, Roboto, Helvetica Neue, sans-serif;`
     },
-    fontSize,
+    fontSize: {
+        h1: "48px", // FontSizes.mega was too big
+        h2: FontSizes.xxLargePlus,
+        h3: FontSizes.xLarge
+    },
     size: {
         spacerD6: `${spacer / 6 + unit}`,
         spacerD4: `${spacer / 4 + unit}`,
@@ -188,44 +189,39 @@ const GlobalStyle = createGlobalStyle`
         font-family: ${s => s.theme.font.normal};
         margin: 0;
         padding: 0;
+        background: ${s => s.theme.color.background100};
     }
 
     h1, h2, h3, h4, h5, h6 {
         margin: 0;
         font-weight: normal;
+        color: ${s => s.theme.color.text700};
     }
 
     p {
-        margin: 0.5em 0 0 0;
+        margin: ${s => s.theme.size.spacerD2} 0 0 0;
     }
 
     h1 {
-        font-size: 2.441em;
+        font-size: ${s => s.theme.fontSize.h1};
         margin: 0;
     }
 
     h2 {
-        font-size: 1.935em;
+        font-size: ${s => s.theme.fontSize.h2};
     }
 
     h3 {
-        font-size: 1.536em;
+        font-size: ${s => s.theme.fontSize.h3};
     }
 
     form {
-        margin: 1em 0 0 0;
-    }
-
-    fieldset {
-        margin: 1em 0 0 0;
+        margin: 0;
         padding: 0;
-        max-width: 20em;
-        border: 0;
     }
 
-    legend {
-        text-transform: uppercase;
-        font-weight: bold;
+    img {
+        max-width: 100%;
     }
 `;
 
@@ -252,6 +248,11 @@ const UlInline = styled(UlNull)`
     }
 `;
 
+const DivField = styled.div`
+    margin-top: ${s => s.theme.size.spacer};
+    max-width: ${s => s.theme.breakpointUnits.small};
+`;
+
 export {
     css,
     keyframes,
@@ -263,5 +264,6 @@ export {
     DivConfirm,
     UlNull,
     UlInline,
+    DivField
 };
 export default styled;

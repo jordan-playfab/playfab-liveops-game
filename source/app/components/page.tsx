@@ -8,6 +8,24 @@ import { routes } from "../routes";
 import { is } from "../shared/is";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { actionSetTitleId } from "../store/actions";
+import { Footer } from "./footer";
+
+const MainTag = styled.main`
+    background: ${s => s.theme.color.background000};
+    margin: ${s => s.theme.size.spacer2} auto;
+    box-shadow: 0 1.6px 3.6px 0 rgba(0,0,0,0.132),0 0.3px 0.9px 0 rgba(0,0,0,0.108);
+    max-width: 90%;
+
+    @media ${s => s.theme.breakpoint.large} {
+        max-width: ${s => s.theme.breakpointUnits.large};
+    }
+`;
+
+const DivPageContent = styled.div`
+    border-top: 1px solid ${s => s.theme.color.border200};
+    padding: ${s => s.theme.size.spacer};
+    margin-top: ${s => s.theme.size.spacer};
+`;
 
 interface IProps {
     title?: string;
@@ -38,17 +56,17 @@ class PageBase extends React.PureComponent<Props> {
 
     public render(): React.ReactNode {
         return (
-            <main>
-                <Header {...this.props} />
+            <MainTag>
+                <Header title={this.props.title} />
                 {this.props.shouldShowPlayerInfo && (
                     <Player />
                 )}
                 {this.renderBreadcrumbs()}
-                {!is.null(this.props.title) && (
-                    <h2>{this.props.title}</h2>
-                )}
-                {this.props.children}
-            </main>
+                <DivPageContent>
+                    {this.props.children}
+                </DivPageContent>
+                <Footer {...this.props} />
+            </MainTag>
         );
     }
 

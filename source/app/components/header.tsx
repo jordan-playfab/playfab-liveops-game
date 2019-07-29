@@ -1,56 +1,48 @@
 import React from "react";
-import { DefaultButton } from "office-ui-fabric-react";
 
-import { is } from "../shared/is";
 import styled from "../styles";
-import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
-import { actionSetTitleId } from "../store/actions";
-import { RouteComponentProps } from "react-router-dom";
-import { routes } from "../routes";
 import logo from "../../../static/img/logo.png";
+import { is } from "../shared/is";
 
-const H1Tag = styled.h1`
-    text-align: center;
-    margin: 0;
-    padding 0;
+const logoSize = "256px";
 
-    img {
-        width: 256px;
-    }
+const DivHeaderWrapper = styled.div`
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
 `;
 
-const ButtonReset = styled(DefaultButton)`
-    font-size: 0.8em;
-    padding: 0.2em;
-    min-width: none;
-    height: auto;
-    margin-top: 0.2em;
+const DivLogo = styled.div`
+    padding: ${s => s.theme.size.spacer};
+    flex-basis: ${logoSize};
 `;
 
-type Props = RouteComponentProps<any> & IWithAppStateProps;
+const DivTitle = styled.div`
+    flex-grow: 1;
+    padding: 0 ${s => s.theme.size.spacer} 0 ${s => s.theme.size.spacer2};
+`;
 
-class HeaderBase extends React.PureComponent<Props> {
+const ImgLogo = styled.img`
+    width: ${logoSize};
+`;
+
+interface IProps {
+    title?: string;
+}
+
+export class Header extends React.PureComponent<IProps> {
     public render(): React.ReactNode {
         return (
             <header>
-                <H1Tag><img src={logo} alt="Vanguard Outrider" /></H1Tag>
-                
-                {!is.null(this.props.appState.titleId) && (
-                    <div>
-                        <div><strong>Title ID</strong></div>
-                        <div>{this.props.appState.titleId}</div>
-                        <div><ButtonReset text="Reset" onClick={this.resetTitleId} /></div>
-                    </div>
-                )}
+                <DivHeaderWrapper>
+                    <DivLogo><ImgLogo src={logo} alt="Vanguard Outrider" /></DivLogo>
+                    {!is.null(this.props.title) && (
+                        <DivTitle>
+                            <h1>{this.props.title}</h1>
+                        </DivTitle>
+                    )}
+                </DivHeaderWrapper>
             </header>
         );
     }
-
-    private resetTitleId = (): void => {
-        PlayFab.settings.titleId = null;
-        this.props.dispatch(actionSetTitleId(null));
-        this.props.history.push(routes.Index());
-    }
 }
-
-export const Header = withAppState(HeaderBase);

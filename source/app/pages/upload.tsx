@@ -3,7 +3,7 @@ import { RouteComponentProps, Redirect } from "react-router";
 import { Page } from "../components/page";
 import { is } from "../shared/is";
 import { MessageBar, MessageBarType, TextField, PrimaryButton, ProgressIndicator } from "office-ui-fabric-react";
-import { DivConfirm } from "../styles";
+import { DivConfirm, DivField } from "../styles";
 import { PlayFabHelper } from "../shared/playfab";
 import { routes } from "../routes";
 import { IStringDictionary, PROGRESS_STAGES, CATALOG_VERSION } from "../shared/types";
@@ -17,6 +17,8 @@ import DropTables from "../../data/drop-tables.json";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { IWithPageProps, withPage } from "../containers/with-page";
 import { Link } from "react-router-dom";
+import { Grid } from "../components/grid";
+import { BackLink } from "../components/back-link";
 
 interface IState {
     secretKey: string;
@@ -29,6 +31,8 @@ interface IState {
 type Props = RouteComponentProps & IWithAppStateProps & IWithPageProps;
 
 class UploadPageBase extends React.Component<Props, IState> {
+    private readonly uploadDelayMilliseconds = 500;
+
     constructor(props: Props) {
         super(props);
 
@@ -53,50 +57,48 @@ class UploadPageBase extends React.Component<Props, IState> {
         }
 
         return (
-            <Page {...this.props} title="Upload Data">
-                <p><Link to={routes.MainMenu(this.props.appState.titleId)}>&laquo; Back to main menu</Link></p>
+            <Page {...this.props} title="Load Data">
                 {!is.null(this.props.pageError) && (
                     <MessageBar messageBarType={MessageBarType.error}>{this.props.pageError}</MessageBar>
                 )}
+                <Grid grid8x4>
                 {this.state.hasSecretKey
                     ? this.renderUpload()
-                    : this.renderSecretKey()}
+                    : this.renderForm()}
+                    <React.Fragment>
+                        <h2>What this creates</h2>
+                        <ul>
+                            <li><a href={this.createPlayFabLink("economy/currency", true)} target="_blank">Currencies</a></li>
+                            <li><a href={this.createPlayFabLink("economy/catalogs/TWFpbg%3d%3d/items", false)} target="_blank">Catalog items</a></li>
+                            <li><a href={this.createPlayFabLink("economy/catalogs/TWFpbg%3d%3d/drop-tables", false)} target="_blank">Drop tables</a></li>
+                            <li><a href={this.createPlayFabLink("economy/catalogs/TWFpbg%3d%3d/stores", false)} target="_blank">Stores</a></li>
+                            <li><a href={this.createPlayFabLink("content/title-data", true)} target="_blank">Title data</a></li>
+                            <li><a href={this.createPlayFabLink("automation/cloud-script/revisions", true)} target="_blank">Cloud Script</a></li>
+                        </ul>
+                    </React.Fragment>
+                </Grid>
             </Page>
         );
     }
 
-    private renderSecretKey(): React.ReactNode {
+    private renderForm(): React.ReactNode {
         return (
-            <form onSubmit={this.setHasSecretKey}>
-                <p>In order to play the game, you must populate it with game data. This page will create the title data, currencies, catalogs, stores, and Cloud Script for you.</p>
-                <p>Get the <strong>secret key</strong> for your game by going to <strong>Settings &gt; Secret Keys</strong>.</p>
-                <p>This page does not store nor transmit your secret key to anyone except PlayFab, but it's a good idea to make a new key just in case.</p>
-                <fieldset>
-                    <legend>Secret key</legend>
-
-                    <TextField label="Secret key" onChange={this.setSecretKey} autoFocus />
+            <React.Fragment>
+                <h2>About</h2>
+                <BackLink to={routes.MainMenu(this.props.appState.titleId)} label="Back to main menu" />
+                <p>In order to play the game, you must populate it with game data. This page will create everything you need to play.</p>
+                <p>Get the secret key for your game from <a href={this.createPlayFabLink("settings/secret-keys", true)} target="_blank">Settings &gt; Secret Keys</a>.</p>
+                <p>This page does not store nor transmit your secret key to anyone except PlayFab.</p>
+                <form onSubmit={this.startUpload}>
+                    <DivField>
+                        <TextField label="Secret key" onChange={this.onChangeSecretKey} autoFocus />
+                    </DivField>
                     <DivConfirm>
-                        <PrimaryButton text="Begin upload" onClick={this.setHasSecretKey} />
+                        <PrimaryButton text="Begin upload" onClick={this.startUpload} />
                     </DivConfirm>
-                </fieldset>
-            </form>
+                </form>
+            </React.Fragment>
         );
-    }
-
-    private goToPage = (page: string): void => {
-        this.props.history.push(page);
-    }
-
-    private setSecretKey = (_: any, newValue: string): void => {
-        this.setState({
-            secretKey: newValue,
-        });
-    }
-
-    private setHasSecretKey = (): void => {
-        this.setState({
-            hasSecretKey: true,
-        }, this.runUpload);
     }
 
     private renderUpload(): React.ReactNode {
@@ -112,6 +114,26 @@ class UploadPageBase extends React.Component<Props, IState> {
         return (
             <ProgressIndicator label={this.getProgressTitle()} percentComplete={Math.min(1, (this.state.uploadProgress / PROGRESS_STAGES.length) + 0.1)} />
         );
+    }
+
+    private createPlayFabLink(uri: string, isReact: boolean): string {
+        return `https://developer.playfab.com/en-US/${isReact ? `r/t/` : ``}${this.props.appState.titleId}/${uri}`;
+    }
+
+    private goToPage = (page: string): void => {
+        this.props.history.push(page);
+    }
+
+    private onChangeSecretKey = (_: any, newValue: string): void => {
+        this.setState({
+            secretKey: newValue,
+        });
+    }
+
+    private startUpload = (): void => {
+        this.setState({
+            hasSecretKey: true,
+        }, this.runUpload);
     }
 
     private getProgressTitle(): string {
@@ -141,14 +163,14 @@ class UploadPageBase extends React.Component<Props, IState> {
                 Stores.data.forEach((s, index) => {
                     window.setTimeout(() => {
                         PlayFabHelper.AdminAPISetStoreItems(this.state.secretKey, s.StoreId, s.Store, s.MarketingData, CATALOG_VERSION, this.advanceStoreCounter, this.props.onPageError);
-                    }, index * 500);
+                    }, index * this.uploadDelayMilliseconds);
                 });
                 break;
             case "titledata":
                 Object.keys(TitleData.Data).forEach((key, index) => {
                     window.setTimeout(() => {
                         PlayFabHelper.AdminAPISetTitleData(this.state.secretKey, key, (TitleData.Data as IStringDictionary)[key], this.advanceTitleDataCounter, this.props.onPageError);
-                    }, index * 500);
+                    }, index * this.uploadDelayMilliseconds);
                 });
                 break;
             case "cloudscript":
@@ -176,7 +198,7 @@ class UploadPageBase extends React.Component<Props, IState> {
                     uploadProgress: prevState.uploadProgress + 1,
                 }
             });
-        }, 500);
+        }, this.uploadDelayMilliseconds);
     }
 
     private advanceStoreCounter = (): void => {
