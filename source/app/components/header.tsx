@@ -7,6 +7,7 @@ import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { actionSetTitleId } from "../store/actions";
 import { RouteComponentProps } from "react-router-dom";
 import { routes } from "../routes";
+import logo from "../../../static/img/logo.png";
 
 const HeaderWrapper = styled.header`
     position: relative;
@@ -24,12 +25,6 @@ const DivTitleID = styled.div`
     text-align: center;
 `;
 
-const PTagline = styled.p`
-    text-align: center;
-    border-bottom: 2px solid ${s => s.theme.color.border200};
-    padding-bottom: 1em;
-`;
-
 const ButtonReset = styled(DefaultButton)`
     font-size: 0.8em;
     padding: 0.2em;
@@ -45,6 +40,7 @@ class HeaderBase extends React.PureComponent<Props> {
         return (
             <HeaderWrapper>
                 <H1Tag>Vanguard Outrider</H1Tag>
+                <img src={logo  } />
                 {!is.null(this.props.appState.titleId) && (
                     <DivTitleID>
                         <div><strong>Title ID</strong></div>
@@ -52,7 +48,6 @@ class HeaderBase extends React.PureComponent<Props> {
                         <div><ButtonReset text="Reset" onClick={this.resetTitleId} /></div>
                     </DivTitleID>
                 )}
-                <PTagline>A looter shooter game simulation using <a href="https://playfab.com/" target="_blank">PlayFab</a></PTagline>
             </HeaderWrapper>
         );
     }

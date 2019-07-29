@@ -7,21 +7,7 @@ import { RouteComponentProps } from "react-router";
 import { routes } from "../routes";
 import { is } from "../shared/is";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
-import { actionSetTitleId, actionSetPlayerId } from "../store/actions";
-
-const MainTag = styled.main`
-    width: 85%;
-    max-width: 60em;
-    margin: 2em auto;
-    padding: 1em;
-    background-color: ${s => s.theme.color.background000};
-    border: 4px solid ${s => s.theme.color.border200};
-    border-radius: 0.5em;
-`;
-
-const DivPage = styled.div`
-    margin-top: 1em;
-`;
+import { actionSetTitleId } from "../store/actions";
 
 interface IProps {
     title?: string;
@@ -52,19 +38,17 @@ class PageBase extends React.PureComponent<Props> {
 
     public render(): React.ReactNode {
         return (
-            <MainTag>
+            <main>
                 <Header {...this.props} />
                 {this.props.shouldShowPlayerInfo && (
                     <Player />
                 )}
-                <DivPage>
-                    {this.renderBreadcrumbs()}
-                    {!is.null(this.props.title) && (
-                        <h2>{this.props.title}</h2>
-                    )}
-                    {this.props.children}
-                </DivPage>
-            </MainTag>
+                {this.renderBreadcrumbs()}
+                {!is.null(this.props.title) && (
+                    <h2>{this.props.title}</h2>
+                )}
+                {this.props.children}
+            </main>
         );
     }
 

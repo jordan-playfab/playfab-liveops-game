@@ -42,7 +42,6 @@ export interface IWithTheme extends ThemeProps<ITheme> { }
 
 const GlobalStyle = createGlobalStyle`
     html {
-        background-color: ${s => s.theme.color.background100};
         font-family: ${s => s.theme.font.normal};
         margin: 0;
         padding: 0;

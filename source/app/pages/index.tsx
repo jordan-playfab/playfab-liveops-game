@@ -32,7 +32,7 @@ class IndexPageBase extends React.Component<Props, IState> {
                     <p><a href="https://developer.playfab.com" target="_blank">Create a PlayFab account</a> and make an empty title. Then find its <strong>title ID</strong> (4+ alphanumeric characters) and enter it here.</p>
                     <fieldset>
                         <legend>PlayFab title ID</legend>
-                        <TextField label="Title ID" onChange={this.setLocalTitleID} autoFocus />
+                        <TextField label="Title ID" onChange={this.onChangeTitleId} autoFocus />
                         <DivConfirm>
                             <PrimaryButton text="Set title ID" onClick={this.saveTitleID} />
                         </DivConfirm>
@@ -42,7 +42,7 @@ class IndexPageBase extends React.Component<Props, IState> {
         );
     }
 
-    private setLocalTitleID = (_: any, titleId: string): void => {
+    private onChangeTitleId = (_: any, titleId: string): void => {
         this.setState({
             titleId,
         });
