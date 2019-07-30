@@ -227,14 +227,19 @@ class HeadquartersPageBase extends React.Component<Props, IState> {
         return (
             <DivNewsAndLeaderboardWrapper>
                 <H2WithButton>News <ButtonTiny text="Refresh" onClick={this.getNews} /></H2WithButton>
-                <DlStats>
-                    {this.state.news.map(news => (
-                        <React.Fragment key={news.NewsId}>
-                            <dt><Link onClick={this.readNews.bind(this, news.NewsId)}>{news.Title}</Link></dt>
-                            <dd>{utilities.parseTitleNewsDate(news.Timestamp)}</dd>
-                        </React.Fragment>
-                    ))}
-                </DlStats>
+                {is.null(this.state.news)
+                    ? <p>No news yet</p>
+                    : (
+                        <DlStats>
+                            {this.state.news.map(news => (
+                                <React.Fragment key={news.NewsId}>
+                                    <dt><Link onClick={this.readNews.bind(this, news.NewsId)}>{news.Title}</Link></dt>
+                                    <dd>{utilities.parseTitleNewsDate(news.Timestamp)}</dd>
+                                </React.Fragment>
+                            ))}
+                        </DlStats>
+                    )}
+                
                 <DialogWidthSmall
                     dialogContentProps={{
                         type: DialogType.largeHeader,

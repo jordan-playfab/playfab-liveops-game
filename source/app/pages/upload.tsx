@@ -2,11 +2,11 @@ import React from "react";
 import { RouteComponentProps } from "react-router";
 import { Page } from "../components/page";
 import { is } from "../shared/is";
-import { MessageBar, MessageBarType, TextField, PrimaryButton, ProgressIndicator } from "office-ui-fabric-react";
-import styled, { DivConfirm, DivField, SpinnerLeft } from "../styles";
+import { MessageBar, MessageBarType, TextField, PrimaryButton, ProgressIndicator, Dialog, DialogType, DefaultButton } from "office-ui-fabric-react";
+import styled, { DivConfirm, DivField, SpinnerLeft, DialogWidthSmall, ButtonTiny } from "../styles";
 import { PlayFabHelper } from "../shared/playfab";
 import { routes } from "../routes";
-import { IStringDictionary, PROGRESS_STAGES, CATALOG_VERSION } from "../shared/types";
+import { IStringDictionary, PROGRESS_STAGES, CATALOG_VERSION, ITitleNewsData } from "../shared/types";
 
 import VirtualCurrencies from "../../data/virtual-currency.json";
 import Catalogs from "../../data/catalogs.json";
@@ -30,6 +30,7 @@ interface IState {
     uploadProgress: number;
     storeCounter: number;
     titleDataCounter: number;
+    shouldShowTitleNewsFormat: boolean;
 }
 
 type Props = RouteComponentProps & IWithAppStateProps & IWithPageProps;
@@ -46,6 +47,7 @@ class UploadPageBase extends React.Component<Props, IState> {
             uploadProgress: 0,
             storeCounter: 0,
             titleDataCounter: 0,
+            shouldShowTitleNewsFormat: false,
         };
     }
 
@@ -62,8 +64,12 @@ class UploadPageBase extends React.Component<Props, IState> {
 
         const titleId = this.props.appState.titleId;
 
+        const sampleTitleNewsItem: ITitleNewsData = {
+            "html": "&lt;p&gt;Your news content here (this is a paragraph tag)&lt;p&gt;"
+        };
+
         return (
-            <Page {...this.props} title="Load Data">
+            <Page {...this.props} title="Upload Data">
                 <Grid grid8x4>
                     {this.state.hasSecretKey
                         ? this.renderUpload()
@@ -78,17 +84,48 @@ class UploadPageBase extends React.Component<Props, IState> {
                             <li><a href={utilities.createPlayFabLink(titleId, "content/title-data", true)} target="_blank">Title data</a></li>
                             <li><a href={utilities.createPlayFabLink(titleId, "automation/cloud-script/revisions", true)} target="_blank">Cloud Script</a></li>
                         </ul>
+                        <h2>Title news</h2>
+                        <p>This page can't upload title news automatically. Here's how to get started:</p>
+                        <ol>
+                            <li>Go to <a href={utilities.createPlayFabLink(this.props.appState.titleId, "settings/general", true)} target="_blank">Settings &gt; General</a></li>
+                            <li>Set your <strong>default language</strong> and click <strong>Save</strong></li>
+                            <li>Go to <a href={utilities.createPlayFabLink(this.props.appState.titleId, "content/news", true)} target="_blank">Content &gt; Title News</a></li>
+                            <li>Click <strong>New title news</strong></li>
+                            <li>The <strong>body</strong> field should be JSON with <a href="https://stackoverflow.com/a/7382028" target="_blank">escaped HTML</a> in this format:</li>
+                        </ol>
+                        <ButtonTiny text="Show title news format" onClick={this.showTitleNewsSample} />
+                        <DialogWidthSmall
+                            hidden={!this.state.shouldShowTitleNewsFormat}
+                            onDismiss={this.hideTitleNewsSample}
+                            dialogContentProps={{
+                                title: "Sample title news body format"
+                            }}
+                        >
+                            <pre>{JSON.stringify(sampleTitleNewsItem, null, 4)}</pre>
+                        </DialogWidthSmall>
                     </React.Fragment>
                 </Grid>
             </Page>
         );
     }
 
+    private hideTitleNewsSample = (): void => {
+        this.setState({
+            shouldShowTitleNewsFormat: false,
+        });
+    }
+
+    private showTitleNewsSample = (): void => {
+        this.setState({
+            shouldShowTitleNewsFormat: true,
+        });
+    }
+
     private renderForm(): React.ReactNode {
         return (
             <React.Fragment>
                 <BackLink to={routes.MainMenu(this.props.appState.titleId)} label="Back to main menu" />
-                <h2>Upload</h2>
+                <h2>Upload Data</h2>
                 <p>This page will populate your title with everything you need to play.</p>
                 <p>Get the secret key for your title from <a href={utilities.createPlayFabLink(this.props.appState.titleId, "settings/secret-keys", true)} target="_blank">Settings &gt; Secret Keys</a>.</p>
                 <p>This page does not store nor transmit your secret key to anyone except PlayFab.</p>
