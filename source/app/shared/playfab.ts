@@ -209,6 +209,26 @@ function GetTitleNews(count: number, success: (data: PlayFabClientModels.TitleNe
     });
 }
 
+function GetLeaderboard(statistic: string, start: number, maxResults: number, success: (data: PlayFabClientModels.PlayerLeaderboardEntry[]) => void, error: (message: string) => void): void {
+    PlayFab.ClientApi.GetLeaderboard({
+        MaxResultsCount: maxResults,
+        StartPosition: start,
+        StatisticName: statistic,
+    },
+    (result, problem) => {
+        if(!is.null(problem)) {
+            return error(problem.errorMessage);
+        }
+
+        if(result.code === 200) {
+            success(result.data.Leaderboard);
+        }
+        else {
+            error(result.errorMessage);
+        }
+    });
+}
+
 function AdminAPIAddVirtualCurrencyTypes(secretKey: string, currencies: PlayFabAdminModels.VirtualCurrencyData[], success: () => void, error: (message: string) => void): void {
     PlayFab.settings.developerSecretKey = secretKey;
 
@@ -490,6 +510,9 @@ export const PlayFabHelper = {
     GetStoreItems,
     PurchaseItem,
     GetCatalogItems,
+    GetTitleNews,
+    GetLeaderboard,
+
     AdminAPIAddVirtualCurrencyTypes,
     AdminAPISetCatalogItems,
     AdminAPISetStoreItems,
@@ -502,5 +525,4 @@ export const PlayFabHelper = {
     AdminAPIGetStoreItems,
     AdminAPIGetTitleData,
     AdminAPIGetCloudScriptRevision,
-    GetTitleNews
 };
