@@ -20,6 +20,7 @@ import { Grid } from "../components/grid";
 interface IState {
     selectedStore: string;
     isBuyingSomething: boolean;
+    isRestoringHealth: boolean;
 }
 
 type Props = RouteComponentProps & IWithAppStateProps & IWithPageProps;
@@ -31,6 +32,7 @@ class HomeBasePageBase extends React.Component<Props, IState> {
         this.state = {
             selectedStore: null,
             isBuyingSomething: false,
+            isRestoringHealth: true,
         };
     }
 
@@ -75,7 +77,9 @@ class HomeBasePageBase extends React.Component<Props, IState> {
                     <Grid grid4x8>
                         <React.Fragment>
                             <h2>Welcome</h2>
-                            <p>Your health has been restored.</p>
+                            {this.state.isRestoringHealth
+                                ? <SpinnerLeft label="Restoring health..." labelPosition="right" />
+                                : <p>Your health has been restored.</p>}
                         </React.Fragment>
                         <React.Fragment>
                             {this.renderStores()}
@@ -237,6 +241,9 @@ class HomeBasePageBase extends React.Component<Props, IState> {
     private restorePlayerHP(): void {
         CloudScriptHelper.returnToHomeBase((response) => {
             this.props.dispatch(actionSetPlayerHP(response.maxHP));
+            this.setState({
+                isRestoringHealth: false,
+            });
         }, this.props.onPageError);
     }
 }

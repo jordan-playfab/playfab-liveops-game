@@ -139,7 +139,7 @@ class PlanetPageBase extends React.Component<Props, IState> {
                         )}
                     </DlStats>
                     <DlStats>
-                        <dt>Rewards:</dt>
+                        <dt>Rewards</dt>
                         {this.state.itemsGranted.map((itemId, index) => (
                             <dd key={index}>{this.props.appState.catalog.find(i => i.ItemId === itemId).DisplayName}</dd>
                         ))}
