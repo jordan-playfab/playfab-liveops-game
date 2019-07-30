@@ -7,6 +7,8 @@ import { GlobalStyle, defaultTheme, ThemeProvider } from "./styles";
 import { reduxStore } from "./store/store";
 import { AppStateContainer } from "./containers/app-state-container";
 
+require("../../static/favicon.ico");
+
 interface IProps {
     store: Store;
 }

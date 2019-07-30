@@ -4,7 +4,7 @@ import { ITitleDataEnemy, ITitleDataEnemyGroup } from "../shared/types";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { actionSetPlayerHP } from "../store/actions";
 import { is } from "../shared/is";
-import { PrimaryButton } from "office-ui-fabric-react";
+import { PrimaryButton, MessageBar, MessageBarType } from "office-ui-fabric-react";
 import { UlInline } from "../styles";
 
 interface IProps {
@@ -31,10 +31,6 @@ class CombatBase extends React.PureComponent<Props> {
     }
 
     public componentDidUpdate(prevProps: Props): void {
-        if(this.props.combatStage === CombatStage.Introduction) {
-            this.props.onCombatAdvanceStage();
-        }
-
         if(this.props.combatPlayerHP !== this.props.appState.playerHP) {
             this.props.dispatch(actionSetPlayerHP(this.props.combatPlayerHP));
         }
@@ -47,11 +43,15 @@ class CombatBase extends React.PureComponent<Props> {
     public render(): React.ReactNode {
         if(this.props.combatPlayerHP <= 0 && this.props.combatStage !== CombatStage.Dead) {
             return (
-                <p>Sorry, you're dead and cannot fight.</p>
+                <MessageBar title="Dead people cannot fight" messageBarType={MessageBarType.blocked} />
             );
         }
 
         switch(this.props.combatStage) {
+            case CombatStage.Introduction:
+                return (
+                    <React.Fragment></React.Fragment>
+                );
             case CombatStage.Dead:
                 return (
                     <React.Fragment>
