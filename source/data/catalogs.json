@@ -6,10 +6,10 @@
             "CatalogVersion": "Main",
             "DisplayName": "Handgun",
             "VirtualCurrencyPrices": {
-                "CR": 25
+                "CR": 50
             },
             "Tags": [],
-            "CustomData": "{\"damage\":5}",
+            "CustomData": "{\"damage\":15}",
             "Consumable": {},
             "CanBecomeCharacter": false,
             "IsStackable": false,
@@ -23,7 +23,7 @@
             "CatalogVersion": "Main",
             "DisplayName": "Assault Rifle",
             "VirtualCurrencyPrices": {
-                "CR": 100
+                "CR": 130
             },
             "Tags": [],
             "CustomData": "{\"damage\":25}",
@@ -76,7 +76,7 @@
             "CatalogVersion": "Main",
             "DisplayName": "Armor",
             "VirtualCurrencyPrices": {
-                "CR": 125
+                "CR": 150
             },
             "Tags": [],
             "CustomData": "{\"block\":1,\"reduce\":5}",
@@ -93,7 +93,7 @@
             "CatalogVersion": "Main",
             "DisplayName": "Rare Armor",
             "VirtualCurrencyPrices": {
-                "CR": 200
+                "CR": 275
             },
             "Tags": [],
             "CustomData": "{\"block\":3,\"reduce\":15}",
@@ -135,7 +135,7 @@
                 "BundledItems": [],
                 "BundledResultTables": [],
                 "BundledVirtualCurrencies": {
-                    "CR": 10
+                    "CR": 15
                 }
             },
             "CanBecomeCharacter": false,
