@@ -1,9 +1,9 @@
 # Tasks
 
-- [ ] Improve page design
-- [ ] Add logo
-- [ ] Favicon
-- [ ] Better instructions
+- [x] Improve page design
+- [x] Add logo
+- [x] Favicon
+- [x] Better instructions
 - [ ] How to go further
 - [x] Enemy groups
 - [x] Give new players something
@@ -20,9 +20,10 @@
 - [ ] Credits page
 - [x] Player title data to equip weapons and armor
 - [x] Improve equipping with multiple slots
-- [ ] Don't allow you to buy items you already have
+- [x] Don't allow you to buy items you already have
 - [ ] Why isn't HP being set when gaining a level?
 - [ ] Add internationalization
+- [ ] Title data at headquarters
 
 # Notes with Jasmine
 
@@ -77,11 +78,6 @@
 1. Title news viewable at HQ
 1. Ideas of what to do with segmentation
 
-## Priorities
-
-1. Page layout
-1. 
-
 # Pages
 
 1. Introduction / what is this
@@ -112,6 +108,7 @@
 1. Level curve generator
 1. Credits
     - Development: Jordan Roher
+    - Design: Jasmine Aye
     - Initial data: Ashton Summers
     - Azure build: Julio Colon
 1. Tutorial
