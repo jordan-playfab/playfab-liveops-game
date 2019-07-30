@@ -75,6 +75,10 @@ class LoginPageBase extends React.Component<Props, IState> {
         this.props.dispatch(actionSetPlayerId(player.PlayFabId));
         this.props.dispatch(actionSetPlayerName(this.state.playerName));
 
+        if(player.NewlyCreated) {
+            PlayFabHelper.UpdateUserTitleDisplayName(this.state.playerName, this.props.onPageNothing, this.props.onPageError);
+        }
+
         CloudScriptHelper.login((response) => {
             this.props.dispatch(actionSetPlayerHP(response.playerHP));
             this.props.dispatch(actionSetPlayerLevel(response.level));
@@ -95,10 +99,6 @@ class LoginPageBase extends React.Component<Props, IState> {
             this.props.dispatch(actionSetCatalog(catalog));
             this.goToGuide();
         }, this.props.onPageError);
-
-        if(player.NewlyCreated) {
-            PlayFabHelper.UpdateUserTitleDisplayName(this.state.playerName, this.props.onPageNothing, this.props.onPageError);
-        }
         
         this.goToGuide();
     }

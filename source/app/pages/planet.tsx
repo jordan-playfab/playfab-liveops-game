@@ -106,7 +106,7 @@ class PlanetPageBase extends React.Component<Props, IState> {
         }
 
         const title = (
-            <h3>Excellent work, recruit!</h3>
+            <h3>Excellent work, soldier!</h3>
         );
         
         if(this.state.isLoadingRewards) {
@@ -128,7 +128,7 @@ class PlanetPageBase extends React.Component<Props, IState> {
                         {!is.null(this.state.newXP) && (
                             <React.Fragment>
                                 <dt>Experience</dt>
-                                <dd>Gained {this.state.newXP} XP</dd>
+                                <dd>{this.state.newXP} XP gained</dd>
                             </React.Fragment>
                         )}
                         {!is.null(this.state.newLevel) && (
