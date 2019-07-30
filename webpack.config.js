@@ -57,6 +57,22 @@ module.exports = {
 				test: /PlayFabAdminApi\.js$/,
 				use: [ "script-loader" ]
 			},
+            {
+                test: /\.png$/,
+                loader: "file-loader",
+                options: {
+                    mimetype: "image/png",
+                    name: "img/[name].[ext]"
+                }
+            },
+            {
+                test: /\.jpg$/,
+                loader: "file-loader",
+                options: {
+                    mimetype: "image/jpg",
+                    name: "img/[name].[ext]"
+                }
+            },
 		],
 	},
 };

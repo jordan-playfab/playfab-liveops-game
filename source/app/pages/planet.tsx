@@ -1,12 +1,13 @@
 import React from "react";
+import { RouteComponentProps, Redirect } from "react-router";
+import { PrimaryButton } from "office-ui-fabric-react";
+
 import { is } from "../shared/is";
 import { PlayFabHelper } from "../shared/playfab";
-import { RouteComponentProps, Redirect } from "react-router";
 import { IPlanetData } from "../shared/types";
 import { routes } from "../routes";
-import { Page, IBreadcrumbRoute } from "../components/page";
-import { UlInline } from "../styles";
-import { PrimaryButton } from "office-ui-fabric-react";
+import { Page } from "../components/page";
+import { UlInline, SpinnerLeft } from "../styles";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { actionSetInventory, actionSetPlayerXP, actionSetPlayerLevel, actionSetPlayerHP } from "../store/actions";
 import { IWithPageProps, withPage } from "../containers/with-page";
@@ -14,6 +15,7 @@ import { utilities } from "../shared/utilities";
 import { Combat } from "../components/combat";
 import { IKilledEnemyGroupRequest } from "../../cloud-script/main";
 import { CloudScriptHelper } from "../shared/cloud-script";
+import { BackLink } from "../components/back-link";
 
 interface IState {
     areaName: string;
@@ -21,6 +23,7 @@ interface IState {
     itemsGranted: string[];
     newLevel: number;
     newXP: number;
+    isLoadingRewards: boolean;
 }
 
 interface IPlanetPageRouteProps {
@@ -39,19 +42,24 @@ class PlanetPageBase extends React.Component<Props, IState> {
             itemsGranted: null,
             newLevel: null,
             newXP: null,
+            isLoadingRewards: false,
         }
     }
 
     public render(): React.ReactNode {
-        if(!this.isValid()) {
-            return <Redirect to={routes.Home} />;
+        if(!this.props.appState.hasTitleId) {
+            return null;
+        }
+        
+        if(!this.props.appState.hasPlayerId) {
+            return (<Redirect to={routes.MainMenu(this.props.appState.titleId)} />);
         }
 
         return (
             <Page
                 {...this.props}
                 title={this.getPageTitle()}
-                breadcrumbs={this.getBreadcrumbs()}
+                shouldShowPlayerInfo
             >
                 {this.renderPlanet()}
             </Page>
@@ -64,7 +72,9 @@ class PlanetPageBase extends React.Component<Props, IState> {
         if(is.null(this.state.areaName)) {
             return (
                 <React.Fragment>
-                    <h3>Choose a region to fight in:</h3>
+                    <BackLink to={routes.Guide(this.props.appState.titleId)} label="Back to guide" />
+                    <h2>Welcome to {planet.name}</h2>
+                    <p>Choose a region to fight in:</p>
                     <UlInline>
                         {planet.areas.map((area) => (
                             <li key={area.name}><PrimaryButton text={area.name} onClick={this.setArea.bind(this, area.name)} /></li>
@@ -76,6 +86,8 @@ class PlanetPageBase extends React.Component<Props, IState> {
 
         return (
             <React.Fragment>
+                <BackLink onClick={this.onLeaveCombat} label={`Back to ${planet.name}`} />
+                <h2>{planet.name}, near {this.state.areaName}</h2>
                 {this.renderItemGranted()}
                 {this.renderCombat()}
             </React.Fragment>
@@ -83,6 +95,10 @@ class PlanetPageBase extends React.Component<Props, IState> {
     }
 
     private renderItemGranted(): React.ReactNode {
+        if(this.state.isLoadingRewards) {
+            return <SpinnerLeft label="Reporting victory to headquarters..." labelPosition="right" />
+        }
+
         if(is.null(this.state.itemsGranted)) {
             return null;
         }
@@ -102,7 +118,7 @@ class PlanetPageBase extends React.Component<Props, IState> {
                         <li key={index}>{this.props.appState.catalog.find(i => i.ItemId === itemId).DisplayName}</li>
                     ))}
                 </ul>
-                
+                <p><PrimaryButton onClick={this.onLeaveCombat} text={`Return to ${this.getPlanetName()}`} /></p>
             </React.Fragment>
             
         )
@@ -118,7 +134,7 @@ class PlanetPageBase extends React.Component<Props, IState> {
                 area={this.state.areaName}
                 enemyGroup={enemyGroup}
                 enemies={enemyData}
-                onCombatOver={this.onCombatFinished}
+                onCombatFinished={this.onCombatFinished}
                 onLeaveCombat={this.onLeaveCombat}
             />
         );
@@ -129,6 +145,10 @@ class PlanetPageBase extends React.Component<Props, IState> {
         if(this.props.appState.playerHP === 0) {
             return;
         }
+
+        this.setState({
+            isLoadingRewards: true,
+        });
 
         const combatReport: IKilledEnemyGroupRequest = {
             area: this.state.areaName,
@@ -180,6 +200,10 @@ class PlanetPageBase extends React.Component<Props, IState> {
                     newLevel: null,
                 });
             }
+
+            this.setState({
+                isLoadingRewards: false,
+            });
         }, this.props.onPageError);
     }
 
@@ -221,10 +245,6 @@ class PlanetPageBase extends React.Component<Props, IState> {
         });
     }
 
-    private isValid(): boolean {
-        return this.props.appState.hasTitleId && this.props.appState.hasPlayerId;
-    }
-
     private getPlanetData(): IPlanetData {
         const planetName = this.getPlanetName();
 
@@ -240,34 +260,7 @@ class PlanetPageBase extends React.Component<Props, IState> {
             return `${this.state.areaName} Region`;
         }
 
-        return `Welcome to ${this.getPlanetName()}`;
-    }
-
-    private getBreadcrumbs(): IBreadcrumbRoute[] {
-        const planetName = this.getPlanetName();
-
-        if(is.null(planetName)) {
-            return null;
-        }
-
-        const breadcrumbs: IBreadcrumbRoute[] = [{
-            text: planetName,
-            href: routes.Planet.replace(":name", planetName),
-            onClick: is.null(this.state.areaName)
-                ? null
-                : () => {
-                    this.setArea(null);
-                }
-        }];
-
-        if(!is.null(this.state.areaName)) {
-            breadcrumbs.push({
-                text: this.state.areaName,
-                href: ""
-            });
-        }
-
-        return breadcrumbs;
+        return this.getPlanetName();
     }
 }
 

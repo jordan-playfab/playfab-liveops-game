@@ -96,6 +96,8 @@ const App = {
         return App.UpdateUserData(currentPlayerId, userDataStringDictionary, null, true);
     },
     WritePlayerEvent(playerId, eventName, body) {
+        // Event name only allows characters and underscores
+        eventName = eventName.replace(/[^a-z_]/gi, "_");
         server.WritePlayerEvent({
             PlayFabId: playerId,
             EventName: eventName,

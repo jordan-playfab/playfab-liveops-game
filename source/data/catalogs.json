@@ -76,10 +76,10 @@
             "CatalogVersion": "Main",
             "DisplayName": "Armor",
             "VirtualCurrencyPrices": {
-                "CR": 50
+                "CR": 125
             },
             "Tags": [],
-            "CustomData": "{\"Defense\":\"5\"}",
+            "CustomData": "{\"block\":1,\"reduce\":5}",
             "Consumable": {},
             "CanBecomeCharacter": false,
             "IsStackable": false,
@@ -93,10 +93,10 @@
             "CatalogVersion": "Main",
             "DisplayName": "Rare Armor",
             "VirtualCurrencyPrices": {
-                "CR": 150
+                "CR": 200
             },
             "Tags": [],
-            "CustomData": "{\"Defense\":\"20\"}",
+            "CustomData": "{\"block\":3,\"reduce\":15}",
             "Consumable": {},
             "CanBecomeCharacter": false,
             "IsStackable": false,
@@ -110,10 +110,10 @@
             "CatalogVersion": "Main",
             "DisplayName": "Legendary Armor",
             "VirtualCurrencyPrices": {
-                "CR": 200
+                "CR": 500
             },
             "Tags": [],
-            "CustomData": "{\"Defense\":\"20\"}",
+            "CustomData": "{\"block\":7,\"reduce\":25}",
             "Consumable": {},
             "CanBecomeCharacter": false,
             "IsStackable": false,

@@ -45,6 +45,11 @@ export interface IWeaponItemCustomData {
     damage: number;
 }
 
+export interface IArmorItemCustomData {
+    block: number;
+    reduce: number;
+}
+
 // ----- App interfaces ----- //
 
 export interface IStringDictionary {
@@ -67,7 +72,7 @@ interface IProgressStage {
 
 export const PROGRESS_STAGES: IProgressStage[] = [{
     key: "currency",
-    title: "Currency",
+    title: "Currencies",
     filename: "virtual-currency.json"
 },
 {
@@ -82,7 +87,7 @@ export const PROGRESS_STAGES: IProgressStage[] = [{
 },
 {
     key: "store",
-    title: "Store",
+    title: "Stores",
     filename: "stores.json"
 },
 {

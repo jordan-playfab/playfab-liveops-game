@@ -1,14 +1,26 @@
 import React from "react";
-import { RouteComponentProps, Redirect } from "react-router";
-import { Page } from "../components/page";
+import { RouteComponentProps } from "react-router";
 import { MessageBar, MessageBarType, TextField, PrimaryButton, ProgressIndicator } from "office-ui-fabric-react";
+
+import { Page } from "../components/page";
 import { is } from "../shared/is";
-import { DivConfirm, UlNull } from "../styles";
+import styled, { DivConfirm, DivField, SpinnerLeft } from "../styles";
 import { routes } from "../routes";
 import { PROGRESS_STAGES, CATALOG_VERSION, TITLE_DATA_STORES } from "../shared/types";
 import { PlayFabHelper } from "../shared/playfab";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { withPage, IWithPageProps } from "../containers/with-page";
+import { utilities } from "../shared/utilities";
+import { BackLink } from "../components/back-link";
+import { Grid } from "../components/grid";
+
+const DivDownloadGrid = styled.div`
+    margin-top: ${s => s.theme.size.spacer};
+`;
+
+const MessageBarSuccess = styled(MessageBar)`
+    margin: ${s => s.theme.size.spacer} 0;
+`;
 
 interface IState {
     secretKey: string;
@@ -51,14 +63,11 @@ class DownloadPageBase extends React.PureComponent<Props, IState> {
 
     public render(): React.ReactNode {
         if(!this.props.appState.hasTitleId) {
-            return <Redirect to={routes.Home} />;
+            return null;
         }
 
         return (
             <Page {...this.props} title="Download Data">
-                {!is.null(this.props.pageError) && (
-                    <MessageBar messageBarType={MessageBarType.error}>{this.props.pageError}</MessageBar>
-                )}
                 {this.state.hasSecretKey
                     ? this.renderDownload()
                     : this.renderSecretKey()}
@@ -68,32 +77,42 @@ class DownloadPageBase extends React.PureComponent<Props, IState> {
 
     private renderSecretKey(): React.ReactNode {
         return (
-            <form onSubmit={this.setHasSecretKey}>
-                <p>Want to download your game changes? This page makes it (sort of) easy.</p>
-                <p>Get the <strong>secret key</strong> for your game by going to <strong>Settings &gt; Secret Keys</strong>.</p>
-                <p>This page does not store nor transmit your secret key to anyone except PlayFab, but it's a good idea to make a new key just in case.</p>
-                <fieldset>
-                    <legend>Secret key</legend>
-
-                    <TextField label="Secret key" onChange={this.setSecretKey} autoFocus />
-                    <DivConfirm>
-                        <PrimaryButton text="Begin download" onClick={this.setHasSecretKey} />
-                    </DivConfirm>
-                </fieldset>
+            <form onSubmit={this.startDownload}>
+                <BackLink to={routes.MainMenu(this.props.appState.titleId)} label="Back to main menu" />
+                <h2>Download</h2>
+                <p>This page will download data from your title to make it easier to re-upload using our <a href="https://github.com/jordan-playfab/playfab-liveops-game/">GitHub repository</a>.</p>
+                <p>Get the secret key for your title from <a href={utilities.createPlayFabLink(this.props.appState.titleId, "settings/secret-keys", true)} target="_blank">Settings &gt; Secret Keys</a>.</p>
+                <p>This page does not store nor transmit your secret key to anyone except PlayFab.</p>
+                <DivField>
+                    <TextField label="Secret key" onChange={this.onChangeSecretKey} autoFocus />
+                </DivField>
+                <DivConfirm>
+                    <PrimaryButton text="Begin download" onClick={this.startDownload} />
+                </DivConfirm>
             </form>
         );
     }
 
     private renderDownload(): React.ReactNode {
         const percentComplete = Math.min(1, (this.state.downloadProgress / PROGRESS_STAGES.length) + 0.1);
+        const title = percentComplete < 1
+            ? "Download in progress"
+            : "Download complete";
+        const spinnerLabel = `Downloading ${this.getProgressTitle()}...`;
+
         return (
             <React.Fragment>
+                <BackLink to={routes.MainMenu(this.props.appState.titleId)} label="Back to main menu" />
+                <h2>{title}</h2>
                 {percentComplete < 1
                 ? (
-                    <ProgressIndicator label={this.getProgressTitle()} percentComplete={percentComplete} />
+                    <React.Fragment>
+                        <SpinnerLeft label={spinnerLabel} labelPosition="right" />
+                        <ProgressIndicator percentComplete={percentComplete} />
+                    </React.Fragment>
                 )
                 : (
-                    <p>Save these text fields to the .JSON files inside <strong>/source/data</strong>.</p>
+                    <MessageBarSuccess messageBarType={MessageBarType.success}>Save these text fields to the JSON files inside the <code>/source/data</code> folder.</MessageBarSuccess>
                 )}
                 {this.renderDownloadContent()}
             </React.Fragment>
@@ -106,14 +125,21 @@ class DownloadPageBase extends React.PureComponent<Props, IState> {
         }
 
         return (
-            <UlNull>
-                {this.state.downloadContent.map((d, index) => (
-                    <li key={index}>
-                        <label>{d.title}</label>
-                        <TextField multiline value={d.content} rows={10} />
-                    </li>
-                ))}
-            </UlNull>
+            <React.Fragment>
+                {!is.null(this.props.pageError) && (
+                    <MessageBar messageBarType={MessageBarType.error}>{this.props.pageError}</MessageBar>
+                )}
+                <DivDownloadGrid>
+                    <Grid grid6x6>
+                        {this.state.downloadContent.map((d, index) => (
+                            <React.Fragment key={index}>
+                                <h3>{d.title}</h3>
+                                <TextField multiline value={d.content} rows={10} />
+                            </React.Fragment>
+                        ))}
+                    </Grid>
+                </DivDownloadGrid>
+            </React.Fragment>
         )
     }
 
@@ -182,17 +208,13 @@ class DownloadPageBase extends React.PureComponent<Props, IState> {
         }
     }
 
-    private goToPage = (page: string): void => {
-        this.props.history.push(page);
-    }
-
-    private setSecretKey = (_: any, newValue: string): void => {
+    private onChangeSecretKey = (_: any, newValue: string): void => {
         this.setState({
             secretKey: newValue,
         });
     }
 
-    private setHasSecretKey = (): void => {
+    private startDownload = (): void => {
         this.setState({
             hasSecretKey: true,
         }, this.runDownload);

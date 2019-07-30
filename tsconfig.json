@@ -14,6 +14,8 @@
     ],
     "include": [
         "./source/*",
-        "./source/**/*"
+        "./source/**/*",
+        "./static/*",
+        "./static/**/*"
     ]
 }

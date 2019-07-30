@@ -1,66 +1,48 @@
 import React from "react";
-import { DefaultButton } from "office-ui-fabric-react";
 
-import { is } from "../shared/is";
 import styled from "../styles";
-import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
-import { actionSetTitleId } from "../store/actions";
-import { utilities } from "../shared/utilities";
+import logo from "../../../static/img/logo.png";
+import { is } from "../shared/is";
 
-const HeaderWrapper = styled.header`
-    position: relative;
+const logoSize = "256px";
+
+const DivHeaderWrapper = styled.div`
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
 `;
 
-const H1Tag = styled.h1`
-    text-align: center;
+const DivLogo = styled.div`
+    padding: ${s => s.theme.size.spacer};
+    flex-basis: ${logoSize};
 `;
 
-const DivTitleID = styled.div`
-    position: absolute;
-    top: 0.5em;
-    right: 0.5em;
-    margin: 0;
-    text-align: center;
+const DivTitle = styled.div`
+    flex-grow: 1;
+    padding: 0 ${s => s.theme.size.spacer} 0 ${s => s.theme.size.spacer2};
 `;
 
-const PTagline = styled.p`
-    text-align: center;
-    border-bottom: 2px solid ${s => s.theme.color.border200};
-    padding-bottom: 1em;
+const ImgLogo = styled.img`
+    width: ${logoSize};
 `;
 
-const ButtonReset = styled(DefaultButton)`
-    font-size: 0.8em;
-    padding: 0.2em;
-    min-width: none;
-    height: auto;
-    margin-top: 0.2em;
-`;
-
-type Props = IWithAppStateProps;
-
-class HeaderBase extends React.PureComponent<Props> {
-    public render(): React.ReactNode {
-        return (
-            <HeaderWrapper>
-                <H1Tag>Vanguard Outrider</H1Tag>
-                {!is.null(this.props.appState.titleId) && (
-                    <DivTitleID>
-                        <div><strong>Title ID</strong></div>
-                        <div>{this.props.appState.titleId}</div>
-                        <div><ButtonReset text="Reset" onClick={this.resetTitleId} /></div>
-                    </DivTitleID>
-                )}
-                <PTagline>A looter shooter game simulation using <a href="https://playfab.com/" target="_blank">PlayFab</a></PTagline>
-            </HeaderWrapper>
-        );
-    }
-
-    private resetTitleId = (): void => {
-        PlayFab.settings.titleId = null;
-        utilities.setTitleId(null);
-        this.props.dispatch(actionSetTitleId(null));
-    }
+interface IProps {
+    title?: string;
 }
 
-export const Header = withAppState(HeaderBase);
+export class Header extends React.PureComponent<IProps> {
+    public render(): React.ReactNode {
+        return (
+            <header>
+                <DivHeaderWrapper>
+                    <DivLogo><ImgLogo src={logo} alt="Vanguard Outrider" /></DivLogo>
+                    {!is.null(this.props.title) && (
+                        <DivTitle>
+                            <h1>{this.props.title}</h1>
+                        </DivTitle>
+                    )}
+                </DivHeaderWrapper>
+            </header>
+        );
+    }
+}

@@ -5,19 +5,19 @@
                 {
                     "ItemId": "CommonArmor",
                     "VirtualCurrencyPrices": {
-                        "CR": 50
-                    }
-                },
-                {
-                    "ItemId": "LegendaryArmor",
-                    "VirtualCurrencyPrices": {
-                        "CR": 200
+                        "CR": 125
                     }
                 },
                 {
                     "ItemId": "RareArmor",
                     "VirtualCurrencyPrices": {
-                        "CR": 150
+                        "CR": 200
+                    }
+                },
+                {
+                    "ItemId": "LegendaryArmor",
+                    "VirtualCurrencyPrices": {
+                        "CR": 500
                     }
                 }
             ],
@@ -56,7 +56,7 @@
             "CatalogVersion": "Main",
             "StoreId": "Weapons",
             "MarketingData": {
-                "DisplayName": "The Best Defense"
+                "DisplayName": "Guns, Bullets, and Beyond"
             }
         }
     ]

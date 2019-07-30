@@ -1,19 +1,21 @@
 import React from "react";
-import { is } from "../shared/is";
 import { Redirect, RouteComponentProps } from "react-router";
+import { PrimaryButton } from "office-ui-fabric-react";
+
+import { is } from "../shared/is";
 import { routes } from "../routes";
 import { Store } from "../components/store";
 import { PlayFabHelper } from "../shared/playfab";
-import { Page, IBreadcrumbRoute } from "../components/page";
-import { UlInline } from "../styles";
-import { PrimaryButton, Spinner } from "office-ui-fabric-react";
+import { Page } from "../components/page";
+import { UlInline, SpinnerLeft } from "../styles";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { actionSetInventory, actionSetStores, actionSetPlayerHP, actionSetEquipmentSingle } from "../store/actions";
 import { CATALOG_VERSION } from "../shared/types";
 import { IWithPageProps, withPage } from "../containers/with-page";
-import { IReturnToHomeBaseResponse } from "../../cloud-script/main";
 import { getSlotTypeFromItemClass, EquipmentSlotTypes } from "../store/types";
 import { CloudScriptHelper } from "../shared/cloud-script";
+import { BackLink } from "../components/back-link";
+import { Grid } from "../components/grid";
 
 interface IState {
     selectedStore: string;
@@ -40,8 +42,12 @@ class HomeBasePageBase extends React.Component<Props, IState> {
     }
 
     public render(): React.ReactNode {
-        if(!this.isValid()) {
-            return <Redirect to={routes.Home} />;
+        if(!this.props.appState.hasTitleId) {
+            return null;
+        }
+        
+        if(!this.props.appState.hasPlayerId) {
+            return (<Redirect to={routes.MainMenu(this.props.appState.titleId)} />);
         }
 
         const store = this.getStore();
@@ -49,34 +55,32 @@ class HomeBasePageBase extends React.Component<Props, IState> {
         return (
             <Page
                 {...this.props}
-                breadcrumbs={this.getBreadcrumbs()}
                 title={is.null(store)
-                    ? "Welcome to Home Base"
+                    ? "Headquarters"
                     : store.MarketingData.DisplayName}
+                shouldShowPlayerInfo
             >
-                {this.renderStores()}
+                {this.renderPage()}
             </Page>
         );
     }
 
-    public renderStores(): React.ReactNode {
-        if(is.null(this.props.appState.stores)) {
-            return (
-                <Spinner label="Loading stores" />
-            );
-        }
-
+    public renderPage(): React.ReactNode {
         if(is.null(this.state.selectedStore)) {
             return (
                 <React.Fragment>
-                    <p>Your health has been restored.</p>
-                    <h3>Stores</h3>
-                    <UlInline>
-                        {this.props.appState.stores.map((store, index) => (
-                            <li key={index}><PrimaryButton text={store.MarketingData.DisplayName} onClick={this.openStore.bind(this, store.StoreId)} /></li>
-                        ))}
-                    </UlInline>
+                    <BackLink to={routes.Guide(this.props.appState.titleId)} label="Back to guide" />
+                    <Grid grid4x8>
+                        <React.Fragment>
+                            <h2>Welcome</h2>
+                            <p>Your health has been restored.</p>
+                        </React.Fragment>
+                        <React.Fragment>
+                            {this.renderStores()}
+                        </React.Fragment>
+                    </Grid>
                 </React.Fragment>
+                
             );
         }
 
@@ -84,12 +88,42 @@ class HomeBasePageBase extends React.Component<Props, IState> {
 
         return (
             <Store
+                titleId={this.props.appState.titleId}
                 store={store}
                 onBuy={this.onBuyFromStore}
                 catalogItems={this.props.appState.catalog}
                 playerWallet={this.props.appState.inventory.VirtualCurrency}
+                onLeaveStore={this.onLeaveStore}
+                storeName={this.getStore().MarketingData.DisplayName}
+                inventory={this.props.appState.inventory.Inventory}
             />
         )
+    }
+
+    private renderStores(): React.ReactNode  {
+        if(is.null(this.props.appState.stores)) {
+            return (
+                <React.Fragment>
+                    <h2>Stores</h2>
+                    <SpinnerLeft label="Loading stores..." labelPosition="right" />
+                </React.Fragment>
+            );
+        }
+
+        return (
+            <React.Fragment>
+                <h2>Stores</h2>
+                <UlInline>
+                    {this.props.appState.stores.map((store, index) => (
+                        <li key={index}><PrimaryButton text={store.MarketingData.DisplayName} onClick={this.openStore.bind(this, store.StoreId)} /></li>
+                    ))}
+                </UlInline>
+            </React.Fragment>
+        );
+    }
+
+    private onLeaveStore = (): void => {
+        this.openStore(null);
     }
 
     private openStore = (selectedStore: string): void => {
@@ -151,29 +185,6 @@ class HomeBasePageBase extends React.Component<Props, IState> {
             itemInstanceId: item.ItemInstanceId,
             slot
         }], this.props.onPageNothing, this.props.onPageError);
-    }
-
-    private getBreadcrumbs(): IBreadcrumbRoute[] {
-        const breadcrumbs: IBreadcrumbRoute[] = [{
-            text: "Home Base",
-            href: routes.HomeBase,
-            onClick: is.null(this.state.selectedStore)
-                ? null
-                : () => {
-                    this.openStore(null);
-                }
-        }];
-
-        const store = this.getStore();
-
-        if(!is.null(store)) {
-            breadcrumbs.push({
-                text: store.MarketingData.DisplayName,
-                href: ""
-            });
-        }
-
-        return breadcrumbs;
     }
 
     private isValid(): boolean {
