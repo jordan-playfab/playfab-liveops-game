@@ -3,6 +3,34 @@
         {
             "Store": [
                 {
+                    "ItemId": "Handgun",
+                    "VirtualCurrencyPrices": {
+                        "CR": 50
+                    }
+                },
+                {
+                    "ItemId": "AssaultRifle",
+                    "VirtualCurrencyPrices": {
+                        "CR": 130
+                    }
+                },
+                {
+                    "ItemId": "RocketLauncher",
+                    "VirtualCurrencyPrices": {
+                        "CR": 500
+                    }
+                }
+            ],
+            "Source": "Admin",
+            "CatalogVersion": "Main",
+            "StoreId": "Weapons",
+            "MarketingData": {
+                "DisplayName": "Guns, Bullets, and Beyond"
+            }
+        },
+        {
+            "Store": [
+                {
                     "ItemId": "CommonArmor",
                     "VirtualCurrencyPrices": {
                         "CR": 125
@@ -29,34 +57,6 @@
                 "Metadata": {
                     "key": "value"
                 }
-            }
-        },
-        {
-            "Store": [
-                {
-                    "ItemId": "Handgun",
-                    "VirtualCurrencyPrices": {
-                        "CR": 25
-                    }
-                },
-                {
-                    "ItemId": "AssaultRifle",
-                    "VirtualCurrencyPrices": {
-                        "CR": 100
-                    }
-                },
-                {
-                    "ItemId": "RocketLauncher",
-                    "VirtualCurrencyPrices": {
-                        "CR": 500
-                    }
-                }
-            ],
-            "Source": "Admin",
-            "CatalogVersion": "Main",
-            "StoreId": "Weapons",
-            "MarketingData": {
-                "DisplayName": "Guns, Bullets, and Beyond"
             }
         }
     ]

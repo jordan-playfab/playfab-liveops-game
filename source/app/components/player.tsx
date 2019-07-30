@@ -61,7 +61,13 @@ const DialogInventory = styled(Dialog)`
     }
 `;
 
-const ButtonItem = styled(PrimaryButton)`
+const ButtonUneqipped = styled(DefaultButton)`
+    padding: ${s => s.theme.size.spacerD2} ${s => s.theme.size.spacer};
+    min-width: none;
+    height: auto;
+`;
+
+const ButtonEqipped = styled(PrimaryButton)`
     padding: ${s => s.theme.size.spacerD2} ${s => s.theme.size.spacer};
     min-width: none;
     height: auto;
@@ -110,11 +116,7 @@ class PlayerBase extends React.Component<Props, IState> {
 
     private renderInventory(): React.ReactNode {
         if(is.null(this.props.appState.inventory) || is.null(this.props.appState.inventory.Inventory) || is.null(this.props.appState.equipment)) {
-            return (
-                <DivPlayerInventory>
-                    <ButtonInventory text="No items" />
-                </DivPlayerInventory>
-            );
+            return null;
         }
 
         const buttonText = this.props.appState.inventory.Inventory.length === 1
@@ -181,8 +183,8 @@ class PlayerBase extends React.Component<Props, IState> {
                 {items.map((item, index) => (
                     <li key={index}>
                         {is.inArray(equippedItemInstanceIds, item.ItemInstanceId)
-                            ? (<React.Fragment>{item.DisplayName} (equipped)</React.Fragment>)
-                            : (<ButtonItem onClick={this.equipItem.bind(this, item)} text={item.DisplayName} />)}
+                            ? (<ButtonEqipped text={item.DisplayName} disabled />)
+                            : (<ButtonUneqipped onClick={this.equipItem.bind(this, item)} text={item.DisplayName} />)}
                     </li>
                 ))}
             </UlInventory>
