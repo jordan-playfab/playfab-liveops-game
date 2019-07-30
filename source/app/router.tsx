@@ -8,11 +8,11 @@ import { IndexPage } from "./pages";
 import { LoginPage } from "./pages/login";
 import { PlanetPage } from "./pages/planet";
 import { NotFoundPage } from "./pages/not-found";
-import { HomeBasePage } from "./pages/home-base";
+import { HeadquartersPage } from "./pages/headquarters";
 import { UploadPage } from "./pages/upload";
 import { DownloadPage } from "./pages/download";
 import { LevelPage } from "./pages/level";
-import { MainMenuPage } from "./pages/main-menu";
+import { MainMenuPage } from "./pages/menu";
 import { GuidePage } from "./pages/guide";
 
 type Props = IWithAppStateProps;
@@ -27,7 +27,7 @@ class RouterBase extends React.Component<Props> {
 					<Route exact path={routeNames.Login} component={LoginPage} />
 					<Route exact path={routeNames.Guide} component={GuidePage} />
 					<Route exact path={routeNames.Planet} component={PlanetPage} />
-					<Route exact path={routeNames.Headquarters} component={HomeBasePage} />
+					<Route exact path={routeNames.Headquarters} component={HeadquartersPage} />
 					<Route exact path={routeNames.Upload} component={UploadPage} />
 					<Route exact path={routeNames.Download} component={DownloadPage} />
 					<Route exact path={routeNames.LevelCurve} component={LevelPage} />

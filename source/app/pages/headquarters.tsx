@@ -21,11 +21,12 @@ interface IState {
     selectedStore: string;
     isBuyingSomething: boolean;
     isRestoringHealth: boolean;
+    titleNews: PlayFabClientModels.TitleNewsItem[];
 }
 
 type Props = RouteComponentProps & IWithAppStateProps & IWithPageProps;
 
-class HomeBasePageBase extends React.Component<Props, IState> {
+class HeadquartersPageBase extends React.Component<Props, IState> {
     constructor(props: Props) {
         super(props);
 
@@ -33,6 +34,7 @@ class HomeBasePageBase extends React.Component<Props, IState> {
             selectedStore: null,
             isBuyingSomething: false,
             isRestoringHealth: true,
+            titleNews: null,
         };
     }
 
@@ -234,7 +236,7 @@ class HomeBasePageBase extends React.Component<Props, IState> {
                     })
                     this.props.dispatch(actionSetStores(stores));
                 }
-            }, this.props.onPageError)
+            }, this.props.onPageError);
         });
     }
 
@@ -248,4 +250,4 @@ class HomeBasePageBase extends React.Component<Props, IState> {
     }
 }
 
-export const HomeBasePage = withAppState(withPage(HomeBasePageBase));
+export const HeadquartersPage = withAppState(withPage(HeadquartersPageBase));

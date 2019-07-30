@@ -191,6 +191,24 @@ function GetCatalogItems(catalogVersion: string, success: (data: PlayFabClientMo
     })
 }
 
+function GetTitleNews(count: number, success: (data: PlayFabClientModels.TitleNewsItem[]) => void, error: (message: string) => void): void {
+    PlayFab.ClientApi.GetTitleNews({
+        Count: count,
+    },
+    (result, problem) => {
+        if(!is.null(problem)) {
+            return error(problem.errorMessage);
+        }
+
+        if(result.code === 200) {
+            success(result.data.News);
+        }
+        else {
+            error(result.errorMessage);
+        }
+    });
+}
+
 function AdminAPIAddVirtualCurrencyTypes(secretKey: string, currencies: PlayFabAdminModels.VirtualCurrencyData[], success: () => void, error: (message: string) => void): void {
     PlayFab.settings.developerSecretKey = secretKey;
 
@@ -483,5 +501,6 @@ export const PlayFabHelper = {
     AdminAPIGetRandomResultTables,
     AdminAPIGetStoreItems,
     AdminAPIGetTitleData,
-    AdminAPIGetCloudScriptRevision
+    AdminAPIGetCloudScriptRevision,
+    GetTitleNews
 };
