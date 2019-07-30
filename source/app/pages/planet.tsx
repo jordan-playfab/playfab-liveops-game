@@ -1,13 +1,13 @@
 import React from "react";
 import { RouteComponentProps, Redirect } from "react-router";
-import { PrimaryButton } from "office-ui-fabric-react";
+import { PrimaryButton, DocumentCard, DocumentCardTitle } from "office-ui-fabric-react";
 
 import { is } from "../shared/is";
 import { PlayFabHelper } from "../shared/playfab";
 import { IPlanetData } from "../shared/types";
 import { routes } from "../routes";
 import { Page } from "../components/page";
-import { UlInline, SpinnerLeft } from "../styles";
+import styled, { UlInline, SpinnerLeft, DlStats, DivDocumentCardInterior } from "../styles";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { actionSetInventory, actionSetPlayerXP, actionSetPlayerLevel, actionSetPlayerHP } from "../store/actions";
 import { IWithPageProps, withPage } from "../containers/with-page";
@@ -24,11 +24,16 @@ interface IState {
     newLevel: number;
     newXP: number;
     isLoadingRewards: boolean;
+    isCombatFinished: boolean;
 }
 
 interface IPlanetPageRouteProps {
     name: string;
 }
+
+const DocumentCardCombat = styled(DocumentCard)`
+    margin-top: ${s => s.theme.size.spacer};
+`;
 
 type Props = RouteComponentProps<IPlanetPageRouteProps> & IWithAppStateProps & IWithPageProps;
 
@@ -43,6 +48,7 @@ class PlanetPageBase extends React.Component<Props, IState> {
             newLevel: null,
             newXP: null,
             isLoadingRewards: false,
+            isCombatFinished: false,
         }
     }
 
@@ -88,40 +94,60 @@ class PlanetPageBase extends React.Component<Props, IState> {
             <React.Fragment>
                 <BackLink onClick={this.onLeaveCombat} label={`Back to ${planet.name}`} />
                 <h2>{planet.name}, near {this.state.areaName}</h2>
-                {this.renderItemGranted()}
+                {this.renderCombatVictory()}
                 {this.renderCombat()}
             </React.Fragment>
         );
     }
 
-    private renderItemGranted(): React.ReactNode {
-        if(this.state.isLoadingRewards) {
-            return <SpinnerLeft label="Reporting victory to headquarters..." labelPosition="right" />
-        }
-
-        if(is.null(this.state.itemsGranted)) {
+    private renderCombatVictory(): React.ReactNode {
+        if(!this.state.isCombatFinished) {
             return null;
         }
 
+        const title = (
+            <h3>Excellent work, recruit!</h3>
+        );
+        
+        if(this.state.isLoadingRewards) {
+            return (
+                <DocumentCardCombat>
+                    <DivDocumentCardInterior>
+                        {title}
+                        <SpinnerLeft label="Reporting victory to headquarters..." labelPosition="right" />
+                    </DivDocumentCardInterior>
+                </DocumentCardCombat>
+            );
+        }
+
         return (
-            <React.Fragment>
-                <p>Good job in combat!</p>
-                {!is.null(this.state.newXP) && (
-                    <p>You gained {this.state.newXP} XP.</p>
-                )}
-                {!is.null(this.state.newLevel) && (
-                    <p>Congratulations! You are now level {this.state.newLevel}!</p>
-                )}
-                <p>Rewards:</p>
-                <ul>
-                    {this.state.itemsGranted.map((itemId, index) => (
-                        <li key={index}>{this.props.appState.catalog.find(i => i.ItemId === itemId).DisplayName}</li>
-                    ))}
-                </ul>
-                <p><PrimaryButton onClick={this.onLeaveCombat} text={`Return to ${this.getPlanetName()}`} /></p>
-            </React.Fragment>
-            
-        )
+            <DocumentCardCombat>
+                <DivDocumentCardInterior>
+                    {title}
+                    <DlStats>
+                        {!is.null(this.state.newXP) && (
+                            <React.Fragment>
+                                <dt>Experience</dt>
+                                <dd>Gained {this.state.newXP} XP</dd>
+                            </React.Fragment>
+                        )}
+                        {!is.null(this.state.newLevel) && (
+                            <React.Fragment>
+                                <dt>Level</dt>
+                                <dd>Congratulations, you reached level {this.state.newLevel}</dd>
+                            </React.Fragment>
+                        )}
+                    </DlStats>
+                    <DlStats>
+                        <dt>Rewards:</dt>
+                        {this.state.itemsGranted.map((itemId, index) => (
+                            <dd key={index}>{this.props.appState.catalog.find(i => i.ItemId === itemId).DisplayName}</dd>
+                        ))}
+                    </DlStats>
+                    <p><PrimaryButton onClick={this.onLeaveCombat} text={`Return to ${this.getPlanetName()}`} /></p>
+                </DivDocumentCardInterior>
+            </DocumentCardCombat>
+        );
     }
 
     private renderCombat(): React.ReactNode {
@@ -149,6 +175,7 @@ class PlanetPageBase extends React.Component<Props, IState> {
 
         this.setState({
             isLoadingRewards: true,
+            isCombatFinished: true,
         });
 
         const combatReport: IKilledEnemyGroupRequest = {
@@ -222,6 +249,7 @@ class PlanetPageBase extends React.Component<Props, IState> {
                 areaName: null,
                 enemyGroupName: null,
                 itemsGranted: null,
+                isCombatFinished: false,
             });
 
             return;
@@ -263,7 +291,7 @@ class PlanetPageBase extends React.Component<Props, IState> {
             return planetName;
         }
 
-        return `${planetName}, near ${this.state.areaName}`;
+        return `${planetName}, ${this.state.areaName}`;
     }
 
     private onReturnToHeadquarters = (): void => {

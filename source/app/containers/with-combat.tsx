@@ -139,8 +139,10 @@ export const withCombat = <P extends IWithCombatProps>(Component: React.Componen
                     return prevState;
                 }
 
+                const playerDamage = Math.ceil(this.state.playerDamage * (utilities.getRandomInteger(80, 120) / 100));
+
                 const enemyName = prevState.enemies[enemyIndex].name;
-                const enemyHP = prevState.enemies[enemyIndex].hp - this.state.playerDamage;
+                const enemyHP = prevState.enemies[enemyIndex].hp - playerDamage;
                 
                 if(enemyHP <= 0) {
                     // You killed an enemy
@@ -161,7 +163,7 @@ export const withCombat = <P extends IWithCombatProps>(Component: React.Componen
                             source: "player",
                             enemyIndex,
                             enemyName,
-                            damage: this.state.playerDamage,
+                            damage: playerDamage,
                             message: `You defeated ${enemyName} #${enemyIndex + 1}`,
                         },
                         isActionHappening: true,
@@ -176,7 +178,7 @@ export const withCombat = <P extends IWithCombatProps>(Component: React.Componen
                             source: "player",
                             enemyIndex,
                             enemyName,
-                            damage: this.state.playerDamage,
+                            damage: playerDamage,
                         },
                         isActionHappening: true,
                         enemies: prevState.enemies.map((e, index) => {

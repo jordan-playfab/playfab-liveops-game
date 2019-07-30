@@ -1,7 +1,7 @@
 // ----- Title data ----- //
 export const PROGRESS_STAGES = [{
         key: "currency",
-        title: "Currency",
+        title: "Currencies",
         filename: "virtual-currency.json"
     },
     {
@@ -16,7 +16,7 @@ export const PROGRESS_STAGES = [{
     },
     {
         key: "store",
-        title: "Store",
+        title: "Stores",
         filename: "stores.json"
     },
     {
