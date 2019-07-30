@@ -5,9 +5,13 @@ import { RouteComponentProps } from "react-router-dom";
 
 import { routes } from "../routes";
 import { Page } from "../components/page";
-import { DivConfirm, DivField } from "../styles";
+import styled, { DivConfirm, DivField } from "../styles";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { Grid } from "../components/grid";
+
+const TextFieldTitleId = styled(TextField)`
+    max-width: 20em;
+`;
 
 interface IState {
     titleId: string;
@@ -28,16 +32,16 @@ class IndexPageBase extends React.Component<Props, IState> {
         return (
             <Page {...this.props} title="PlayFab Demo Game">
                 <Grid grid8x4>
-                    <form onSubmit={this.saveTitleID}>
+                    <form onSubmit={this.continue}>
                         <h2>About</h2>
                         <p>This is a demo game to show how PlayFab can be used to run live games.</p>
                         <p>PlayFab is a backend platform for all kinds of video games.</p>
                         <p><a href="https://developer.playfab.com" target="_blank">Sign up for a free account</a> and return to this website with your title ID (4+ alphanumeric characters).</p>
                         <DivField>
-                            <TextField label="Title ID" onChange={this.onChangeTitleId} autoFocus />
+                            <TextFieldTitleId label="Title ID" onChange={this.onChangeTitleId} value={this.state.titleId} autoFocus />
                         </DivField>
                         <DivConfirm>
-                            <PrimaryButton text="Continue" onClick={this.saveTitleID} />
+                            <PrimaryButton text="Continue" onClick={this.continue} />
                         </DivConfirm>
                     </form>
                     <div>
@@ -60,7 +64,7 @@ class IndexPageBase extends React.Component<Props, IState> {
         });
     }
 
-    private saveTitleID = (): void => {
+    private continue = (): void => {
         PlayFab.settings.titleId = this.state.titleId;
         
         this.props.history.push(routes.MainMenu(this.state.titleId));

@@ -7,25 +7,41 @@ import { routes } from "../routes";
 import { Store } from "../components/store";
 import { PlayFabHelper } from "../shared/playfab";
 import { Page } from "../components/page";
-import { UlInline, SpinnerLeft } from "../styles";
+import styled, { UlInline, SpinnerLeft } from "../styles";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { actionSetInventory, actionSetStores, actionSetPlayerHP, actionSetEquipmentSingle } from "../store/actions";
-import { CATALOG_VERSION } from "../shared/types";
+import { CATALOG_VERSION, STATISTIC_KILLS, ILeaderboardDictionary, STATISTIC_LEVEL } from "../shared/types";
 import { IWithPageProps, withPage } from "../containers/with-page";
 import { getSlotTypeFromItemClass, EquipmentSlotTypes } from "../store/types";
 import { CloudScriptHelper } from "../shared/cloud-script";
 import { BackLink } from "../components/back-link";
 import { Grid } from "../components/grid";
+import { Leaderboard } from "../components/leaderboard";
+
+const DivLeaderboards = styled.div`
+    margin-top: ${s => s.theme.size.spacer2};
+    padding-top: ${s => s.theme.size.spacer};
+    border-top: 1px solid ${s => s.theme.color.border200};
+`;
+
+const DivLeaderboardWrapper = styled.div`
+    margin-top: ${s => s.theme.size.spacer};
+`;
 
 interface IState {
     selectedStore: string;
     isBuyingSomething: boolean;
     isRestoringHealth: boolean;
+    titleNews: PlayFabClientModels.TitleNewsItem[];
+    leaderboards: ILeaderboardDictionary;
 }
 
 type Props = RouteComponentProps & IWithAppStateProps & IWithPageProps;
 
-class HomeBasePageBase extends React.Component<Props, IState> {
+class HeadquartersPageBase extends React.Component<Props, IState> {
+    private readonly leaderboardStatistics = [STATISTIC_KILLS, STATISTIC_LEVEL];
+    private readonly leaderboardCount = 10;
+
     constructor(props: Props) {
         super(props);
 
@@ -33,6 +49,8 @@ class HomeBasePageBase extends React.Component<Props, IState> {
             selectedStore: null,
             isBuyingSomething: false,
             isRestoringHealth: true,
+            titleNews: null,
+            leaderboards: null,
         };
     }
 
@@ -43,6 +61,7 @@ class HomeBasePageBase extends React.Component<Props, IState> {
 
         this.loadStores();
         this.restorePlayerHP();
+        this.getLeaderboards();
     }
 
     public render(): React.ReactNode {
@@ -85,6 +104,7 @@ class HomeBasePageBase extends React.Component<Props, IState> {
                             {this.renderStores()}
                         </React.Fragment>
                     </Grid>
+                    {this.renderLeaderboards()}
                 </React.Fragment>
                 
             );
@@ -104,7 +124,7 @@ class HomeBasePageBase extends React.Component<Props, IState> {
                 inventory={this.props.appState.inventory.Inventory}
                 isBuyingSomething={this.state.isBuyingSomething}
             />
-        )
+        );
     }
 
     private renderStores(): React.ReactNode  {
@@ -126,6 +146,27 @@ class HomeBasePageBase extends React.Component<Props, IState> {
                     ))}
                 </UlInline>
             </React.Fragment>
+        );
+    }
+
+    private renderLeaderboards(): React.ReactNode {
+        if(is.null(this.state.leaderboards) || is.null(Object.keys(this.state.leaderboards))) {
+            return null;
+        }
+
+        const leaderboardNames = Object.keys(this.state.leaderboards).sort();
+
+        return (
+            <DivLeaderboards>
+                <h2>Leaderboards</h2>
+                <DivLeaderboardWrapper>
+                    <Grid grid6x6>
+                        {leaderboardNames.map(boardName => (
+                            <Leaderboard titleId={this.props.appState.titleId} key={boardName} name={boardName} leaderboard={this.state.leaderboards[boardName]} />
+                        ))}
+                    </Grid>
+                </DivLeaderboardWrapper>
+            </DivLeaderboards>
         );
     }
 
@@ -234,7 +275,7 @@ class HomeBasePageBase extends React.Component<Props, IState> {
                     })
                     this.props.dispatch(actionSetStores(stores));
                 }
-            }, this.props.onPageError)
+            }, this.props.onPageError);
         });
     }
 
@@ -246,6 +287,32 @@ class HomeBasePageBase extends React.Component<Props, IState> {
             });
         }, this.props.onPageError);
     }
+
+    private getLeaderboards(): void {
+        this.leaderboardStatistics.forEach(statistic => {
+            PlayFabHelper.GetLeaderboard(statistic, 1, this.leaderboardCount, (data) => {
+                this.setState((prevState) => {
+                    if(is.null(prevState.leaderboards)) {
+                        return {
+                            ...prevState,
+                            leaderboards: {
+                                [statistic]: data
+                            }
+                        };
+                    }
+
+                    return {
+                        ...prevState,
+                        leaderboards: {
+                            ...prevState.leaderboards,
+                            [statistic]: data,
+                        }
+                    };
+                })
+            }, this.props.onPageError)
+        })
+        
+    }
 }
 
-export const HomeBasePage = withAppState(withPage(HomeBasePageBase));
+export const HeadquartersPage = withAppState(withPage(HeadquartersPageBase));

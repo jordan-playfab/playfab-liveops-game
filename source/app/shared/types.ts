@@ -64,6 +64,10 @@ export interface IAnyDictionary {
     [key: string]: any;
 }
 
+export interface ILeaderboardDictionary {
+    [key: string]: PlayFabClientModels.PlayerLeaderboardEntry[];
+}
+
 interface IProgressStage {
     key: string;
     title: string;
@@ -111,3 +115,7 @@ export const TITLE_DATA_ENEMIES = "Enemies";
 
 export const ITEM_CLASS_WEAPON = "weapon";
 export const ITEM_CLASS_ARMOR = "armor";
+
+export const STATISTIC_KILLS = "kills";
+export const STATISTIC_LEVEL = "level";
+export const STATISTIC_XP = "xp";
