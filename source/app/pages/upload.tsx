@@ -108,8 +108,8 @@ class UploadPageBase extends React.Component<Props, IState> {
         if(this.state.uploadProgress >= PROGRESS_STAGES.length - 1) {
             return (
                 <React.Fragment>
-                    <h2>Upload complete</h2>
                     <BackLink to={routes.MainMenu(this.props.appState.titleId)} label="Back to main menu" />
+                    <h2>Upload complete</h2>
                     <DivUploadComplete>
                         <PrimaryButton text="Play game" onClick={this.goToPage.bind(this, routes.Login(this.props.appState.titleId))} />
                     </DivUploadComplete>

@@ -7,7 +7,7 @@ import { PlayFabHelper } from "../shared/playfab";
 import { IPlanetData } from "../shared/types";
 import { routes } from "../routes";
 import { Page } from "../components/page";
-import { UlInline } from "../styles";
+import { UlInline, SpinnerLeft } from "../styles";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { actionSetInventory, actionSetPlayerXP, actionSetPlayerLevel, actionSetPlayerHP } from "../store/actions";
 import { IWithPageProps, withPage } from "../containers/with-page";
@@ -23,6 +23,7 @@ interface IState {
     itemsGranted: string[];
     newLevel: number;
     newXP: number;
+    isLoadingRewards: boolean;
 }
 
 interface IPlanetPageRouteProps {
@@ -41,6 +42,7 @@ class PlanetPageBase extends React.Component<Props, IState> {
             itemsGranted: null,
             newLevel: null,
             newXP: null,
+            isLoadingRewards: false,
         }
     }
 
@@ -84,8 +86,8 @@ class PlanetPageBase extends React.Component<Props, IState> {
 
         return (
             <React.Fragment>
-                <h2>Combat</h2>
-                <BackLink to={routes.Guide(this.props.appState.titleId)} label="Back to guide" />
+                <BackLink onClick={this.onLeaveCombat} label={`Back to ${planet.name}`} />
+                <h2>{planet.name}, near {this.state.areaName}</h2>
                 {this.renderItemGranted()}
                 {this.renderCombat()}
             </React.Fragment>
@@ -93,6 +95,10 @@ class PlanetPageBase extends React.Component<Props, IState> {
     }
 
     private renderItemGranted(): React.ReactNode {
+        if(this.state.isLoadingRewards) {
+            return <SpinnerLeft label="Reporting victory to headquarters..." labelPosition="right" />
+        }
+
         if(is.null(this.state.itemsGranted)) {
             return null;
         }
@@ -112,7 +118,7 @@ class PlanetPageBase extends React.Component<Props, IState> {
                         <li key={index}>{this.props.appState.catalog.find(i => i.ItemId === itemId).DisplayName}</li>
                     ))}
                 </ul>
-                
+                <p><PrimaryButton onClick={this.onLeaveCombat} text={`Return to ${this.getPlanetName()}`} /></p>
             </React.Fragment>
             
         )
@@ -128,7 +134,7 @@ class PlanetPageBase extends React.Component<Props, IState> {
                 area={this.state.areaName}
                 enemyGroup={enemyGroup}
                 enemies={enemyData}
-                onCombatOver={this.onCombatFinished}
+                onCombatFinished={this.onCombatFinished}
                 onLeaveCombat={this.onLeaveCombat}
             />
         );
@@ -139,6 +145,10 @@ class PlanetPageBase extends React.Component<Props, IState> {
         if(this.props.appState.playerHP === 0) {
             return;
         }
+
+        this.setState({
+            isLoadingRewards: true,
+        });
 
         const combatReport: IKilledEnemyGroupRequest = {
             area: this.state.areaName,
@@ -190,6 +200,10 @@ class PlanetPageBase extends React.Component<Props, IState> {
                     newLevel: null,
                 });
             }
+
+            this.setState({
+                isLoadingRewards: false,
+            });
         }, this.props.onPageError);
     }
 
