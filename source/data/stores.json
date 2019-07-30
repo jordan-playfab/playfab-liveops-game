@@ -9,15 +9,15 @@
                     }
                 },
                 {
-                    "ItemId": "LegendaryArmor",
-                    "VirtualCurrencyPrices": {
-                        "CR": 500
-                    }
-                },
-                {
                     "ItemId": "RareArmor",
                     "VirtualCurrencyPrices": {
                         "CR": 200
+                    }
+                },
+                {
+                    "ItemId": "LegendaryArmor",
+                    "VirtualCurrencyPrices": {
+                        "CR": 500
                     }
                 }
             ],

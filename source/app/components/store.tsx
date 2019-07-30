@@ -34,6 +34,7 @@ interface IStoreProps {
     storeName: string;
     store: PlayFabClientModels.GetStoreItemsResult;
     catalogItems: PlayFabClientModels.CatalogItem[];
+    inventory: PlayFabClientModels.ItemInstance[];
     playerWallet: INumberDictionary;
     onBuy: (itemID: string, currency: string, price: number) => void;
     onLeaveStore: () => void;
@@ -58,15 +59,18 @@ export class Store extends React.PureComponent<IStoreProps> {
                             const priceLabel = `${price} credits`;
                             const canBuy = !is.null(this.props.playerWallet) && !is.null(this.props.playerWallet[VC_CREDITS])
                                 && this.props.playerWallet[VC_CREDITS] >= price;
+                            const hasAlready = !is.null(this.props.inventory) && !is.null(this.props.inventory.find(i => i.ItemId === item.ItemId));
 
                             return (
                                 <DocumentCard key={index}>
                                     <DivCardInterior>
                                         <h3>{title}</h3>
                                         {this.renderItemStats(catalogItem)}
-                                        {canBuy
-                                            ? <PrimaryButton onClick={this.props.onBuy.bind(this, item.ItemId, VC_CREDITS, price)} text={priceLabel} />
-                                            : <DefaultButton text={priceLabel} disabled />}
+                                        {hasAlready
+                                            ? <DefaultButton text="Owned" disabled />
+                                            : canBuy
+                                                ? <PrimaryButton onClick={this.props.onBuy.bind(this, item.ItemId, VC_CREDITS, price)} text={priceLabel} />
+                                                : <DefaultButton text={priceLabel} disabled />}
                                     </DivCardInterior>
                                 </DocumentCard>
                             );

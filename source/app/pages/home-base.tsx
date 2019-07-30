@@ -95,6 +95,7 @@ class HomeBasePageBase extends React.Component<Props, IState> {
                 playerWallet={this.props.appState.inventory.VirtualCurrency}
                 onLeaveStore={this.onLeaveStore}
                 storeName={this.getStore().MarketingData.DisplayName}
+                inventory={this.props.appState.inventory.Inventory}
             />
         )
     }
