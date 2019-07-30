@@ -19,7 +19,7 @@ import { Grid } from "../components/grid";
 import { Leaderboard } from "../components/leaderboard";
 
 const DivLeaderboards = styled.div`
-    margin-top: ${s => s.theme.size.spacer};
+    margin-top: ${s => s.theme.size.spacer2};
     padding-top: ${s => s.theme.size.spacer};
     border-top: 1px solid ${s => s.theme.color.border200};
 `;
