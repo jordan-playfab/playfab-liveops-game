@@ -4,7 +4,7 @@ import { ITitleDataEnemy, ITitleDataEnemyGroup } from "../shared/types";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { actionSetPlayerHP } from "../store/actions";
 import { is } from "../shared/is";
-import { PrimaryButton, MessageBar, MessageBarType } from "office-ui-fabric-react";
+import { PrimaryButton, MessageBar, MessageBarType, DefaultButton } from "office-ui-fabric-react";
 import { UlInline } from "../styles";
 
 interface IProps {
@@ -50,7 +50,13 @@ class CombatBase extends React.PureComponent<Props> {
         switch(this.props.combatStage) {
             case CombatStage.Introduction:
                 return (
-                    <React.Fragment></React.Fragment>
+                    <React.Fragment>
+                        <p>There are {this.props.combatEnemies.length} {this.props.combatEnemies.length === 1 ? "enemy" : "enemies"} ahead.</p>
+                        <UlInline>
+                            <li><PrimaryButton text="Fight" onClick={this.props.onCombatAdvanceStage} /></li>
+                            <li><DefaultButton text="Retreat" onClick={this.props.onLeaveCombat} /></li>
+                        </UlInline>
+                    </React.Fragment>
                 );
             case CombatStage.Dead:
                 return (
@@ -67,7 +73,6 @@ class CombatBase extends React.PureComponent<Props> {
                 return (
                     <React.Fragment>
                         {this.renderEnemyAttackReport()}
-                        <p>You're fighting {this.props.combatEnemies.length} {this.props.combatEnemies.length === 1 ? "enemy" : "enemies"}:</p>
                         <UlInline>
                             {this.props.combatEnemies.map((e, index) => (
                                 <li key={index}><PrimaryButton onClick={this.props.onCombatPlayerAttack.bind(this, index)} text={`Shoot ${e.name} (${e.hp} HP)`} /></li>
