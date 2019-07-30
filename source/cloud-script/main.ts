@@ -306,7 +306,7 @@ handlers.killedEnemyGroup = function(args: IKilledEnemyGroupRequest, context: an
 
     response.itemsGranted = itemsGranted;
 
-    App.WritePlayerEvent(currentPlayerId, `combat_finished_on_${args.planet}_area_${args.area}_versus_${args.enemyGroup}_enemies`, null);
+    App.WritePlayerEvent(currentPlayerId, `combat_finished`, args);
 
     return response;
 };

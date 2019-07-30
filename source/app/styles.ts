@@ -258,15 +258,10 @@ const UlNull = styled.ul`
 `;
 
 const UlInline = styled(UlNull)`
-    margin-top: 1em;
-
     > li {
-        margin-left: 1em;
+        margin-right: ${s => s.theme.size.spacer};
+        margin-top: ${s => s.theme.size.spacer};
         display: inline-block;
-
-        &:first-child {
-            margin-left: 0;
-        }
     }
 `;
 

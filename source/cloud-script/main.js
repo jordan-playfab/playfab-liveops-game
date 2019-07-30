@@ -240,7 +240,7 @@ handlers.killedEnemyGroup = function (args, context) {
         itemsGranted.push(itemGranted);
     }
     response.itemsGranted = itemsGranted;
-    App.WritePlayerEvent(currentPlayerId, `combat_finished_on_${args.planet}_area_${args.area}_versus_${args.enemyGroup}_enemies`, null);
+    App.WritePlayerEvent(currentPlayerId, `combat_finished`, args);
     return response;
 };
 handlers.playerLogin = function (args, context) {
