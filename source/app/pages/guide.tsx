@@ -4,7 +4,7 @@ import { PrimaryButton, DefaultButton, Spinner } from "office-ui-fabric-react";
 
 import { Page } from "../components/page";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
-import { UlInline } from "../styles";
+import { UlInline, SpinnerLeft } from "../styles";
 import { routes } from "../routes";
 import { is } from "../shared/is";
 
@@ -33,12 +33,13 @@ class GuidePageBase extends React.Component<Props> {
 
     private renderPlanetMenu(): React.ReactNode {
         if(is.null(this.props.appState.planets)) {
-            return <Spinner label="Loading planets" />;
+            return <SpinnerLeft label="Loading planets..." labelPosition="right" />;
         }
 
         if(is.null(this.props.appState.equipment) || is.null(this.props.appState.equipment.weapon)) {
             return (
                 <React.Fragment>
+                    <h2>Guide</h2>
                     <p>You can't go into the field without a weapon! Buy one at headquarters.</p>
                     <UlInline>
                         <li key={"homebase"}><PrimaryButton text="Headquarters" onClick={this.sendToHeadquarters} /></li>
@@ -48,12 +49,15 @@ class GuidePageBase extends React.Component<Props> {
         }
 
         return (
-            <UlInline>
-                <li key={"homebase"}><PrimaryButton text="Headquarters" onClick={this.sendToHeadquarters} /></li>
-                {this.props.appState.planets.map((planet) => (
-                    <li key={planet.name}><PrimaryButton text={`Fly to ${planet.name}`} onClick={this.sendToPlanet.bind(this, planet.name)} /></li>
-                ))}
-            </UlInline>
+            <React.Fragment>
+                <h2>Guide</h2>
+                <UlInline>
+                    <li key={"homebase"}><DefaultButton text="Headquarters" onClick={this.sendToHeadquarters} /></li>
+                    {this.props.appState.planets.map((planet) => (
+                        <li key={planet.name}><PrimaryButton text={`Fly to ${planet.name}`} onClick={this.sendToPlanet.bind(this, planet.name)} /></li>
+                    ))}
+                </UlInline>
+            </React.Fragment>
         );
     }
 

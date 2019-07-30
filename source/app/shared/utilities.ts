@@ -22,7 +22,12 @@ function formatRoute(original: string, ...args: string[]): string {
     return returnString;
 }
 
+function createPlayFabLink(titleId: string, uri: string, isReact: boolean): string {
+    return `https://developer.playfab.com/en-US/${isReact ? `r/t/` : ``}${titleId}/${uri}`;
+}
+
 export const utilities = {
     getRandomInteger,
-    formatRoute
+    formatRoute,
+    createPlayFabLink
 };

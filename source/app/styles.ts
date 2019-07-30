@@ -1,6 +1,7 @@
 import * as styledComponents from "styled-components";
 import { ThemedStyledComponentsModule, ThemeProps } from "styled-components";
 import { FontSizes } from "@uifabric/styling";
+import { Spinner } from "office-ui-fabric-react";
 
 export interface ITheme {
     color: IThemeColor;
@@ -20,6 +21,9 @@ interface IThemeColor {
     text000: string;
     text700: string;
     text900: string;
+
+    link500: string;
+    linkVisited500: string;
 }
 
 interface IThemeFont {
@@ -87,10 +91,12 @@ const colors = {
     shadow100: "rgba(0,0,0,0.18)",
 
     blue400: "#7caee8",
-    blue500: "#5093e1",
+    blue500: "rgb(0, 120, 212)",
     blue600: "#2578d9",
     blue700: "#1a5498",
     blue900: "#323a44",
+
+    purple500: "#7a3a88",
 
     orange500: "#ff6d21",
     orange600: "#cd602a",
@@ -134,6 +140,9 @@ const defaultTheme: ITheme = {
         text000: colors.white,
         text700: "rgb(96, 94, 92)",
         text900: colors.grey900,
+
+        link500: colors.blue500,
+        linkVisited500: colors.purple500,
     },
     font: {
         normal: `"Segoe UI Web (West European)", Segoe UI, -apple-system, BlinkMacSystemFont, Roboto, Helvetica Neue, sans-serif;`
@@ -199,7 +208,7 @@ const GlobalStyle = createGlobalStyle`
     }
 
     p {
-        margin: ${s => s.theme.size.spacerD2} 0 0 0;
+        margin: ${s => s.theme.size.spacerP75} 0 0 0;
     }
 
     h1 {
@@ -222,6 +231,11 @@ const GlobalStyle = createGlobalStyle`
 
     img {
         max-width: 100%;
+    }
+
+    a, a:visited {
+        color: ${s => s.theme.color.link500};
+        text-decoration: none;
     }
 `;
 
@@ -248,6 +262,11 @@ const UlInline = styled(UlNull)`
     }
 `;
 
+const SpinnerLeft = styled(Spinner)`
+    justify-content: flex-start;
+    margin-top: ${s => s.theme.size.spacer2};
+`;
+
 const DivField = styled.div`
     margin-top: ${s => s.theme.size.spacer};
     max-width: ${s => s.theme.breakpointUnits.small};
@@ -264,6 +283,7 @@ export {
     DivConfirm,
     UlNull,
     UlInline,
-    DivField
+    DivField,
+    SpinnerLeft
 };
 export default styled;

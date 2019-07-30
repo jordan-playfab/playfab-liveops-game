@@ -1,13 +1,13 @@
 import React from "react";
 import { RouteComponentProps } from "react-router";
 import { TextField } from "office-ui-fabric-react/lib/TextField";
-import { PrimaryButton, MessageBar, MessageBarType, Spinner } from "office-ui-fabric-react";
+import { PrimaryButton, MessageBar, MessageBarType } from "office-ui-fabric-react";
 
 import { is } from "../shared/is";
 import { routes } from "../routes";
 import { PlayFabHelper } from "../shared/playfab";
 import { Page } from "../components/page";
-import { DivConfirm, DivField } from "../styles";
+import styled, { DivConfirm, DivField, SpinnerLeft } from "../styles";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { TITLE_DATA_PLANETS, CATALOG_VERSION, TITLE_DATA_STORES, TITLE_DATA_ENEMIES } from "../shared/types";
 import { IWithPageProps, withPage } from "../containers/with-page";
@@ -45,15 +45,15 @@ class LoginPageBase extends React.Component<Props, IState> {
                     <MessageBar messageBarType={MessageBarType.error}>{this.props.pageError}</MessageBar>
                 )}
                 <form onSubmit={this.login}>
-                    <h2>About</h2>
                     <BackLink to={routes.MainMenu(this.props.appState.titleId)} label="Back to main menu" />
+                    <h2>Login</h2>
                     <p>Enter your name to play. This will create a new player using <a href="https://api.playfab.com/documentation/client/method/LoginWithCustomID">Custom ID</a> or log you in with an existing account.</p>
                     <DivField>
-                        <TextField label="Player ID" onChange={this.onChangePlayerName} autoFocus />
+                        <TextField label="Player name" onChange={this.onChangePlayerName} autoFocus />
                     </DivField>
                     <DivConfirm>
                         {this.state.isLoggingIn
-                            ? <Spinner label="Logging in" />
+                            ? <SpinnerLeft label="Logging in..." labelPosition="right" />
                             : <PrimaryButton text="Login" onClick={this.login} />}
                     </DivConfirm>
                 </form>

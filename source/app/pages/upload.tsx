@@ -2,8 +2,8 @@ import React from "react";
 import { RouteComponentProps } from "react-router";
 import { Page } from "../components/page";
 import { is } from "../shared/is";
-import { MessageBar, MessageBarType, TextField, PrimaryButton, ProgressIndicator, Spinner } from "office-ui-fabric-react";
-import styled, { DivConfirm, DivField } from "../styles";
+import { MessageBar, MessageBarType, TextField, PrimaryButton, ProgressIndicator } from "office-ui-fabric-react";
+import styled, { DivConfirm, DivField, SpinnerLeft } from "../styles";
 import { PlayFabHelper } from "../shared/playfab";
 import { routes } from "../routes";
 import { IStringDictionary, PROGRESS_STAGES, CATALOG_VERSION } from "../shared/types";
@@ -18,11 +18,7 @@ import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { IWithPageProps, withPage } from "../containers/with-page";
 import { Grid } from "../components/grid";
 import { BackLink } from "../components/back-link";
-
-const SpinnerTag = styled(Spinner)`
-    justify-content: flex-start;
-    margin-top: ${s => s.theme.size.spacer2};
-`;
+import { utilities } from "../shared/utilities";
 
 const DivUploadComplete = styled.div`
     margin-top: ${s => s.theme.size.spacer};
@@ -64,6 +60,8 @@ class UploadPageBase extends React.Component<Props, IState> {
             return null;
         }
 
+        const titleId = this.props.appState.titleId;
+
         return (
             <Page {...this.props} title="Load Data">
                 <Grid grid8x4>
@@ -73,12 +71,12 @@ class UploadPageBase extends React.Component<Props, IState> {
                     <React.Fragment>
                         <h2>What this creates</h2>
                         <ul>
-                            <li><a href={this.createPlayFabLink("economy/currency", true)} target="_blank">Currencies</a></li>
-                            <li><a href={this.createPlayFabLink("economy/catalogs/TWFpbg%3d%3d/items", false)} target="_blank">Catalog items</a></li>
-                            <li><a href={this.createPlayFabLink("economy/catalogs/TWFpbg%3d%3d/drop-tables", false)} target="_blank">Drop tables</a></li>
-                            <li><a href={this.createPlayFabLink("economy/catalogs/TWFpbg%3d%3d/stores", false)} target="_blank">Stores</a></li>
-                            <li><a href={this.createPlayFabLink("content/title-data", true)} target="_blank">Title data</a></li>
-                            <li><a href={this.createPlayFabLink("automation/cloud-script/revisions", true)} target="_blank">Cloud Script</a></li>
+                            <li><a href={utilities.createPlayFabLink(titleId, "economy/currency", true)} target="_blank">Currencies</a></li>
+                            <li><a href={utilities.createPlayFabLink(titleId, "economy/catalogs/TWFpbg%3d%3d/items", false)} target="_blank">Catalog items</a></li>
+                            <li><a href={utilities.createPlayFabLink(titleId, "economy/catalogs/TWFpbg%3d%3d/drop-tables", false)} target="_blank">Drop tables</a></li>
+                            <li><a href={utilities.createPlayFabLink(titleId, "economy/catalogs/TWFpbg%3d%3d/stores", false)} target="_blank">Stores</a></li>
+                            <li><a href={utilities.createPlayFabLink(titleId, "content/title-data", true)} target="_blank">Title data</a></li>
+                            <li><a href={utilities.createPlayFabLink(titleId, "automation/cloud-script/revisions", true)} target="_blank">Cloud Script</a></li>
                         </ul>
                     </React.Fragment>
                 </Grid>
@@ -89,10 +87,10 @@ class UploadPageBase extends React.Component<Props, IState> {
     private renderForm(): React.ReactNode {
         return (
             <React.Fragment>
-                <h2>About</h2>
                 <BackLink to={routes.MainMenu(this.props.appState.titleId)} label="Back to main menu" />
+                <h2>Upload</h2>
                 <p>This page will populate your title with everything you need to play.</p>
-                <p>Get the secret key for your title from <a href={this.createPlayFabLink("settings/secret-keys", true)} target="_blank">Settings &gt; Secret Keys</a>.</p>
+                <p>Get the secret key for your title from <a href={utilities.createPlayFabLink(this.props.appState.titleId, "settings/secret-keys", true)} target="_blank">Settings &gt; Secret Keys</a>.</p>
                 <p>This page does not store nor transmit your secret key to anyone except PlayFab.</p>
                 <form onSubmit={this.startUpload}>
                     <DivField>
@@ -127,14 +125,10 @@ class UploadPageBase extends React.Component<Props, IState> {
                 {!is.null(this.props.pageError) && (
                     <MessageBar messageBarType={MessageBarType.error}>{this.props.pageError}</MessageBar>
                 )}
-                <SpinnerTag label={spinnerTitle} labelPosition="right" />
+                <SpinnerLeft label={spinnerTitle} labelPosition="right" />
                 <ProgressIndicator percentComplete={Math.min(1, (this.state.uploadProgress / PROGRESS_STAGES.length) + 0.1)} />
             </React.Fragment>
         );
-    }
-
-    private createPlayFabLink(uri: string, isReact: boolean): string {
-        return `https://developer.playfab.com/en-US/${isReact ? `r/t/` : ``}${this.props.appState.titleId}/${uri}`;
     }
 
     private goToPage = (page: string): void => {
