@@ -40,7 +40,8 @@ class GuidePageBase extends React.Component<Props> {
             return (
                 <React.Fragment>
                     <h2>Guide</h2>
-                    <p>You can't go into the field without a weapon! Buy one at headquarters.</p>
+                    <p>Welcome to the field, cadet.</p>
+                    <p>You can't go into space without a weapon. Buy one at headquarters.</p>
                     <UlInline>
                         <li key={"homebase"}><PrimaryButton text="Headquarters" onClick={this.sendToHeadquarters} /></li>
                     </UlInline>
