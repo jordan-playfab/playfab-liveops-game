@@ -26,8 +26,30 @@ function createPlayFabLink(titleId: string, uri: string, isReact: boolean): stri
     return `https://developer.playfab.com/en-US/${isReact ? `r/t/` : ``}${titleId}/${uri}`;
 }
 
+function htmlDecode(input: string): string {
+    const e = document.createElement("div");
+    e.innerHTML = input;
+    return e.childNodes[0].nodeValue;
+}
+
+function parseTitleNewsDate(dateString: string): string {
+    let dateTime = dateString;
+
+    try {
+        const trueDate = new Date(dateTime);
+        dateTime = trueDate.toLocaleDateString();
+    }
+    catch {
+        // Nothing to do
+    }
+
+    return dateTime;
+}
+
 export const utilities = {
     getRandomInteger,
     formatRoute,
-    createPlayFabLink
+    createPlayFabLink,
+    htmlDecode,
+    parseTitleNewsDate
 };

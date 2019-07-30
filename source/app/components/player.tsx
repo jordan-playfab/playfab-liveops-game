@@ -3,7 +3,7 @@ import { DefaultButton, Dialog, DialogType, PrimaryButton } from "office-ui-fabr
 
 import { is } from "../shared/is";
 import { VC_CREDITS, ITEM_CLASS_WEAPON, ITEM_CLASS_ARMOR } from "../shared/types";
-import styled, { UlNull } from "../styles";
+import styled, { UlNull, ButtonTiny, DialogWidthSmall } from "../styles";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { IWithPageProps, withPage } from "../containers/with-page";
 import { actionSetEquipmentSingle } from "../store/actions";
@@ -34,12 +34,8 @@ const DivPlayerInventory = styled.div`
     text-align: right;
 `;
 
-const ButtonInventory = styled(DefaultButton)`
-    font-size: 0.8em;
-    padding: 0.2em;
-    min-width: none;
-    height: auto;
-    margin-top: 0.2em;
+const ButtonInventory = styled(ButtonTiny)`
+    margin-top: ${s => s.theme.size.spacerD4};
 `;
 
 const UlInventory = styled(UlNull)`
@@ -51,13 +47,6 @@ const UlInventory = styled(UlNull)`
         &:first-child {
             margin-top: 0;
         }
-    }
-`;
-
-const DialogInventory = styled(Dialog)`
-    .ms-Dialog-main {
-        min-width: ${s => s.theme.breakpointUnits.small};
-        max-width: ${s => s.theme.breakpointUnits.small};
     }
 `;
 
@@ -146,7 +135,7 @@ class PlayerBase extends React.Component<Props, IState> {
         return (
             <DivPlayerInventory ref={this.menuButtonElement}>
                 <ButtonInventory text={buttonText} onClick={buttonEvent} />
-                <DialogInventory
+                <DialogWidthSmall
                     hidden={!this.state.isInventoryVisible}
                     onDismiss={this.hideInventory}
                     dialogContentProps={{
@@ -164,7 +153,7 @@ class PlayerBase extends React.Component<Props, IState> {
                             {this.renderItems(armor, equippedItemInstanceIds)}
                         </React.Fragment>
                     </Grid>
-                </DialogInventory>
+                </DialogWidthSmall>
             </DivPlayerInventory>
         );
     }

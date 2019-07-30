@@ -2,6 +2,7 @@ import React from "react";
 
 import styled from "../styles";
 import logo from "../../../static/img/logo.png";
+import logoOpenGraph from "../../../static/img/logo-open-graph.png";
 import { is } from "../shared/is";
 
 const logoSize = "256px";
@@ -20,6 +21,11 @@ const DivLogo = styled.div`
 const DivTitle = styled.div`
     flex-grow: 1;
     padding: 0 ${s => s.theme.size.spacer} 0 ${s => s.theme.size.spacer2};
+    
+    /* Not actually used, just here to get the file to copy */
+    span.open-graph-logo {
+        background: url(${logoOpenGraph});
+    }
 `;
 
 const ImgLogo = styled.img`
