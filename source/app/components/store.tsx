@@ -3,30 +3,11 @@ import { is } from "../shared/is";
 import { VC_CREDITS, INumberDictionary, ITEM_CLASS_WEAPON, IWeaponItemCustomData, ITEM_CLASS_ARMOR, IArmorItemCustomData } from "../shared/types";
 import { DocumentCard, PrimaryButton, DefaultButton } from "office-ui-fabric-react";
 import { BackLink } from "./back-link";
-import styled from "../styles";
+import styled, { SpinnerLeft, DivDocumentCardInterior, DlStats } from "../styles";
 import { Grid } from "./grid";
 
 const DivItemGrid = styled.div`
     margin-top: ${s => s.theme.size.spacer};
-`;
-
-const DivCardInterior = styled.div`
-    padding: ${s => s.theme.size.spacer};
-`;
-
-const DlStats = styled.dl`
-    dt {
-        font-weight: bold;
-        margin-top: ${s => s.theme.size.spacerD2};
-
-        &:first-child {
-            margin-top: 0;
-        }
-    }
-
-    dd {
-        margin-left: ${s => s.theme.size.spacerD2};
-    }
 `;
 
 interface IStoreProps {
@@ -36,6 +17,7 @@ interface IStoreProps {
     catalogItems: PlayFabClientModels.CatalogItem[];
     inventory: PlayFabClientModels.ItemInstance[];
     playerWallet: INumberDictionary;
+    isBuyingSomething: boolean;
     onBuy: (itemID: string, currency: string, price: number) => void;
     onLeaveStore: () => void;
 }
@@ -57,21 +39,14 @@ export class Store extends React.PureComponent<IStoreProps> {
 
                             const price = item.VirtualCurrencyPrices[VC_CREDITS];
                             const priceLabel = `${price} credits`;
-                            const canBuy = !is.null(this.props.playerWallet) && !is.null(this.props.playerWallet[VC_CREDITS])
-                                && this.props.playerWallet[VC_CREDITS] >= price;
-                            const hasAlready = !is.null(this.props.inventory) && !is.null(this.props.inventory.find(i => i.ItemId === item.ItemId));
 
                             return (
                                 <DocumentCard key={index}>
-                                    <DivCardInterior>
+                                    <DivDocumentCardInterior>
                                         <h3>{title}</h3>
                                         {this.renderItemStats(catalogItem)}
-                                        {hasAlready
-                                            ? <DefaultButton text="Owned" disabled />
-                                            : canBuy
-                                                ? <PrimaryButton onClick={this.props.onBuy.bind(this, item.ItemId, VC_CREDITS, price)} text={priceLabel} />
-                                                : <DefaultButton text={priceLabel} disabled />}
-                                    </DivCardInterior>
+                                        {this.renderItemButton(item.ItemId, price, priceLabel)}
+                                    </DivDocumentCardInterior>
                                 </DocumentCard>
                             );
                         })}
@@ -79,6 +54,26 @@ export class Store extends React.PureComponent<IStoreProps> {
                 </DivItemGrid>
             </React.Fragment>
         );
+    }
+
+    private renderItemButton(itemId: string, price: number, priceLabel: string): React.ReactNode {
+        if(this.props.isBuyingSomething) {
+            return <SpinnerLeft label="Buying..." labelPosition="right" />
+        }
+
+        const canBuy = !is.null(this.props.playerWallet) && !is.null(this.props.playerWallet[VC_CREDITS])
+                                && this.props.playerWallet[VC_CREDITS] >= price;
+        const hasAlready = !is.null(this.props.inventory) && !is.null(this.props.inventory.find(i => i.ItemId === itemId));
+
+        if(hasAlready) {
+            return <DefaultButton text="Owned" disabled />;
+        }
+
+        if(canBuy) {
+            return <PrimaryButton onClick={this.props.onBuy.bind(this, itemId, VC_CREDITS, price)} text={priceLabel} />;
+        }
+
+        return <DefaultButton text={priceLabel} disabled />;
     }
 
     private renderItemStats(catalogItem: PlayFabClientModels.CatalogItem): React.ReactNode {

@@ -116,6 +116,10 @@ const App = {
         // Event name only allows characters and underscores
         eventName = eventName.replace(/[^a-z_]/gi, "_");
 
+        if(eventName.length > 64) {
+            eventName = eventName.substr(0, 64);
+        }
+
         server.WritePlayerEvent({
             PlayFabId: playerId,
             EventName: eventName,

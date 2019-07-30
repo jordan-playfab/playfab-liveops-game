@@ -1,11 +1,12 @@
 import React from "react";
-import { IWithCombatProps, withCombat, CombatStage } from "../containers/with-combat";
+import { IWithCombatProps, withCombat, CombatStage, ICombatEvent } from "../containers/with-combat";
 import { ITitleDataEnemy, ITitleDataEnemyGroup } from "../shared/types";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { actionSetPlayerHP } from "../store/actions";
 import { is } from "../shared/is";
-import { PrimaryButton } from "office-ui-fabric-react";
-import { UlInline } from "../styles";
+import { PrimaryButton, MessageBar, MessageBarType, DefaultButton, DocumentCard } from "office-ui-fabric-react";
+import styled, { UlInline, UlNull, DivDocumentCardInterior, DlStats } from "../styles";
+import { Grid } from "./grid";
 
 interface IProps {
     planet: string;
@@ -14,27 +15,65 @@ interface IProps {
     enemies: ITitleDataEnemy[];
     onCombatFinished: () => void;
     onLeaveCombat: () => void;
+    onReturnToHeadquarters: () => void;
 }
+
+interface IState {
+    events: ICombatEvent[];
+}
+
+interface ILiCombatEventProps {
+    isPlayer: boolean;
+}
+
+const DivBattle = styled.div`
+    margin-top: ${s => s.theme.size.spacer};
+`;
+
+const UlCombatEvents = styled(UlNull)`
+    max-height: ${s => s.theme.breakpointUnits.tiny};
+    overflow-y: auto;
+`;
+
+const LiCombatEvent = styled.li<ILiCombatEventProps>`
+    margin-top: ${s => s.theme.size.spacerD2};
+    color: ${s => s.theme.color.text000};
+    padding: ${s => s.theme.size.spacerD2};
+    background-color: ${s => s.isPlayer
+        ? s.theme.color.backgroundPlayer500
+        : s.theme.color.backgroundEnemy500};
+`;
+
+const LiCombatEventNeutral = styled.li`
+    margin-top: ${s => s.theme.size.spacerD2};
+    color: ${s => s.theme.color.text000};
+    padding: ${s => s.theme.size.spacerD2};
+    background-color: ${s => s.theme.color.background500};
+`;
+
+const DivEnemyWrapper = styled.div`
+    margin-top: ${s => s.theme.size.spacerD2};
+`;
 
 type Props = IProps & IWithCombatProps & IWithAppStateProps;
 
-class CombatBase extends React.PureComponent<Props> {
-    public componentDidMount(): void {
-        const weapon = this.props.appState.catalog.find(i => i.ItemId === this.props.appState.equipment.weapon.ItemId);
+class CombatBase extends React.PureComponent<Props, IState> {
+    constructor(props: Props) {
+        super(props);
 
-        let armor: PlayFabClientModels.CatalogItem = null;
-        if(!is.null(this.props.appState.equipment.armor)) {
-            armor = this.props.appState.catalog.find(i => i.ItemId === this.props.appState.equipment.armor.ItemId);
-        }
+        this.state = {
+            events: [],
+        };
+    }
+
+    public componentDidMount(): void {
+        const weapon = this.getWeapon();
+        const armor = this.getArmor();
 
         this.props.onCombatStart(this.props.enemies, this.props.appState.playerHP, weapon, armor);
     }
 
     public componentDidUpdate(prevProps: Props): void {
-        if(this.props.combatStage === CombatStage.Introduction) {
-            this.props.onCombatAdvanceStage();
-        }
-
         if(this.props.combatPlayerHP !== this.props.appState.playerHP) {
             this.props.dispatch(actionSetPlayerHP(this.props.combatPlayerHP));
         }
@@ -42,50 +81,126 @@ class CombatBase extends React.PureComponent<Props> {
         if(prevProps.combatStage !== CombatStage.Victory && this.props.combatStage === CombatStage.Victory) {
             this.props.onCombatFinished();
         }
+
+        if(prevProps.combatLastRound !== this.props.combatLastRound && !is.null(this.props.combatLastRound)) {
+            // Add the latest event to the list
+            this.setState((prevState) => ({
+                events: [this.props.combatLastRound].concat(prevState.events)
+            }));
+        }
     }
 
     public render(): React.ReactNode {
         if(this.props.combatPlayerHP <= 0 && this.props.combatStage !== CombatStage.Dead) {
             return (
-                <p>Sorry, you're dead and cannot fight.</p>
+                <MessageBar title="Dead people cannot fight" messageBarType={MessageBarType.blocked} />
             );
         }
 
         switch(this.props.combatStage) {
+            case CombatStage.Introduction:
+                return (
+                    <React.Fragment>
+                        <p>There are {this.props.combatEnemies.length} {this.props.combatEnemies.length === 1 ? "enemy" : "enemies"} ahead.</p>
+                        <UlInline>
+                            <li><PrimaryButton text="Fight" onClick={this.props.onCombatAdvanceStage} /></li>
+                            <li><DefaultButton text="Retreat" onClick={this.props.onLeaveCombat} /></li>
+                        </UlInline>
+                    </React.Fragment>
+                );
             case CombatStage.Dead:
                 return (
                     <React.Fragment>
                         <p>You are dead. It happens sometimes!</p>
                         <p>Go back to headquarters to be revived.</p>
-                        <PrimaryButton onClick={this.props.onLeaveCombat} text="Okay" />
+                        <UlInline>
+                            <li><PrimaryButton text="Return to Headquarters" onClick={this.props.onReturnToHeadquarters} /></li>
+                        </UlInline>
                     </React.Fragment>
                 );
             case CombatStage.Victory:
+                // This is handled in the parent component
                 return null;
             case CombatStage.Fighting:
             default:
                 return (
-                    <React.Fragment>
-                        {this.renderEnemyAttackReport()}
-                        <p>You're fighting {this.props.combatEnemies.length} {this.props.combatEnemies.length === 1 ? "enemy" : "enemies"}:</p>
-                        <UlInline>
-                            {this.props.combatEnemies.map((e, index) => (
-                                <li key={index}><PrimaryButton onClick={this.props.onCombatPlayerAttack.bind(this, index)} text={`Shoot ${e.name} (${e.hp} HP)`} /></li>
-                            ))}
-                        </UlInline>
-                    </React.Fragment>
+                    <DivBattle>
+                        <Grid grid4x8>
+                            <React.Fragment>
+                                <h3>Events</h3>
+                                <UlCombatEvents>
+                                    {!is.null(this.state.events) && this.state.events.map(this.renderEvent)}
+                                    <LiCombatEventNeutral>You encounter {this.props.enemies.length} {this.props.enemies.length === 1 ? "enemy" : "enemies"}</LiCombatEventNeutral>
+                                </UlCombatEvents>
+                            </React.Fragment>
+                            <React.Fragment>
+                                <h3>Enemies</h3>
+                                <DivEnemyWrapper>
+                                    <Grid grid4x4x4 reduce>
+                                        {this.props.combatEnemies.map((enemy, index) => (
+                                            <DocumentCard>
+                                                <DivDocumentCardInterior>
+                                                    <h3>{enemy.name} #{index + 1}</h3>
+                                                    <DlStats>
+                                                        <dt>HP</dt>
+                                                        <dd>{enemy.hp}</dd>
+                                                    </DlStats>
+                                                    <PrimaryButton onClick={this.props.onCombatPlayerAttack.bind(this, index)} text={`Fire!`} disabled={this.props.isCombatActionHappening} />
+                                                </DivDocumentCardInterior>
+                                            </DocumentCard>
+                                        ))}
+                                    </Grid>
+                                </DivEnemyWrapper>
+                            </React.Fragment>
+                        </Grid>
+                    </DivBattle>
                 );
         }
     }
 
-    private renderEnemyAttackReport(): React.ReactNode {
-        if(is.null(this.props.combatAttackedByIndexLastRound)) {
-            return null;
+    private renderEvent = (event: ICombatEvent): React.ReactNode => {
+        const isPlayer = event.source === "player";
+
+        if(!is.null(event.message)) {
+            return (
+                <LiCombatEvent isPlayer={isPlayer}>{event.message}</LiCombatEvent>
+            );
+        }
+
+        if(isPlayer) {
+            if(event.damage === 0) {
+                return (
+                    <LiCombatEvent isPlayer={isPlayer}>You missed {event.enemyName} #{event.enemyIndex + 1}</LiCombatEvent>
+                )
+            }
+
+            return (
+                <LiCombatEvent isPlayer={isPlayer}>You hit {event.enemyName} #{event.enemyIndex + 1} for {event.damage} damage</LiCombatEvent>
+            );
+        }
+
+        if(event.damage === 0) {
+            return (
+                <LiCombatEvent isPlayer={isPlayer}>{event.enemyName} #{event.enemyIndex + 1} missed you</LiCombatEvent>
+            );
         }
 
         return (
-            <p>The enemy {this.props.combatEnemies[this.props.combatAttackedByIndexLastRound].name} hit you for {this.props.combatDamageTakenLastRound} damage.</p>
+            <LiCombatEvent isPlayer={isPlayer}>{event.enemyName} #{event.enemyIndex + 1} hit you for {event.damage} damage</LiCombatEvent>
         );
+    }
+
+    private getWeapon(): PlayFabClientModels.CatalogItem {
+        return this.props.appState.catalog.find(i => i.ItemId === this.props.appState.equipment.weapon.ItemId);
+    }
+
+    private getArmor(): PlayFabClientModels.CatalogItem {
+        let armor: PlayFabClientModels.CatalogItem = null;
+        if(!is.null(this.props.appState.equipment.armor)) {
+            armor = this.props.appState.catalog.find(i => i.ItemId === this.props.appState.equipment.armor.ItemId);
+        }
+
+        return armor;
     }
 }
 

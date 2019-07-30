@@ -73,6 +73,14 @@ module.exports = {
                     name: "img/[name].[ext]"
                 }
             },
+            {
+                test: /\.ico$/,
+                loader: "file-loader",
+                options: {
+                    mimetype: "image/ico",
+                    name: "[name].[ext]"
+                }
+            },
 		],
 	},
 };

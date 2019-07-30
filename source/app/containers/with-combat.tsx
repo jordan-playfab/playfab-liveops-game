@@ -7,12 +7,12 @@ export interface IWithCombatProps {
     readonly combatPlayerHP: number;
     readonly combatEnemies: ITitleDataEnemy[];
     readonly combatStage: CombatStage;
-    readonly combatDamageTakenLastRound: number;
-    readonly combatAttackedByIndexLastRound: number;
+    readonly combatLastRound: ICombatEvent;
+    readonly isCombatActionHappening: boolean;
 
     readonly onCombatStart: (enemies: ITitleDataEnemy[], playerHP: number, weapon: PlayFabClientModels.CatalogItem, armor: PlayFabClientModels.CatalogItem) => void;
     readonly onCombatPlayerAttack: (enemyIndex: number) => void;
-    readonly onCombatEnemyAttack: () => IEnemyAttackReport;
+    readonly onCombatEnemyAttack: () => void;
     readonly onCombatAdvanceStage: () => void;
 }
 
@@ -20,12 +20,12 @@ interface IState {
     playerHP: number;
     enemies: ITitleDataEnemy[];
     stage: CombatStage;
-    damageTakenLastRound: number;
-    attackedByEnemyIndexLastRound: number;
+    lastRound: ICombatEvent;
     playerWeapon: PlayFabClientModels.CatalogItem;
     playerDamage: number;
     playerArmor: PlayFabClientModels.CatalogItem;
     playerArmorData: IArmorItemCustomData;
+    isActionHappening: boolean;
 }
 
 export enum CombatStage {
@@ -35,9 +35,12 @@ export enum CombatStage {
     Victory
 }
 
-export interface IEnemyAttackReport {
-    enemyIndex: number;
-    damage: number;
+export interface ICombatEvent {
+    source: "player" | "enemy";
+    enemyIndex?: number;
+    enemyName?: string;
+    damage?: number;
+    message?: string;
 }
 
 export const withCombat = <P extends IWithCombatProps>(Component: React.ComponentType<P>) => {
@@ -45,13 +48,13 @@ export const withCombat = <P extends IWithCombatProps>(Component: React.Componen
         public state: IState = {
             enemies: [],
             playerHP: 0,
-            damageTakenLastRound: null,
-            attackedByEnemyIndexLastRound: null,
+            lastRound: null,
             stage: CombatStage.Introduction,
             playerWeapon: null,
             playerDamage: 0,
             playerArmor: null,
             playerArmorData: null,
+            isActionHappening: false,
         };
 
         private readonly zeroArmorData: IArmorItemCustomData = {
@@ -70,8 +73,8 @@ export const withCombat = <P extends IWithCombatProps>(Component: React.Componen
                     onCombatPlayerAttack={this.onPlayerAttack}
                     onCombatEnemyAttack={this.onEnemyAttack}
                     onCombatAdvanceStage={this.onAdvanceStage}
-                    combatAttackedByIndexLastRound={this.state.attackedByEnemyIndexLastRound}
-                    combatDamageTakenLastRound={this.state.damageTakenLastRound}
+                    combatLastRound={this.state.lastRound}
+                    isCombatActionHappening={this.state.isActionHappening}
                 />
             );
         }
@@ -94,6 +97,7 @@ export const withCombat = <P extends IWithCombatProps>(Component: React.Componen
             let damage = utilities.getRandomInteger(0, this.state.enemies[attackingEnemyIndex].damage);
             const playerHP = this.state.playerHP - damage;
             const armorData = this.state.playerArmorData;
+            const enemyName = this.state.enemies[attackingEnemyIndex].name;
 
             if(damage < armorData.block) {
                 damage = 0;
@@ -107,14 +111,21 @@ export const withCombat = <P extends IWithCombatProps>(Component: React.Componen
                     return {
                         ...prevState,
                         playerHP: 0,
+                        enemyName,
+                        isActionHappening: false,
                         stage: CombatStage.Dead
                     };
                 }
                 else {
                     return {
                         ...prevState,
-                        attackedByEnemyIndexLastRound: attackingEnemyIndex,
-                        damageTakenLastRound: damage,
+                        lastRound: {
+                            enemyIndex: attackingEnemyIndex,
+                            damage,
+                            enemyName,
+                            source: "enemy"
+                        },
+                        isActionHappening: false,
                         playerHP
                     };
                 }
@@ -124,10 +135,14 @@ export const withCombat = <P extends IWithCombatProps>(Component: React.Componen
         private onPlayerAttack = (enemyIndex: number): void => {
             this.setState(prevState => {
                 if(enemyIndex < 0 || enemyIndex > prevState.enemies.length - 1) {
+                    // You're trying to attack an invalid enemy index, weird.
                     return prevState;
                 }
 
-                const enemyHP = prevState.enemies[enemyIndex].hp - this.state.playerDamage;
+                const playerDamage = Math.ceil(this.state.playerDamage * (utilities.getRandomInteger(80, 120) / 100));
+
+                const enemyName = prevState.enemies[enemyIndex].name;
+                const enemyHP = prevState.enemies[enemyIndex].hp - playerDamage;
                 
                 if(enemyHP <= 0) {
                     // You killed an enemy
@@ -137,14 +152,21 @@ export const withCombat = <P extends IWithCombatProps>(Component: React.Componen
                             ...prevState,
                             enemies: [],
                             stage: CombatStage.Victory,
+                            isActionHappening: false,
                         }
                     }
 
                     // More enemies remain
                     return {
                         ...prevState,
-                        attackedByEnemyIndexLastRound: null,
-                        damageTakenLastRound: null,
+                        lastRound: {
+                            source: "player",
+                            enemyIndex,
+                            enemyName,
+                            damage: playerDamage,
+                            message: `You defeated ${enemyName} #${enemyIndex + 1}`,
+                        },
+                        isActionHappening: true,
                         enemies: prevState.enemies.filter((_, index) => index !== enemyIndex),
                     };
                 }
@@ -152,8 +174,13 @@ export const withCombat = <P extends IWithCombatProps>(Component: React.Componen
                     // You didn't kill all the enemies
                     return {
                         ...prevState,
-                        attackedByEnemyIndexLastRound: null,
-                        damageTakenLastRound: null,
+                        lastRound: {
+                            source: "player",
+                            enemyIndex,
+                            enemyName,
+                            damage: playerDamage,
+                        },
+                        isActionHappening: true,
                         enemies: prevState.enemies.map((e, index) => {
                             if(index !== enemyIndex) {
                                 return e;
@@ -169,7 +196,9 @@ export const withCombat = <P extends IWithCombatProps>(Component: React.Componen
             }, () => {
                 // If the battle's not over, the enemy gets to attack
                 if(this.state.stage === CombatStage.Fighting) {
-                    this.onEnemyAttack();
+                    window.setTimeout(() => {
+                        this.onEnemyAttack();
+                    }, this.getActionDelay());
                 }
             });
         }
@@ -187,6 +216,7 @@ export const withCombat = <P extends IWithCombatProps>(Component: React.Componen
                 return {
                     ...prevState,
                     stage,
+                    lastRound: null,
                 }
             });
         }
@@ -221,6 +251,10 @@ export const withCombat = <P extends IWithCombatProps>(Component: React.Componen
             }
 
             return data;
+        }
+
+        private getActionDelay = (): number => {
+            return utilities.getRandomInteger(400, 600);
         }
     }
 }
