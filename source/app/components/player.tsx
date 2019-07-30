@@ -62,8 +62,7 @@ const DialogInventory = styled(Dialog)`
 `;
 
 const ButtonItem = styled(PrimaryButton)`
-    font-size: 0.8em;
-    padding: 0.2em;
+    padding: ${s => s.theme.size.spacerD2} ${s => s.theme.size.spacer};
     min-width: none;
     height: auto;
 `;

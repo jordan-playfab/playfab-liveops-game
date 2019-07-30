@@ -3,30 +3,11 @@ import { is } from "../shared/is";
 import { VC_CREDITS, INumberDictionary, ITEM_CLASS_WEAPON, IWeaponItemCustomData, ITEM_CLASS_ARMOR, IArmorItemCustomData } from "../shared/types";
 import { DocumentCard, PrimaryButton, DefaultButton } from "office-ui-fabric-react";
 import { BackLink } from "./back-link";
-import styled, { SpinnerLeft } from "../styles";
+import styled, { SpinnerLeft, DivDocumentCardInterior, DlStats } from "../styles";
 import { Grid } from "./grid";
 
 const DivItemGrid = styled.div`
     margin-top: ${s => s.theme.size.spacer};
-`;
-
-const DivCardInterior = styled.div`
-    padding: ${s => s.theme.size.spacer};
-`;
-
-const DlStats = styled.dl`
-    dt {
-        font-weight: bold;
-        margin-top: ${s => s.theme.size.spacerD2};
-
-        &:first-child {
-            margin-top: 0;
-        }
-    }
-
-    dd {
-        margin-left: ${s => s.theme.size.spacerD2};
-    }
 `;
 
 interface IStoreProps {
@@ -61,11 +42,11 @@ export class Store extends React.PureComponent<IStoreProps> {
 
                             return (
                                 <DocumentCard key={index}>
-                                    <DivCardInterior>
+                                    <DivDocumentCardInterior>
                                         <h3>{title}</h3>
                                         {this.renderItemStats(catalogItem)}
                                         {this.renderItemButton(item.ItemId, price, priceLabel)}
-                                    </DivCardInterior>
+                                    </DivDocumentCardInterior>
                                 </DocumentCard>
                             );
                         })}

@@ -136,6 +136,7 @@ class PlanetPageBase extends React.Component<Props, IState> {
                 enemies={enemyData}
                 onCombatFinished={this.onCombatFinished}
                 onLeaveCombat={this.onLeaveCombat}
+                onReturnToHeadquarters={this.onReturnToHeadquarters}
             />
         );
     }
@@ -256,11 +257,17 @@ class PlanetPageBase extends React.Component<Props, IState> {
     }
 
     private getPageTitle(): string {
-        if(!is.null(this.state.areaName)) {
-            return `${this.state.areaName} Region`;
+        const planetName = this.getPlanetName();
+
+        if(is.null(this.state.areaName)) {
+            return planetName;
         }
 
-        return this.getPlanetName();
+        return `${planetName}, near ${this.state.areaName}`;
+    }
+
+    private onReturnToHeadquarters = (): void => {
+        this.props.history.push(routes.Headquarters(this.props.appState.titleId));
     }
 }
 

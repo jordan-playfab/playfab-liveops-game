@@ -15,6 +15,10 @@ export interface ITheme {
 interface IThemeColor {
     background000: string;
     background100: string;
+    background500: string;
+
+    backgroundEnemy500: string;
+    backgroundPlayer500: string;
 
     border200: string;
 
@@ -134,6 +138,10 @@ const defaultTheme: ITheme = {
     color: {
         background000: colors.white,
         background100: colors.grey100,
+        background500: colors.grey600,
+
+        backgroundEnemy500: colors.red500,
+        backgroundPlayer500: colors.green500,
         
         border200: colors.grey200,
 
@@ -272,6 +280,25 @@ const DivField = styled.div`
     max-width: ${s => s.theme.breakpointUnits.small};
 `;
 
+const DivDocumentCardInterior = styled.div`
+    padding: ${s => s.theme.size.spacer};
+`;
+
+const DlStats = styled.dl`
+    dt {
+        font-weight: bold;
+        margin-top: ${s => s.theme.size.spacerD2};
+
+        &:first-child {
+            margin-top: 0;
+        }
+    }
+
+    dd {
+        margin-left: ${s => s.theme.size.spacerD2};
+    }
+`;
+
 export {
     css,
     keyframes,
@@ -284,6 +311,8 @@ export {
     UlNull,
     UlInline,
     DivField,
-    SpinnerLeft
+    SpinnerLeft,
+    DivDocumentCardInterior,
+    DlStats
 };
 export default styled;
