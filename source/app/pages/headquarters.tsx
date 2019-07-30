@@ -1,22 +1,23 @@
 import React from "react";
 import { Redirect, RouteComponentProps } from "react-router";
-import { PrimaryButton } from "office-ui-fabric-react";
+import { PrimaryButton, Dialog, Link, DialogType, DialogFooter, DefaultButton } from "office-ui-fabric-react";
 
 import { is } from "../shared/is";
 import { routes } from "../routes";
 import { Store } from "../components/store";
 import { PlayFabHelper } from "../shared/playfab";
 import { Page } from "../components/page";
-import styled, { UlInline, SpinnerLeft } from "../styles";
+import styled, { UlInline, SpinnerLeft, ButtonTiny, DlStats, DialogWidthSmall } from "../styles";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { actionSetInventory, actionSetStores, actionSetPlayerHP, actionSetEquipmentSingle } from "../store/actions";
-import { CATALOG_VERSION, STATISTIC_KILLS, ILeaderboardDictionary, STATISTIC_LEVEL } from "../shared/types";
+import { CATALOG_VERSION, STATISTIC_KILLS, ILeaderboardDictionary, STATISTIC_LEVEL, ITitleNewsData } from "../shared/types";
 import { IWithPageProps, withPage } from "../containers/with-page";
 import { getSlotTypeFromItemClass, EquipmentSlotTypes } from "../store/types";
 import { CloudScriptHelper } from "../shared/cloud-script";
 import { BackLink } from "../components/back-link";
 import { Grid } from "../components/grid";
 import { Leaderboard } from "../components/leaderboard";
+import { utilities } from "../shared/utilities";
 
 const DivLeaderboards = styled.div`
     margin-top: ${s => s.theme.size.spacer2};
@@ -24,16 +25,24 @@ const DivLeaderboards = styled.div`
     border-top: 1px solid ${s => s.theme.color.border200};
 `;
 
-const DivLeaderboardWrapper = styled.div`
+const DivNewsAndLeaderboardWrapper = styled.div`
     margin-top: ${s => s.theme.size.spacer};
+`;
+
+const H2WithButton = styled.h2`
+    display: flex;
+    align-items: center;
 `;
 
 interface IState {
     selectedStore: string;
     isBuyingSomething: boolean;
     isRestoringHealth: boolean;
-    titleNews: PlayFabClientModels.TitleNewsItem[];
     leaderboards: ILeaderboardDictionary;
+    news: PlayFabClientModels.TitleNewsItem[];
+    readNewsId: string;
+    isLoadingLeaderboards: boolean;
+    isLoadingNews: boolean;
 }
 
 type Props = RouteComponentProps & IWithAppStateProps & IWithPageProps;
@@ -41,6 +50,7 @@ type Props = RouteComponentProps & IWithAppStateProps & IWithPageProps;
 class HeadquartersPageBase extends React.Component<Props, IState> {
     private readonly leaderboardStatistics = [STATISTIC_KILLS, STATISTIC_LEVEL];
     private readonly leaderboardCount = 10;
+    private readonly titleNewsCount = 10;
 
     constructor(props: Props) {
         super(props);
@@ -49,8 +59,11 @@ class HeadquartersPageBase extends React.Component<Props, IState> {
             selectedStore: null,
             isBuyingSomething: false,
             isRestoringHealth: true,
-            titleNews: null,
             leaderboards: null,
+            news: null,
+            readNewsId: null,
+            isLoadingLeaderboards: true,
+            isLoadingNews: true,
         };
     }
 
@@ -59,9 +72,10 @@ class HeadquartersPageBase extends React.Component<Props, IState> {
             return;
         }
 
-        this.loadStores();
+        this.getStores();
         this.restorePlayerHP();
         this.getLeaderboards();
+        this.getNews();
     }
 
     public render(): React.ReactNode {
@@ -104,6 +118,7 @@ class HeadquartersPageBase extends React.Component<Props, IState> {
                             {this.renderStores()}
                         </React.Fragment>
                     </Grid>
+                    {this.renderNews()}
                     {this.renderLeaderboards()}
                 </React.Fragment>
                 
@@ -150,24 +165,109 @@ class HeadquartersPageBase extends React.Component<Props, IState> {
     }
 
     private renderLeaderboards(): React.ReactNode {
-        if(is.null(this.state.leaderboards) || is.null(Object.keys(this.state.leaderboards))) {
-            return null;
+        let leaderboardNames: string[] = [];
+
+        if(!is.null(this.state.leaderboards) && !is.null(Object.keys(this.state.leaderboards))) {
+            leaderboardNames = Object.keys(this.state.leaderboards).sort();
         }
 
-        const leaderboardNames = Object.keys(this.state.leaderboards).sort();
+        if(this.state.isLoadingLeaderboards) {
+            return (
+                <DivLeaderboards>
+                    <H2WithButton>Leaderboards</H2WithButton>
+                    <SpinnerLeft label="Loading leaderboards..." labelPosition="right" />
+                </DivLeaderboards>
+            );
+        }
 
         return (
             <DivLeaderboards>
-                <h2>Leaderboards</h2>
-                <DivLeaderboardWrapper>
+                <H2WithButton>Leaderboards <ButtonTiny text="Refresh" onClick={this.getLeaderboards} /></H2WithButton>
+                <DivNewsAndLeaderboardWrapper>
                     <Grid grid6x6>
                         {leaderboardNames.map(boardName => (
                             <Leaderboard titleId={this.props.appState.titleId} key={boardName} name={boardName} leaderboard={this.state.leaderboards[boardName]} />
                         ))}
                     </Grid>
-                </DivLeaderboardWrapper>
+                </DivNewsAndLeaderboardWrapper>
             </DivLeaderboards>
         );
+    }
+
+    private renderNews(): React.ReactNode {
+        const isReadingNews = !is.null(this.state.readNewsId);
+        let newsTitle: string;
+        let newsArticle: string;
+        let newsDate: string;
+
+        if(isReadingNews) {
+            const newsItem = this.state.news.find(n => n.NewsId === this.state.readNewsId);
+
+            if(!is.null(newsItem)) {
+                // This reeeeaaally shouldn't be null, but just in case
+                newsTitle = newsItem.Title;
+                newsDate = utilities.parseTitleNewsDate(newsItem.Timestamp);
+
+                const newsArticleTemporary = JSON.parse(newsItem.Body) as ITitleNewsData;
+                newsArticle = is.null(newsArticleTemporary.html)
+                    ? newsItem.Body
+                    : utilities.htmlDecode(newsArticleTemporary.html);
+            }
+        }
+
+        if(this.state.isLoadingNews) {
+            return (
+                <DivNewsAndLeaderboardWrapper>
+                    <H2WithButton>News</H2WithButton>
+                    <SpinnerLeft label="Loading news..." labelPosition="right" />
+                </DivNewsAndLeaderboardWrapper>
+            );
+        }
+
+        return (
+            <DivNewsAndLeaderboardWrapper>
+                <H2WithButton>News <ButtonTiny text="Refresh" onClick={this.getNews} /></H2WithButton>
+                {is.null(this.state.news)
+                    ? <p>No news yet</p>
+                    : (
+                        <DlStats>
+                            {this.state.news.map(news => (
+                                <React.Fragment key={news.NewsId}>
+                                    <dt><Link onClick={this.readNews.bind(this, news.NewsId)}>{news.Title}</Link></dt>
+                                    <dd>{utilities.parseTitleNewsDate(news.Timestamp)}</dd>
+                                </React.Fragment>
+                            ))}
+                        </DlStats>
+                    )}
+                
+                <DialogWidthSmall
+                    dialogContentProps={{
+                        type: DialogType.largeHeader,
+                        title: newsTitle,
+                        subText: newsDate
+                    }}
+                    hidden={!isReadingNews}
+                    onDismiss={this.clearNews}
+                >
+                    <div dangerouslySetInnerHTML={{__html: newsArticle}}></div>
+                    <DialogFooter>
+                        <DefaultButton onClick={this.clearNews} text="Close" />
+                    </DialogFooter>
+                </DialogWidthSmall>
+            </DivNewsAndLeaderboardWrapper>
+        );
+    }
+
+    private readNews = (newsId: string): void => {
+        this.setState({
+            readNewsId: newsId,
+        });
+    }
+
+    private clearNews = (): void => {
+        this.setState({
+            readNewsId: null,
+        });
     }
 
     private onLeaveStore = (): void => {
@@ -256,7 +356,7 @@ class HeadquartersPageBase extends React.Component<Props, IState> {
             : this.props.appState.stores.find(s => s.StoreId === this.state.selectedStore);
     }
 
-    private loadStores(): void {
+    private getStores(): void {
         let stores: PlayFabClientModels.GetStoreItemsResult[] = [];
 
         this.props.appState.storeNames.forEach(storeId => {
@@ -288,13 +388,19 @@ class HeadquartersPageBase extends React.Component<Props, IState> {
         }, this.props.onPageError);
     }
 
-    private getLeaderboards(): void {
+    private getLeaderboards = (): void => {
+        this.setState({
+            leaderboards: null,
+            isLoadingLeaderboards: true,
+        });
+
         this.leaderboardStatistics.forEach(statistic => {
             PlayFabHelper.GetLeaderboard(statistic, 1, this.leaderboardCount, (data) => {
                 this.setState((prevState) => {
                     if(is.null(prevState.leaderboards)) {
                         return {
                             ...prevState,
+                            isLoadingLeaderboards: false,
                             leaderboards: {
                                 [statistic]: data
                             }
@@ -303,15 +409,29 @@ class HeadquartersPageBase extends React.Component<Props, IState> {
 
                     return {
                         ...prevState,
+                        isLoadingLeaderboards: false,
                         leaderboards: {
                             ...prevState.leaderboards,
                             [statistic]: data,
                         }
                     };
                 })
-            }, this.props.onPageError)
-        })
-        
+            }, this.props.onPageError);
+        });
+    }
+
+    private getNews = (): void => {
+        this.setState({
+            news: null,
+            isLoadingNews: true,
+        });
+
+        PlayFabHelper.GetTitleNews(this.titleNewsCount, (data) => {
+            this.setState({
+                news: data,
+                isLoadingNews: false,
+            });
+        }, this.props.onPageError);
     }
 }
 

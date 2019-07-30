@@ -50,6 +50,12 @@ export interface IArmorItemCustomData {
     reduce: number;
 }
 
+// ----- Title news ----- //
+
+export interface ITitleNewsData {
+    html: string;
+}
+
 // ----- App interfaces ----- //
 
 export interface IStringDictionary {

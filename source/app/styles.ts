@@ -1,7 +1,7 @@
 import * as styledComponents from "styled-components";
 import { ThemedStyledComponentsModule, ThemeProps } from "styled-components";
 import { FontSizes } from "@uifabric/styling";
-import { Spinner } from "office-ui-fabric-react";
+import { Spinner, DefaultButton, Dialog } from "office-ui-fabric-react";
 
 export interface ITheme {
     color: IThemeColor;
@@ -294,6 +294,21 @@ const DlStats = styled.dl`
     }
 `;
 
+const ButtonTiny = styled(DefaultButton)`
+    font-size: 0.8rem;
+    padding: ${s => s.theme.size.spacerD4};
+    min-width: none;
+    height: auto;
+    margin-left: ${s => s.theme.size.spacer};
+`;
+
+const DialogWidthSmall = styled(Dialog)`
+    .ms-Dialog-main {
+        min-width: ${s => s.theme.breakpointUnits.small};
+        max-width: ${s => s.theme.breakpointUnits.small};
+    }
+`;
+
 export {
     css,
     keyframes,
@@ -308,6 +323,8 @@ export {
     DivField,
     SpinnerLeft,
     DivDocumentCardInterior,
-    DlStats
+    DlStats,
+    ButtonTiny,
+    DialogWidthSmall
 };
 export default styled;
