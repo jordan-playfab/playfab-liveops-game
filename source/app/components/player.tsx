@@ -1,14 +1,16 @@
 import React from "react";
+import { DefaultButton, Dialog, DialogType, PrimaryButton } from "office-ui-fabric-react";
+
 import { is } from "../shared/is";
-import { VC_CREDITS } from "../shared/types";
+import { VC_CREDITS, ITEM_CLASS_WEAPON, ITEM_CLASS_ARMOR } from "../shared/types";
 import styled, { UlNull } from "../styles";
-import { Callout, DirectionalHint } from 'office-ui-fabric-react/lib/Callout';
-import { DefaultButton } from "office-ui-fabric-react";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { IWithPageProps, withPage } from "../containers/with-page";
 import { actionSetEquipmentSingle } from "../store/actions";
 import { getSlotTypeFromItemClass } from "../store/types";
 import { CloudScriptHelper } from "../shared/cloud-script";
+import { utilities } from "../shared/utilities";
+import { Grid } from "./grid";
 
 interface IState {
     isInventoryVisible: boolean;
@@ -41,15 +43,29 @@ const ButtonInventory = styled(DefaultButton)`
 `;
 
 const UlInventory = styled(UlNull)`
-    margin: 1em;
+    margin: ${s => s.theme.size.spacer} 0;
     
     > li {
-        margin-top: 0.25em;
+        margin-top: ${s => s.theme.size.spacerD2};
         
         &:first-child {
             margin-top: 0;
         }
     }
+`;
+
+const DialogInventory = styled(Dialog)`
+    .ms-Dialog-main {
+        min-width: ${s => s.theme.breakpointUnits.small};
+        max-width: ${s => s.theme.breakpointUnits.small};
+    }
+`;
+
+const ButtonItem = styled(PrimaryButton)`
+    font-size: 0.8em;
+    padding: 0.2em;
+    min-width: none;
+    height: auto;
 `;
 
 type Props = IWithAppStateProps & IWithPageProps;
@@ -73,7 +89,7 @@ class PlayerBase extends React.Component<Props, IState> {
         return (
             <DivPlayerWrapper>
                 <DivPlayerName>
-                    <h3>{this.props.appState.playerName} ({this.props.appState.playerHP} HP)</h3>
+                    <h3><a href={utilities.createPlayFabLink(this.props.appState.titleId, `players/${this.props.appState.playerId}/overview`, false)} target="_blank">{this.props.appState.playerName}</a> ({this.props.appState.playerHP} HP)</h3>
                 </DivPlayerName>
                 {this.renderCredits()}
                 {this.renderInventory()}
@@ -97,14 +113,14 @@ class PlayerBase extends React.Component<Props, IState> {
         if(is.null(this.props.appState.inventory) || is.null(this.props.appState.inventory.Inventory) || is.null(this.props.appState.equipment)) {
             return (
                 <DivPlayerInventory>
-                    <ButtonInventory text="No inventory" />
+                    <ButtonInventory text="No items" />
                 </DivPlayerInventory>
             );
         }
 
-        const buttonText = this.state.isInventoryVisible
-            ? "Hide inventory"
-            : "Show inventory";
+        const buttonText = this.props.appState.inventory.Inventory.length === 1
+            ? `1 item`
+            : `${this.props.appState.inventory.Inventory.length} items`;
 
         const buttonEvent = this.state.isInventoryVisible
             ? this.hideInventory
@@ -123,28 +139,55 @@ class PlayerBase extends React.Component<Props, IState> {
                         return this.props.appState.equipment[key].ItemInstanceId;
                 });
 
+        const weapons = this.props.appState.inventory.Inventory.filter(i => !is.null(i.ItemClass) && i.ItemClass.indexOf(ITEM_CLASS_WEAPON) !== -1);
+        const armor = this.props.appState.inventory.Inventory.filter(i => !is.null(i.ItemClass) && i.ItemClass.indexOf(ITEM_CLASS_ARMOR) !== -1);
+
         return (
             <DivPlayerInventory ref={this.menuButtonElement}>
                 <ButtonInventory text={buttonText} onClick={buttonEvent} />
-                <Callout
-                    onDismiss={this.hideInventory}
-                    setInitialFocus
+                <DialogInventory
                     hidden={!this.state.isInventoryVisible}
-                    target={this.menuButtonElement.current}
-                    directionalHint={DirectionalHint.bottomRightEdge}
+                    onDismiss={this.hideInventory}
+                    dialogContentProps={{
+                        type: DialogType.largeHeader,
+                        title: "Equipment"
+                    }}
                 >
-                    <UlInventory>
-                        {this.props.appState.inventory.Inventory.map((item, index) => (
-                            <li key={index}>
-                                {is.inArray(equippedItemInstanceIds, item.ItemInstanceId)
-                                    ? (<React.Fragment>{item.DisplayName} (equipped)</React.Fragment>)
-                                    : (<button onClick={this.equipItem.bind(this, item)}>{item.DisplayName}</button>)}
-                            </li>
-                        ))}
-                    </UlInventory>
-                </Callout>
+                    <Grid grid6x6>
+                        <React.Fragment>
+                            <h3>Weapons</h3>
+                            {this.renderItems(weapons, equippedItemInstanceIds)}
+                        </React.Fragment>
+                        <React.Fragment>
+                            <h3>Armor</h3>
+                            {this.renderItems(armor, equippedItemInstanceIds)}
+                        </React.Fragment>
+                    </Grid>
+                </DialogInventory>
             </DivPlayerInventory>
         );
+    }
+
+    private renderItems(items: PlayFabClientModels.ItemInstance[], equippedItemInstanceIds: string[]): React.ReactNode {
+        if(is.null(items)) {
+            return (
+                <UlInventory>
+                    <li>None</li>
+                </UlInventory>
+            )
+        }
+
+        return (
+            <UlInventory>
+                {items.map((item, index) => (
+                    <li key={index}>
+                        {is.inArray(equippedItemInstanceIds, item.ItemInstanceId)
+                            ? (<React.Fragment>{item.DisplayName} (equipped)</React.Fragment>)
+                            : (<ButtonItem onClick={this.equipItem.bind(this, item)} text={item.DisplayName} />)}
+                    </li>
+                ))}
+            </UlInventory>
+        )
     }
 
     private showInventory = (): void => {

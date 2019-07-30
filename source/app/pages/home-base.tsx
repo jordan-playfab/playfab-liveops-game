@@ -19,6 +19,7 @@ import { Grid } from "../components/grid";
 
 interface IState {
     selectedStore: string;
+    isBuyingSomething: boolean;
 }
 
 type Props = RouteComponentProps & IWithAppStateProps & IWithPageProps;
@@ -29,6 +30,7 @@ class HomeBasePageBase extends React.Component<Props, IState> {
 
         this.state = {
             selectedStore: null,
+            isBuyingSomething: false,
         };
     }
 
@@ -96,6 +98,7 @@ class HomeBasePageBase extends React.Component<Props, IState> {
                 onLeaveStore={this.onLeaveStore}
                 storeName={this.getStore().MarketingData.DisplayName}
                 inventory={this.props.appState.inventory.Inventory}
+                isBuyingSomething={this.state.isBuyingSomething}
             />
         )
     }
@@ -133,17 +136,28 @@ class HomeBasePageBase extends React.Component<Props, IState> {
     }
 
     private onBuyFromStore = (itemId: string, currency: string, price: number): void => {
-        PlayFabHelper.PurchaseItem(CATALOG_VERSION, this.state.selectedStore, itemId, currency, price,
-            (data) => {
-                if(!is.null(data.errorMessage)) {
-                    this.props.onPageError(data.errorMessage);
-                    return;
-                }
+        this.setState({
+            isBuyingSomething: true,
+        });
 
-                PlayFabHelper.GetUserInventory(inventory => {
-                    this.props.dispatch(actionSetInventory(inventory));
-                    this.checkForEquipItem(inventory, data.Items[0].ItemInstanceId);
-                }, this.props.onPageError);
+        PlayFabHelper.PurchaseItem(CATALOG_VERSION, this.state.selectedStore, itemId, currency, price, (data) => {
+            if(!is.null(data.errorMessage)) {
+                this.setState({
+                    isBuyingSomething: false,
+                });
+
+                this.props.onPageError(data.errorMessage);
+                return;
+            }
+
+            PlayFabHelper.GetUserInventory(inventory => {
+                this.props.dispatch(actionSetInventory(inventory));
+                this.checkForEquipItem(inventory, data.Items[0].ItemInstanceId);
+
+                this.setState({
+                    isBuyingSomething: false,
+                });
+            }, this.props.onPageError);
         }, this.props.onPageError);
     }
 

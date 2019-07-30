@@ -27,7 +27,7 @@ class MainMenuPageBase extends React.Component<Props> {
                 <Grid grid6x6>
                     <React.Fragment>
                         <h2>First time</h2>
-                        <p>To play the game, you must <strong>load it with game data</strong>. This will make your title ready to play.</p>
+                        <p>To play the game, you must <strong>load game data</strong>. This will make your title ready to play.</p>
                         <DivButton>
                             <DefaultButton text="Load data" onClick={this.goToPage.bind(this, routes.Upload(titleId))} />
                         </DivButton>
