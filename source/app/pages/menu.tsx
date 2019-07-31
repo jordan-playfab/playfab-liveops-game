@@ -7,6 +7,7 @@ import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import styled, { UlInline } from "../styles";
 import { routes } from "../routes";
 import { Grid } from "../components/grid";
+import { utilities } from "../shared/utilities";
 
 const DivAdvanced = styled.div`
     margin-top: ${s => s.theme.size.spacer5};
@@ -14,6 +15,10 @@ const DivAdvanced = styled.div`
 
 const DivButton = styled.div`
     margin-top: ${s => s.theme.size.spacer};
+`;
+
+const DivPlayFab = styled.div`
+    margin-top: ${s => s.theme.size.spacer2};
 `;
 
 type Props = RouteComponentProps & IWithAppStateProps;
@@ -48,6 +53,21 @@ class MainMenuPageBase extends React.Component<Props> {
                         {/*<li><DefaultButton text="Level curve" onClick={this.goToPage.bind(this, routes.LevelCurve(titleId))} /></li>*/}
                     </UlInline>
                 </DivAdvanced>
+                <DivPlayFab>
+                    <h3>Watch PlayFab work</h3>
+                    <Grid grid6x6>
+                        <React.Fragment>
+                            <p><strong>In browser:</strong> Open the developer tools in your browser and navigate to the network tab. All requests to PlayFab will be visible.</p>
+                            <ul>
+                                <li><strong>Windows:</strong> Press F12</li>
+                                <li><strong>Macintosh:</strong> Press Command-Option-i</li>
+                            </ul>
+                        </React.Fragment>
+                        <React.Fragment>
+                            <p><strong>PlayStream Monitor:</strong> Keep the <strong><a href={utilities.createPlayFabLink(this.props.appState.titleId, "dashboard/monitoring/playstream", false)} target="_blank">Dashboard &gt; PlayStream Monitor</a></strong> page open to see all game activity as it happens.</p>
+                        </React.Fragment>
+                    </Grid>
+                </DivPlayFab>
             </Page>
         );
     }

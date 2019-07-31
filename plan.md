@@ -28,7 +28,7 @@
 
 ## Priority order (+ shirt time/difficulty)
 - [x] Switch first login currency grant to use initial amount on currency (S)
-- [ ] Notify users about F12 monitoring (S)
+- [x] Notify users about F12 monitoring (S)
 - [ ] Credits page (S)
 - [ ] List of non-existent features (S)
 - [ ] More information on Login page, about case sensitivity (S)
