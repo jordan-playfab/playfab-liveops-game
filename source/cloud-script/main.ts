@@ -142,7 +142,6 @@ const App = {
         Equipment: "equipment"
     },
     CatalogItems: {
-        StartingPack: "StartingPack",
         UnpackClassName: "unpack",
     },
     VirtualCurrency: {
@@ -312,7 +311,6 @@ handlers.killedEnemyGroup = function(args: IKilledEnemyGroupRequest, context: an
 };
 
 export interface IPlayerLoginResponse {
-    didGrantStartingPack: boolean;
     playerHP: number;
     equipment: IStringDictionary;
     xp: number;
@@ -323,7 +321,6 @@ export interface IPlayerLoginResponse {
 handlers.playerLogin = function(args: any, context: any): IPlayerLoginResponse {
     // If you're a new player with no money nor items, give you some cash and set your HP
     const response: IPlayerLoginResponse = {
-        didGrantStartingPack: false,
         playerHP: 0,
         equipment: {},
         xp: 0,
@@ -331,14 +328,8 @@ handlers.playerLogin = function(args: any, context: any): IPlayerLoginResponse {
         inventory: null
     }
 
-    // Give new players their starting items
-    let inventory = App.GetUserInventory(currentPlayerId);
-
-    if(App.IsNull(inventory.Inventory) && inventory.VirtualCurrency[App.VirtualCurrency.Credits] === 0) {
-        response.didGrantStartingPack = true;
-        App.GrantItemsToUser(currentPlayerId, [App.CatalogItems.StartingPack]);
-        inventory = App.GetUserInventory(currentPlayerId);
-    }
+    // Get inventory and convert from the server model to the client model (they look identical, except to TypeScript)
+    const inventory = App.GetUserInventory(currentPlayerId);
 
     response.inventory = {
         Inventory: inventory.Inventory,

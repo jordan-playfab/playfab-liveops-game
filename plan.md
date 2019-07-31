@@ -27,7 +27,7 @@
 - [x] Player sign out button
 
 ## Priority order (+ shirt time/difficulty)
-- [ ] Switch first login currency grant to use initial amount on currency (S)
+- [x] Switch first login currency grant to use initial amount on currency (S)
 - [ ] Notify users about F12 monitoring (S)
 - [ ] Credits page (S)
 - [ ] List of non-existent features (S)
