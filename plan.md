@@ -23,9 +23,9 @@
 - [x] Title data at headquarters
 - [x] Be explicit about what features the game uses so people know where to look for it
 - [x] Bug: enemies appear to be doing damage even when they aren't
+- [x] Bug: why isn't HP being set when gaining a level?
 
 ## New
-- [ ] Bug: why isn't HP being set when gaining a level?
 - [ ] Add internationalization
 - [ ] Actual loot in looter shooter
 - [ ] Credits page
