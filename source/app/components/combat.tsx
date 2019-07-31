@@ -67,14 +67,11 @@ class CombatBase extends React.PureComponent<Props, IState> {
     }
 
     public componentDidMount(): void {
-        const weapon = this.getWeapon();
-        const armor = this.getArmor();
-
-        this.props.onCombatStart(this.props.enemies, this.props.appState.playerHP, weapon, armor);
+        this.props.onCombatStart(this.props.enemies, this.props.appState.playerHP, this.getWeapon(), this.getArmor());
     }
 
     public componentDidUpdate(prevProps: Props): void {
-        if(this.props.combatPlayerHP !== this.props.appState.playerHP) {
+        if(this.props.combatStage !== CombatStage.Victory && this.props.combatPlayerHP !== this.props.appState.playerHP) {
             this.props.dispatch(actionSetPlayerHP(this.props.combatPlayerHP));
         }
 
