@@ -24,25 +24,35 @@
 - [x] Be explicit about what features the game uses so people know where to look for it
 - [x] Bug: enemies appear to be doing damage even when they aren't
 - [x] Bug: why isn't HP being set when gaining a level?
+- [x] Player sign out button
 
-## New
-- [ ] Add internationalization
-- [ ] Actual loot in looter shooter
-- [ ] Credits page
-- [ ] Explanation of store segmentation
-- [ ] How to go further
-- [ ] List of non-existent features
-- [ ] Talk about actual timeline for this game
-- [ ] Finish level curve page
-- [ ] More information on Login page, about case sensitivity
-- [ ] More graphical combat
-- [ ] More enemies and weapons
-- [ ] Examples of how to do store segmentation based on level
-- [ ] Global box showing PlayFab API activity
-- [ ] Notify users about F12 monitoring
-- [ ] Convert to new entity and other APIs
-- [ ] Improve player bar
-- [ ] Add consumable health potions
-- [ ] Add reasons to stay out in the field (e.g. XP multiplier?)
-- [ ] Grant items on level ups
-- [ ] Player sign out button
+## Priority order (+ shirt time/difficulty)
+- [x] Switch first login currency grant to use initial amount on currency (S)
+- [ ] Notify users about F12 monitoring (S)
+- [ ] Credits page (S)
+- [ ] List of non-existent features (S)
+- [ ] More information on Login page, about case sensitivity (S)
+- [ ] Improve player bar (M)
+- [ ] Global box showing PlayFab API activity (L)
+- [ ] Grant items on level ups (S)
+- [ ] Rename weapons and enemies to something more benign (M)
+- [ ] Actual loot in looter shooter (M)
+- [ ] More graphical combat (M)
+- [ ] Explanation of store segmentation (M)
+- [ ] Add consumable health potions (M)
+- [ ] Clean up all page code, reduce hackiness (XL)
+- [ ] Full tutorial of how to use this game and PlayFab (XL)
+    - Changing planet names and enemy stats in title data
+    - Custom data on catalog items
+    - Adding more stores
+    - Adding title news
+    - Other features one could add (A/B tests, containers as engrams, friends)
+- [ ] Finish level curve page (M)
+- [ ] Talk about actual timeline for this game (S)
+- [ ] Add internationalization (L)
+- [ ] Convert to new entity and other APIs (XXL)
+
+## Design upgrades
+- [ ] Guide page: rotating carousel with large art for each planet
+- [ ] Planet page: smaller region graphics
+- [ ] Combat component: graphical combat UI

@@ -3,7 +3,7 @@
         {
             "CurrencyCode": "CR",
             "DisplayName": "Credits",
-            "InitialDeposit": 0,
+            "InitialDeposit": 100,
             "RechargeRate": 0,
             "RechargeMax": 0
         }

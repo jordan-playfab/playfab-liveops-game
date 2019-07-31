@@ -123,7 +123,6 @@ const App = {
         Equipment: "equipment"
     },
     CatalogItems: {
-        StartingPack: "StartingPack",
         UnpackClassName: "unpack",
     },
     VirtualCurrency: {
@@ -246,20 +245,14 @@ handlers.killedEnemyGroup = function (args, context) {
 handlers.playerLogin = function (args, context) {
     // If you're a new player with no money nor items, give you some cash and set your HP
     const response = {
-        didGrantStartingPack: false,
         playerHP: 0,
         equipment: {},
         xp: 0,
         level: 1,
         inventory: null
     };
-    // Give new players their starting items
-    let inventory = App.GetUserInventory(currentPlayerId);
-    if (App.IsNull(inventory.Inventory) && inventory.VirtualCurrency[App.VirtualCurrency.Credits] === 0) {
-        response.didGrantStartingPack = true;
-        App.GrantItemsToUser(currentPlayerId, [App.CatalogItems.StartingPack]);
-        inventory = App.GetUserInventory(currentPlayerId);
-    }
+    // Get inventory and convert from the server model to the client model (they look identical, except to TypeScript)
+    const inventory = App.GetUserInventory(currentPlayerId);
     response.inventory = {
         Inventory: inventory.Inventory,
         VirtualCurrency: inventory.VirtualCurrency,
