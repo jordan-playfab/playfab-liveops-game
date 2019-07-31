@@ -6,15 +6,11 @@ import { VC_CREDITS, ITEM_CLASS_WEAPON, ITEM_CLASS_ARMOR } from "../shared/types
 import styled, { UlNull, ButtonTiny, DialogWidthSmall } from "../styles";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { IWithPageProps, withPage } from "../containers/with-page";
-import { actionSetEquipmentSingle } from "../store/actions";
+import { actionSetEquipmentSingle, actionSetPlayerId } from "../store/actions";
 import { getSlotTypeFromItemClass } from "../store/types";
 import { CloudScriptHelper } from "../shared/cloud-script";
 import { utilities } from "../shared/utilities";
 import { Grid } from "./grid";
-
-interface IState {
-    isInventoryVisible: boolean;
-}
 
 const DivPlayerWrapper = styled.div`
     display: flex;
@@ -62,7 +58,19 @@ const ButtonEqipped = styled(PrimaryButton)`
     height: auto;
 `;
 
-type Props = IWithAppStateProps & IWithPageProps;
+const ButtonLogOut = styled(ButtonTiny)`
+    margin-top: ${s => s.theme.size.spacerD4};
+`;
+
+interface IProps {
+    logOut: () => void;
+}
+
+interface IState {
+    isInventoryVisible: boolean;
+}
+
+type Props = IWithAppStateProps & IWithPageProps & IProps;
 
 class PlayerBase extends React.Component<Props, IState> {
     private menuButtonElement = React.createRef<HTMLDivElement>();
@@ -83,7 +91,10 @@ class PlayerBase extends React.Component<Props, IState> {
         return (
             <DivPlayerWrapper>
                 <DivPlayerName>
-                    <h3><a href={utilities.createPlayFabLink(this.props.appState.titleId, `players/${this.props.appState.playerId}/overview`, false)} target="_blank">{this.props.appState.playerName}</a> ({this.props.appState.playerHP} HP)</h3>
+                    <h3>
+                        <a href={utilities.createPlayFabLink(this.props.appState.titleId, `players/${this.props.appState.playerId}/overview`, false)} target="_blank">{this.props.appState.playerName}</a> ({this.props.appState.playerHP} HP)
+                        <ButtonLogOut text="Log out" onClick={this.props.logOut} />
+                    </h3>
                 </DivPlayerName>
                 {this.renderCredits()}
                 {this.renderInventory()}
@@ -104,7 +115,7 @@ class PlayerBase extends React.Component<Props, IState> {
     }
 
     private renderInventory(): React.ReactNode {
-        if(is.null(this.props.appState.inventory) || is.null(this.props.appState.inventory.Inventory) || is.null(this.props.appState.equipment)) {
+        if(is.null(this.props.appState.inventory) || is.null(this.props.appState.inventory.Inventory)) {
             return null;
         }
 

@@ -4,8 +4,9 @@ import { Header } from "./header";
 import { Player } from "./player";
 import { RouteComponentProps } from "react-router";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
-import { actionSetTitleId } from "../store/actions";
+import { actionSetTitleId, actionPlayerLogOut } from "../store/actions";
 import { Footer } from "./footer";
+import { routes } from "../routes";
 
 const MainTag = styled.main`
     background: ${s => s.theme.color.background000};
@@ -49,7 +50,7 @@ class PageBase extends React.PureComponent<Props> {
             <MainTag>
                 <Header title={this.props.title} />
                 {this.props.shouldShowPlayerInfo && (
-                    <Player />
+                    <Player logOut={this.logOut} />
                 )}
                 <DivPageContent>
                     {this.props.children}
@@ -65,6 +66,11 @@ class PageBase extends React.PureComponent<Props> {
 			this.props.dispatch(actionSetTitleId(this.props.match.params.titleid));
 		}
 	}
+
+    private logOut = (): void => {
+        this.props.dispatch(actionPlayerLogOut());
+        this.props.history.push(routes.Login(this.props.appState.titleId));
+    }
 }
 
 export const Page = withAppState(PageBase);

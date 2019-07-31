@@ -33,3 +33,4 @@ export const actionSetEquipmentMultiple = (equips: IEquipItemInstance[]) => acti
 export const actionSetPlayerLevel = (level: number) => action(ActionTypes.SET_PLAYER_LEVEL, level);
 export const actionSetPlayerXP = (xp: number) => action(ActionTypes.SET_PLAYER_XP, xp);
 export const actionAddPlayerXP = (xp: number) => action(ActionTypes.ADD_PLAYER_XP, xp);
+export const actionPlayerLogOut = () => action(ActionTypes.PLAYER_LOG_OUT, null);

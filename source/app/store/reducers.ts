@@ -117,6 +117,19 @@ export const mainReducer: Reducer<IApplicationState, IAction<any>> = (state = in
                 ...state,
                 playerXP: state.playerXP + action.payload as number,
             };
+        case ActionTypes.PLAYER_LOG_OUT:
+            return {
+                ...state,
+                playerXP: initialState.playerXP,
+                inventory: initialState.inventory,
+                equipment: initialState.equipment,
+                hasPlayerId: initialState.hasPlayerId,
+                playerId: initialState.playerId,
+                playerHP: initialState.playerHP,
+                playerLevel: initialState.playerLevel,
+                playerName: initialState.playerName,
+
+            };
         default:
             return state;
     }
