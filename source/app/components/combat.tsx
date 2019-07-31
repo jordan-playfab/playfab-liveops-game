@@ -135,7 +135,7 @@ class CombatBase extends React.PureComponent<Props, IState> {
                                 <DivEnemyWrapper>
                                     <Grid grid4x4x4 reduce>
                                         {this.props.combatEnemies.map((enemy, index) => (
-                                            <DocumentCard>
+                                            <DocumentCard key={index}>
                                                 <DivDocumentCardInterior>
                                                     <h3>{enemy.name} #{index + 1}</h3>
                                                     <DlStats>
@@ -155,36 +155,32 @@ class CombatBase extends React.PureComponent<Props, IState> {
         }
     }
 
-    private renderEvent = (event: ICombatEvent): React.ReactNode => {
+    private renderEvent = (event: ICombatEvent, index: number): React.ReactNode => {
         const isPlayer = event.source === "player";
+        let message = "";
 
         if(!is.null(event.message)) {
-            return (
-                <LiCombatEvent isPlayer={isPlayer}>{event.message}</LiCombatEvent>
-            );
+            message = event.message;
         }
-
-        if(isPlayer) {
+        else if(isPlayer) {
             if(event.damage === 0) {
-                return (
-                    <LiCombatEvent isPlayer={isPlayer}>You missed {event.enemyName} #{event.enemyIndex + 1}</LiCombatEvent>
-                )
+                message = `You missed ${event.enemyName} #${event.enemyIndex + 1}`;
             }
-
-            return (
-                <LiCombatEvent isPlayer={isPlayer}>You hit {event.enemyName} #{event.enemyIndex + 1} for {event.damage} damage</LiCombatEvent>
-            );
+            else {
+                message = `You hit ${event.enemyName} #${event.enemyIndex + 1} for ${event.damage} damage`;
+            }
+        }
+        else {
+            // It's an enemy attacking
+            if(event.damage === 0) {
+                message = `${event.enemyName} #${event.enemyIndex + 1} missed you`;
+            }
+            else {
+                message = `${event.enemyName} #${event.enemyIndex + 1} hit you for ${event.damage} damage`;
+            }
         }
 
-        if(event.damage === 0) {
-            return (
-                <LiCombatEvent isPlayer={isPlayer}>{event.enemyName} #{event.enemyIndex + 1} missed you</LiCombatEvent>
-            );
-        }
-
-        return (
-            <LiCombatEvent isPlayer={isPlayer}>{event.enemyName} #{event.enemyIndex + 1} hit you for {event.damage} damage</LiCombatEvent>
-        );
+        return <LiCombatEvent key={index} isPlayer={isPlayer}>{message}</LiCombatEvent>
     }
 
     private getWeapon(): PlayFabClientModels.CatalogItem {
