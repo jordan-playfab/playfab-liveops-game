@@ -9,16 +9,16 @@ import { routes } from "../routes";
 import { Grid } from "../components/grid";
 import { utilities } from "../shared/utilities";
 
-const DivAdvanced = styled.div`
-    margin-top: ${s => s.theme.size.spacer5};
-`;
-
 const DivButton = styled.div`
     margin-top: ${s => s.theme.size.spacer};
 `;
 
 const DivPlayFab = styled.div`
-    margin-top: ${s => s.theme.size.spacer2};
+    margin-top: ${s => s.theme.size.spacer5};
+`;
+
+const DivAdvanced = styled.div`
+    margin-top: ${s => s.theme.size.spacer};
 `;
 
 type Props = RouteComponentProps & IWithAppStateProps;
@@ -46,14 +46,6 @@ class MainMenuPageBase extends React.Component<Props> {
                     </React.Fragment>
                 </Grid>
 
-                <DivAdvanced>
-                    <h3>Advanced</h3>
-                    <UlInline>
-                        <li><DefaultButton text="Download data" onClick={this.goToPage.bind(this, routes.Download(titleId))} /></li>
-                        <li><DefaultButton text="Credits" onClick={this.goToPage.bind(this, routes.Credits(titleId))} /></li>
-                        {/*<li><DefaultButton text="Level curve" onClick={this.goToPage.bind(this, routes.LevelCurve(titleId))} /></li>*/}
-                    </UlInline>
-                </DivAdvanced>
                 <DivPlayFab>
                     <h3>Watch PlayFab work</h3>
                     <Grid grid6x6>
@@ -65,10 +57,18 @@ class MainMenuPageBase extends React.Component<Props> {
                             </ul>
                         </React.Fragment>
                         <React.Fragment>
-                            <p><strong>PlayStream Monitor:</strong> Keep the <strong><a href={utilities.createPlayFabLink(this.props.appState.titleId, "dashboard/monitoring/playstream", false)} target="_blank">Dashboard &gt; PlayStream Monitor</a></strong> page open to see all game activity as it happens.</p>
+                            <p><strong>In PlayFab:</strong> Keep the <a href={utilities.createPlayFabLink(this.props.appState.titleId, "dashboard/monitoring/playstream", false)} target="_blank">Dashboard &gt; PlayStream Monitor</a> page open to see all game activity as it happens.</p>
                         </React.Fragment>
                     </Grid>
                 </DivPlayFab>
+                <DivAdvanced>
+                    <h3>Advanced</h3>
+                    <UlInline>
+                        <li><DefaultButton text="Download data" onClick={this.goToPage.bind(this, routes.Download(titleId))} /></li>
+                        <li><DefaultButton text="Credits" onClick={this.goToPage.bind(this, routes.Credits(titleId))} /></li>
+                        {/*<li><DefaultButton text="Level curve" onClick={this.goToPage.bind(this, routes.LevelCurve(titleId))} /></li>*/}
+                    </UlInline>
+                </DivAdvanced>
             </Page>
         );
     }
