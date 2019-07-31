@@ -51,3 +51,8 @@
 - [ ] Talk about actual timeline for this game (S)
 - [ ] Add internationalization (L)
 - [ ] Convert to new entity and other APIs (XXL)
+
+## Design upgrades
+- [ ] Guide page: rotating carousel with large art for each planet
+- [ ] Planet page: smaller region graphics
+- [ ] Combat component: graphical combat UI
