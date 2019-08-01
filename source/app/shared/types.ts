@@ -50,23 +50,6 @@ export interface IArmorItemCustomData {
     reduce: number;
 }
 
-interface IAttackType {
-    name: string;
-    probability: number;
-    flavor: DamageFlavor;
-    power: number;
-    variance: number;
-    critical: number;
-    reload: number;
-}
-
-enum DamageFlavor {
-    Kinetic = "kinetic",
-    Gamma = "gamma",
-    Neutron = "neutron",
-    Cosmic = "cosmic"
-}
-
 // ----- Title news ----- //
 
 export interface ITitleNewsData {
@@ -130,7 +113,7 @@ export const PROGRESS_STAGES: IProgressStage[] = [{
 
 export const VC_CREDITS = "CR";
 
-export const CATALOG_VERSION = "Main";
+export const CATALOG_VERSION = "1";
 
 export const TITLE_DATA_STORES = "Stores";
 export const TITLE_DATA_PLANETS = "Planets";
@@ -142,3 +125,105 @@ export const ITEM_CLASS_ARMOR = "armor";
 export const STATISTIC_KILLS = "kills";
 export const STATISTIC_LEVEL = "level";
 export const STATISTIC_XP = "xp";
+
+// ----- New hotness ----- //
+
+export const WEAPON_CUSTOM_DATA_STATS = "stats";
+export const ARMOR_CUSTOM_DATA_STATS = "stats";
+
+export interface IEnemyData {
+    name?: string;
+    genus: EnemyGenus;
+    species: EnemySpecies;
+    hp: number;
+    attacks: IAttackType[];
+    resistances: IDamageResistance[];
+    speed: number;
+}
+
+interface IAnyItemData {
+    name: string;
+    rarity: WeaponRarity;
+    isUnique: boolean;
+}
+
+export interface IWeaponData extends IAnyItemData {
+    attacks: IAttackType[];
+    category: WeaponCategory;
+}
+
+export interface IArmorData extends IAnyItemData {
+    resistances: IDamageResistance[];
+    slot: ArmorSlot;
+}
+
+export interface IAttackType {
+    name: string;
+    probability: number; // 0-1
+    flavor: DamageFlavor;
+    power: number; // big numbers
+    variance: number; // 0-1
+    critical: number; // 0-1
+    reload: number; // in milliseconds
+}
+
+interface IDamageResistance {
+    flavor: DamageFlavor;
+    resistance: number; // 0-1
+}
+
+enum DamageFlavor {
+    Kinetic = "Kinetic",
+    Gamma = "Gamma",
+    Neutron = "Neutron",
+    Cosmic = "Cosmic"
+}
+
+enum WeaponCategory {
+    Rivulet = "Rivulet",
+    Bight = "Bight",
+    Mere = "Mere",
+    Basin = "Basin"
+}
+
+enum ArmorSlot {
+    Head = "Head",
+    Chest = "Chest",
+    Legs = "Legs",
+    Boots = "Boots"
+}
+
+enum WeaponRarity {
+    Uncommon = "Uncommon",
+    Common = "Common",
+    Rare = "Rare",
+    Legendary = "Legendary"
+}
+
+enum EnemyGenus {
+    Ultracruiser = "Ultracruiser",
+    Cyberbird = "Cyberbird",
+    MoonEater = "Moon Eater",
+    ShroudedOne = "Shrouded One"
+}
+
+enum EnemySpecies {
+    // Ultracruiser
+    Neophyte = "Neophyte",
+    Switchling = "Switchling",
+    Dreadrat = "Dreadrat",
+    Capper = "Capper",
+    // Cyberbirds
+    Eggsbawks = "Eggsbawks",
+    Coolbirdnetbees = "Coolbirdnetbees",
+    Intendodo = "Intendodo",
+    // Moon Eaters
+    Crisium = "Crisium",
+    Imbrium = "Imbrium",
+    Procellarum = "Procellarum",
+    Grimaldi = "Grimaldi",
+    // Shrouded Ones
+    Slipher = "Slipher",
+    Hubbler = "Hubbler",
+    Almagest = "Almagest",
+}

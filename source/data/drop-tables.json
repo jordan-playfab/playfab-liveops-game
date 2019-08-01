@@ -1,7 +1,7 @@
 {
     "Tables": {
         "enemy-easy": {
-            "CatalogVersion": "Main",
+            "CatalogVersion": "1",
             "TableId": "enemy-easy",
             "Nodes": [
                 {
@@ -17,7 +17,7 @@
             ]
         },
         "enemy-hard": {
-            "CatalogVersion": "Main",
+            "CatalogVersion": "1",
             "TableId": "enemy-hard",
             "Nodes": [
                 {
@@ -33,7 +33,7 @@
             ]
         },
         "enemy-medium": {
-            "CatalogVersion": "Main",
+            "CatalogVersion": "1",
             "TableId": "enemy-medium",
             "Nodes": [
                 {
