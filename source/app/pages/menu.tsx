@@ -7,12 +7,17 @@ import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import styled, { UlInline } from "../styles";
 import { routes } from "../routes";
 import { Grid } from "../components/grid";
+import { utilities } from "../shared/utilities";
 
-const DivAdvanced = styled.div`
+const DivButton = styled.div`
+    margin-top: ${s => s.theme.size.spacer};
+`;
+
+const DivPlayFab = styled.div`
     margin-top: ${s => s.theme.size.spacer5};
 `;
 
-const DivButton = styled.div`
+const DivAdvanced = styled.div`
     margin-top: ${s => s.theme.size.spacer};
 `;
 
@@ -41,10 +46,26 @@ class MainMenuPageBase extends React.Component<Props> {
                     </React.Fragment>
                 </Grid>
 
+                <DivPlayFab>
+                    <h3>Watch PlayFab work</h3>
+                    <Grid grid6x6>
+                        <React.Fragment>
+                            <p><strong>In browser:</strong> Open the developer tools in your browser and navigate to the network tab. All requests to PlayFab will be visible.</p>
+                            <ul>
+                                <li><strong>Windows:</strong> Press F12</li>
+                                <li><strong>Macintosh:</strong> Press Command-Option-i</li>
+                            </ul>
+                        </React.Fragment>
+                        <React.Fragment>
+                            <p><strong>In PlayFab:</strong> Keep the <a href={utilities.createPlayFabLink(this.props.appState.titleId, "dashboard/monitoring/playstream", false)} target="_blank">Dashboard &gt; PlayStream Monitor</a> page open to see all game activity as it happens.</p>
+                        </React.Fragment>
+                    </Grid>
+                </DivPlayFab>
                 <DivAdvanced>
                     <h3>Advanced</h3>
                     <UlInline>
                         <li><DefaultButton text="Download data" onClick={this.goToPage.bind(this, routes.Download(titleId))} /></li>
+                        <li><DefaultButton text="Credits" onClick={this.goToPage.bind(this, routes.Credits(titleId))} /></li>
                         {/*<li><DefaultButton text="Level curve" onClick={this.goToPage.bind(this, routes.LevelCurve(titleId))} /></li>*/}
                     </UlInline>
                 </DivAdvanced>

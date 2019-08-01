@@ -28,10 +28,10 @@
 
 ## Priority order (+ shirt time/difficulty)
 - [x] Switch first login currency grant to use initial amount on currency (S)
-- [ ] Notify users about F12 monitoring (S)
-- [ ] Credits page (S)
+- [x] Notify users about F12 monitoring (S)
+- [x] Credits page (S)
 - [ ] List of non-existent features (S)
-- [ ] More information on Login page, about case sensitivity (S)
+- [x] More information on Login page, about case sensitivity (S)
 - [ ] Improve player bar (M)
 - [ ] Global box showing PlayFab API activity (L)
 - [ ] Grant items on level ups (S)

@@ -14,6 +14,7 @@ import { DownloadPage } from "./pages/download";
 import { LevelPage } from "./pages/level";
 import { MainMenuPage } from "./pages/menu";
 import { GuidePage } from "./pages/guide";
+import { CreditsPage } from "./pages/credits";
 
 type Props = IWithAppStateProps;
 
@@ -31,6 +32,7 @@ class RouterBase extends React.Component<Props> {
 					<Route exact path={routeNames.Upload} component={UploadPage} />
 					<Route exact path={routeNames.Download} component={DownloadPage} />
 					<Route exact path={routeNames.LevelCurve} component={LevelPage} />
+					<Route exact path={routeNames.Credits} component={CreditsPage} />
 					<Route component={NotFoundPage} />
 				</Switch>
 			</HashRouter>
