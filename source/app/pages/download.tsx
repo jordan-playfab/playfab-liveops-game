@@ -84,7 +84,7 @@ class DownloadPageBase extends React.PureComponent<Props, IState> {
                 <p>Get the secret key for your title from <a href={utilities.createPlayFabLink(this.props.appState.titleId, "settings/secret-keys", true)} target="_blank">Settings &gt; Secret Keys</a>.</p>
                 <p>This page does not store nor transmit your secret key to anyone except PlayFab.</p>
                 <DivField>
-                    <TextField type="password" label="Secret key" onChange={this.onChangeSecretKey} autoFocus />
+                    <TextField type="password" label="Secret key" value={this.state.secretKey} onChange={this.onChangeSecretKey} autoFocus />
                 </DivField>
                 <DivConfirm>
                     <PrimaryButton text="Begin download" onClick={this.startDownload} />

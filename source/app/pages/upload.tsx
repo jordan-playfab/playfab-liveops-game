@@ -131,7 +131,7 @@ class UploadPageBase extends React.Component<Props, IState> {
                 <p>This page does not store nor transmit your secret key to anyone except PlayFab.</p>
                 <form onSubmit={this.startUpload}>
                     <DivField>
-                        <TextField type="password" label="Secret key" onChange={this.onChangeSecretKey} autoFocus />
+                        <TextField type="password" label="Secret key" value={this.state.secretKey} onChange={this.onChangeSecretKey} autoFocus />
                     </DivField>
                     <DivConfirm>
                         <PrimaryButton text="Begin upload" onClick={this.startUpload} />
