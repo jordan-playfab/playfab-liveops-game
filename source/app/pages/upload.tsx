@@ -186,7 +186,11 @@ class UploadPageBase extends React.Component<Props, IState> {
         });
     }
 
-    private startUpload = (): void => {
+    private startUpload = (e: React.SyntheticEvent<any>): void => {
+        if(!is.null(e)) {
+            e.preventDefault();
+        }
+
         this.setState({
             hasSecretKey: true,
         }, this.runUpload);

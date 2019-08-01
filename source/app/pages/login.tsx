@@ -61,7 +61,11 @@ class LoginPageBase extends React.Component<Props, IState> {
         );
     }
 
-    private login = (): void => {
+    private login = (e: React.SyntheticEvent<any>): void => {
+        if(!is.null(e)) {
+            e.preventDefault();
+        }
+
         this.props.onPageClearError();
 
         this.setState({
