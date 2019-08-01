@@ -16,6 +16,7 @@ const TextFieldTitleId = styled(TextField)`
 
 interface IState {
     titleId: string;
+    cloud: string;
 }
 
 type Props = RouteComponentProps & IWithAppStateProps;
@@ -24,12 +25,17 @@ class IndexPageBase extends React.Component<Props, IState> {
     constructor(props: Props) {
         super(props);
 
+        const cloud = (props.match.params as any).cloud || "";
+
         this.state = {
-            titleId: null,
+            titleId: "",
+            cloud,
         }
     }
 
     public render(): React.ReactNode {
+        const shouldShowCloud = !is.null((this.props.match.params as any).cloud);
+
         return (
             <Page {...this.props} title="PlayFab Demo Game">
                 <Grid grid8x4>
@@ -41,6 +47,11 @@ class IndexPageBase extends React.Component<Props, IState> {
                         <DivField>
                             <TextFieldTitleId label="Title ID" onChange={this.onChangeTitleId} value={this.state.titleId} autoFocus />
                         </DivField>
+                        {shouldShowCloud && (
+                            <DivField>
+                                <TextField label="Cloud" onChange={this.onChangeCloud} value={this.state.cloud} />
+                            </DivField>
+                        )}
                         <DivConfirm>
                             <PrimaryButton text="Continue" onClick={this.continue} />
                         </DivConfirm>
