@@ -56,3 +56,71 @@
 - [ ] Guide page: rotating carousel with large art for each planet
 - [ ] Planet page: smaller region graphics
 - [ ] Combat component: graphical combat UI
+
+# Enemy ideas
+
+## Races
+- Ultracruiser
+    - Neophyte
+    - Switchling
+    - Dreadrat
+    - Capper
+- Cyberbirds
+    - Eggsbawks
+    - Coolbirdnetbees
+    - Intendodo
+- Moon Eaters
+    - Crisium
+    - Imbrium
+    - Procellarum
+    - Grimaldi
+- Shrouded Ones
+    - Slipher
+    - Hubbler
+    - Almagest
+
+## Weapons
+
+What things do weapons have?
+
+- Damage
+- Accuracy
+- Reload speed
+- Elemental type
+- Status effects (slow, confuse, now I'm making it really complicated)
+- Best against small/medium/large/shielded enemies
+
+Okay, let's try making up some weapon categories. Or aliases for existing ones, why not.
+
+- Pistol : Rivulet
+- Sniper rifle : Bight
+- Shotgun : Mere
+- Rocket launcher: Basin
+
+Those are good! Armor can be easier. I'd like to have different pieces for the head, torso, legs, etc. Maybe just those three.
+
+Now, types of damage. Kinetic, Gamma, Neutron, Cosmic. Heh heh. Very cool. Weapons can deal more damage to those. Armor can resist them.
+
+## Consumables
+
+Don't want to forget that
+
+## More
+
+Now for the final thing, what else would there be to entice users to keep playing?
+
+- Title news story updates that only display at certain levels
+- New stores unlocking at various levels
+- Rare or guaranteed (on conditions) boss encounters
+
+A feedback loop, doy. I kind of have it? Kill monsters to get money to buy weapons to kill more monsters.
+
+Oh, it'd be nice for the weapons to drop directly from the monsters, and then you can sell them to... something... other weapons.
+
+Maybe add buffs to existing weapons using item instance data?
+
+Sure, but I also want something more tangible. Like how the end of Destiny 2's Red War campaign improves things for the Tower.
+
+Something like a farming activity. I track your time since last login and give you bonuses for resting?
+
+Oh, or maybe that's where you grow herbs that are used for consumable potions. You make your own. Grind up guns and armor into bone meal to... no, not literal farming. Futuristic cybernetic farming. The detrius goes into giant vats and is boiled down to these potions that your character... drinks. Eh, it'll do.
