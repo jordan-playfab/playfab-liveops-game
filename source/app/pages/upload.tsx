@@ -31,14 +31,12 @@ interface IState {
     storeCounter: number;
     titleDataCounter: number;
     shouldShowTitleNewsFormat: boolean;
-    currentUploadData: string;
 }
 
 type Props = RouteComponentProps & IWithAppStateProps & IWithPageProps;
 
 class UploadPageBase extends React.Component<Props, IState> {
     private readonly uploadDelayMilliseconds = 500;
-    private readonly uploadDataMaxLength = 110;
 
     constructor(props: Props) {
         super(props);
@@ -50,7 +48,6 @@ class UploadPageBase extends React.Component<Props, IState> {
             storeCounter: 0,
             titleDataCounter: 0,
             shouldShowTitleNewsFormat: false,
-            currentUploadData: null,
         };
     }
 
@@ -158,11 +155,6 @@ class UploadPageBase extends React.Component<Props, IState> {
         }
 
         const spinnerTitle = `Creating ${this.getProgressTitle()}...`;
-        const progressDescription = is.null(this.state.currentUploadData)
-            ? null
-            : (this.state.currentUploadData.length > this.uploadDataMaxLength
-                ? this.state.currentUploadData.substr(0, this.uploadDataMaxLength)
-                : this.state.currentUploadData);
 
         return (
             <React.Fragment>
@@ -171,7 +163,7 @@ class UploadPageBase extends React.Component<Props, IState> {
                     <MessageBar messageBarType={MessageBarType.error}>{this.props.pageError}</MessageBar>
                 )}
                 <SpinnerLeft label={spinnerTitle} labelPosition="right" />
-                <ProgressIndicator percentComplete={Math.min(1, (this.state.uploadProgress / PROGRESS_STAGES.length) + 0.1)} description={progressDescription} />
+                <ProgressIndicator percentComplete={Math.min(1, (this.state.uploadProgress / PROGRESS_STAGES.length) + 0.1)} />
             </React.Fragment>
         );
     }
@@ -211,24 +203,20 @@ class UploadPageBase extends React.Component<Props, IState> {
 
         switch(PROGRESS_STAGES[this.state.uploadProgress].key) {
             case "currency":
-                this.setUploadString(VirtualCurrencies.VirtualCurrencies);
                 PlayFabHelper.AdminAPIAddVirtualCurrencyTypes(this.state.secretKey, VirtualCurrencies.VirtualCurrencies, this.advanceUpload, this.props.onPageError);
                 this.advanceUpload();
                 break;
             case "catalog":
-                this.setUploadString(Catalogs.Catalog);
                 PlayFabHelper.AdminAPISetCatalogItems(this.state.secretKey, Catalogs.Catalog, CATALOG_VERSION, true, this.advanceUpload, this.props.onPageError);
                 this.advanceUpload();
                 break;
             case "droptable":
-                this.setUploadString(this.mapDropTable(DropTables as any));
                 PlayFabHelper.AdminAPIUpdateRandomResultTables(this.state.secretKey, this.mapDropTable(DropTables as any), CATALOG_VERSION, this.advanceUpload, this.props.onPageError);
                 this.advanceUpload();
                 break;
             case "store":
                 Stores.data.forEach((s, index) => {
                     window.setTimeout(() => {
-                        this.setUploadString(s);
                         PlayFabHelper.AdminAPISetStoreItems(this.state.secretKey, s.StoreId, s.Store, s.MarketingData, CATALOG_VERSION, this.advanceStoreCounter, this.props.onPageError);
                         this.advanceStoreCounter();
                     }, index * this.uploadDelayMilliseconds);
@@ -237,24 +225,16 @@ class UploadPageBase extends React.Component<Props, IState> {
             case "titledata":
                 Object.keys(TitleData.Data).forEach((key, index) => {
                     window.setTimeout(() => {
-                        this.setUploadString((TitleData.Data as IStringDictionary)[key]);
                         PlayFabHelper.AdminAPISetTitleData(this.state.secretKey, key, (TitleData.Data as IStringDictionary)[key], this.advanceTitleDataCounter, this.props.onPageError);
                         this.advanceTitleDataCounter();
                     }, index * this.uploadDelayMilliseconds);
                 });
                 break;
             case "cloudscript":
-                this.setUploadString(CloudScript.Files[0].FileContents);
                 PlayFabHelper.AdminAPIUpdateCloudScript(this.state.secretKey, CloudScript.Files[0].FileContents, true, this.advanceUpload, this.props.onPageError);
                 this.advanceUpload();
                 break;
         }
-    }
-
-    private setUploadString(data: any): void {
-        this.setState({
-            currentUploadData: JSON.stringify(data, null, 0)
-        });
     }
 
     private mapDropTable(tableData: PlayFabAdminModels.GetRandomResultTablesResult): PlayFabAdminModels.RandomResultTable[] {
