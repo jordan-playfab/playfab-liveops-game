@@ -79,7 +79,7 @@ export const Leaderboard = React.memo((props: IProps): React.ReactElement => {
                 <tbody>
                     {props.leaderboard.map(entry => (
                         <tr key={entry.Position}>
-                            <td>{entry.Position}</td>
+                            <td>{entry.Position + 1}</td>
                             <td>{entry.StatValue}</td>
                             <td><a href={utilities.createPlayFabLink(props.titleId, `players/${entry.PlayFabId}/overview`, false)} target="_blank">{entry.DisplayName || entry.PlayFabId}</a></td>
                         </tr>
