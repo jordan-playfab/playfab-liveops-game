@@ -395,7 +395,7 @@ class HeadquartersPageBase extends React.Component<Props, IState> {
         });
 
         this.leaderboardStatistics.forEach(statistic => {
-            PlayFabHelper.GetLeaderboard(statistic, 1, this.leaderboardCount, (data) => {
+            PlayFabHelper.GetLeaderboard(statistic, 0, this.leaderboardCount, (data) => {
                 this.setState((prevState) => {
                     if(is.null(prevState.leaderboards)) {
                         return {
