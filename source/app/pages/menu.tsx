@@ -66,7 +66,7 @@ class MainMenuPageBase extends React.Component<Props> {
                     <UlInline>
                         <li><DefaultButton text="Download data" onClick={this.goToPage.bind(this, routes.Download(titleId))} /></li>
                         <li><DefaultButton text="Credits" onClick={this.goToPage.bind(this, routes.Credits(titleId))} /></li>
-                        {/*<li><DefaultButton text="Level curve" onClick={this.goToPage.bind(this, routes.LevelCurve(titleId))} /></li>*/}
+                        <li><DefaultButton text="Data generator" onClick={this.goToPage.bind(this, routes.Generator(titleId))} /></li>
                     </UlInline>
                 </DivAdvanced>
             </Page>

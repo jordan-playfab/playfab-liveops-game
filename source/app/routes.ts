@@ -9,7 +9,7 @@ export const routeNames = {
     Headquarters: "/:titleid/headquarters",
     Upload: "/:titleid/upload",
     Download: "/:titleid/download",
-    LevelCurve: "/:titleid/level-curve",
+    Generator: "/:titleid/generator",
     Credits: "/:titleid/credits",
 };
 
@@ -22,6 +22,6 @@ export const routes = {
     Headquarters: (titleId: string) => utilities.formatRoute(routeNames.Headquarters, titleId),
     Upload: (titleId: string) => utilities.formatRoute(routeNames.Upload, titleId),
     Download: (titleId: string) => utilities.formatRoute(routeNames.Download, titleId),
-    LevelCurve: (titleId: string) => utilities.formatRoute(routeNames.LevelCurve, titleId),
+    Generator: (titleId: string) => utilities.formatRoute(routeNames.Generator, titleId),
     Credits: (titleId: string) => utilities.formatRoute(routeNames.Credits, titleId),
 };

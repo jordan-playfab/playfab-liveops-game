@@ -16,7 +16,7 @@ interface IState {
 
 type Props = RouteComponentProps & IWithAppStateProps & IWithPageProps;
 
-class LevelPageBase extends React.Component<Props, IState> {
+class GeneratorPageBase extends React.Component<Props, IState> {
     constructor(props: Props) {
         super(props);
 
@@ -93,4 +93,4 @@ class LevelPageBase extends React.Component<Props, IState> {
     }
 }
 
-export const LevelPage = withAppState(withPage(LevelPageBase));
+export const GeneratorPage = withAppState(withPage(GeneratorPageBase));
