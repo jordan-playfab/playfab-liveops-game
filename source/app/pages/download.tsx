@@ -214,7 +214,11 @@ class DownloadPageBase extends React.PureComponent<Props, IState> {
         });
     }
 
-    private startDownload = (): void => {
+    private startDownload = (e: React.SyntheticEvent<any>): void => {
+        if(!is.null(e)) {
+            e.preventDefault();
+        }
+
         this.setState({
             hasSecretKey: true,
         }, this.runDownload);

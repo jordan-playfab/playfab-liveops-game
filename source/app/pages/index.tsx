@@ -8,6 +8,7 @@ import { Page } from "../components/page";
 import styled, { DivConfirm, DivField } from "../styles";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { Grid } from "../components/grid";
+import { is } from "../shared/is";
 
 const TextFieldTitleId = styled(TextField)`
     max-width: 20em;
@@ -64,7 +65,11 @@ class IndexPageBase extends React.Component<Props, IState> {
         });
     }
 
-    private continue = (): void => {
+    private continue = (e: React.SyntheticEvent<any>): void => {
+        if(!is.null(e)) {
+            e.preventDefault();
+        }
+
         PlayFab.settings.titleId = this.state.titleId;
         
         this.props.history.push(routes.MainMenu(this.state.titleId));
