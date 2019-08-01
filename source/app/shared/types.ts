@@ -50,6 +50,23 @@ export interface IArmorItemCustomData {
     reduce: number;
 }
 
+interface IAttackType {
+    name: string;
+    probability: number;
+    flavor: DamageFlavor;
+    power: number;
+    variance: number;
+    critical: number;
+    reload: number;
+}
+
+enum DamageFlavor {
+    Kinetic = "kinetic",
+    Gamma = "gamma",
+    Neutron = "neutron",
+    Cosmic = "cosmic"
+}
+
 // ----- Title news ----- //
 
 export interface ITitleNewsData {
