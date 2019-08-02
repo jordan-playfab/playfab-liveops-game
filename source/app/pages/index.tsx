@@ -81,6 +81,11 @@ class IndexPageBase extends React.Component<Props, IState> {
             e.preventDefault();
         }
 
+<<<<<<< HEAD
+=======
+    private saveTitleID = (): void => {
+        (PlayFab as any)._internalSettings.productionServerUrl = `.spi.playfabapi.com`
+>>>>>>> Works hardcoded cloud
         PlayFab.settings.titleId = this.state.titleId;
         
         this.props.history.push(routes.MainMenu(this.state.titleId));
