@@ -1,6 +1,6 @@
 import React from "react";
 import { RouteComponentProps } from "react-router";
-import { TextField } from "office-ui-fabric-react";
+import { TextField, Dropdown, IDropdownOption } from "office-ui-fabric-react";
 
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { IWithPageProps, withPage } from "../containers/with-page";
@@ -9,7 +9,7 @@ import { ITitleDataLevel, IEnemyData, EnemyGenusSpeciesLink, EnemySpecies, Enemy
 import { Grid } from "../components/grid";
 import { BackLink } from "../components/back-link";
 import { routes } from "../routes";
-import { DivField } from "../styles";
+import { DivField, ButtonTiny } from "../styles";
 import { is } from "../shared/is";
 
 interface IState {
@@ -247,6 +247,15 @@ class EnemyEditor extends React.Component<EnemyEditorProps, EnemyEditorState> {
                     <TextField label="XP" value={this.props.xp.toString()} onChange={this.onChangeXP} />
                     <TextField label="Unique name" value={this.props.name} onChange={this.onChangeName} />
                     <TextField label="Speed" value={this.props.speed.toString()} onChange={this.onChangeSpeed} />
+                    <h4>Attacks <ButtonTiny text="Add attack" onClick={this.onAddAttack} /></h4>
+                    {this.props.attacks.map((a, index) => (
+                        <AttackEditor
+                            {...a}
+                            key={index}
+                            index={index}
+                            onChange={this.onChangeAttack}
+                        />
+                    ))}
                 </DivField>
             </React.Fragment>
         );
@@ -284,10 +293,19 @@ class EnemyEditor extends React.Component<EnemyEditorProps, EnemyEditorState> {
                 flavor: DamageFlavor.Kinetic,
                 name: "",
                 power: 1,
-                probability: 1,
+                probability: 0.5,
                 reload: 250,
                 variance: 1,
             } as IAttackType])
+        }), this.onChange);
+    }
+
+    private onChangeAttack = (attack: IAttackType, attackIndex: number): void => {
+        this.setState(prevState => ({
+            ...prevState,
+            attacks: prevState.attacks
+                .filter((a, index) => index !== attackIndex)
+                .concat([attack])
         }), this.onChange);
     }
 
@@ -297,7 +315,8 @@ class EnemyEditor extends React.Component<EnemyEditorProps, EnemyEditorState> {
 }
 
 interface IAttackEditorOtherProps {
-    onChange: (enemy: IAttackType) => void;
+    index: number;
+    onChange: (enemy: IAttackType, index: number) => void;
 }
 
 type AttackEditorProps = IAttackType & IAttackEditorOtherProps;
@@ -310,6 +329,43 @@ class AttackEditor extends React.Component<AttackEditorProps, AttackEditorState>
         this.state = {
             ...props,
         };
+    }
+
+    public render(): React.ReactNode {
+        return (
+            <React.Fragment>
+                <DivField>
+                    <TextField label="Name" value={this.props.name} onChange={this.onChangeName} />
+                    <TextField label="Chance to hit" value={this.props.probability.toString()} onChange={this.onChangeProbability} />
+                    <Dropdown selectedKey={this.props.flavor} onChange={this.onChangeFlavor} options={Object.keys(DamageFlavor).map(f => ({
+                        key: f,
+                        text: (DamageFlavor as any)[f],
+                    } as IDropdownOption))} />
+                </DivField>
+            </React.Fragment>
+        );
+    }
+
+    private onChangeName = (_: any, name: string): void => {
+        this.setState({
+            name,
+        }, this.onChange);
+    }
+
+    private onChangeProbability = (_: any, probability: string): void => {
+        this.setState({
+            probability: parseFloat(probability),
+        }, this.onChange);
+    }
+
+    private onChangeFlavor = (_: any, option: IDropdownOption): void => {
+        this.setState({
+            flavor: option.key.toString(),
+        }, this.onChange);
+    }
+
+    private onChange = (): void => {
+        this.props.onChange(this.state, this.props.index);
     }
 }
 

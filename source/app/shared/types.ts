@@ -160,8 +160,8 @@ export interface IArmorData extends IAnyItemData {
 
 export interface IAttackType {
     name: string;
-    probability: number; // 0-1
-    flavor: DamageFlavor;
+    probability: number; // chance to hit, 0-1
+    flavor: string; // DamageFlavor
     power: number; // big numbers
     variance: number; // 0-1
     critical: number; // 0-1
