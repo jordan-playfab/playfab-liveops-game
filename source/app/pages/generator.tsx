@@ -1,6 +1,6 @@
 import React from "react";
 import { RouteComponentProps } from "react-router";
-import { IDropdownOption, Dropdown, PrimaryButton, Dialog, DialogType, DialogFooter } from "office-ui-fabric-react";
+import { IDropdownOption, Dropdown, PrimaryButton, DialogType, DialogFooter, TextField, DefaultButton } from "office-ui-fabric-react";
 
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { IWithPageProps, withPage } from "../containers/with-page";
@@ -9,18 +9,30 @@ import { IEnemyData, EnemyGenusSpeciesLink, EnemyGenus } from "../shared/types";
 import { Grid } from "../components/grid";
 import { BackLink } from "../components/back-link";
 import { routes } from "../routes";
-import { UlNull, ButtonTiny, DialogWidthSmall } from "../styles";
+import styled, { UlNull, ButtonTiny, DialogWidthSmall, DivField } from "../styles";
 import { IGeneratorLevelProps, LevelEditor } from "../components/generator/level-editor";
 import { EnemyEditor } from "../components/generator/enemy-editor";
 import { Enemy } from "../components/enemy";
 
+const DivCreateEnemyWrapper = styled.div`
+    display: flex;
+    height: 100%;
+    align-items: flex-end;
+`;
+
+const DivGetTitleData = styled.div`
+    margin-top: ${s => s.theme.size.spacer};
+`;
+
 interface IState {
     levels: IGeneratorLevelProps;
+
     enemies: IEnemyData[];
     enemyGenus: string;
     enemySpecies: string;
     shouldShowEnemyPopup: boolean;
     enemyEditIndex: number;
+    enemyDataParsed: string;
 }
 
 type Props = RouteComponentProps & IWithAppStateProps & IWithPageProps;
@@ -42,6 +54,7 @@ class GeneratorPageBase extends React.Component<Props, IState> {
             enemySpecies: EnemyGenusSpeciesLink[EnemyGenus.Ultracruiser][0],
             shouldShowEnemyPopup: false,
             enemyEditIndex: 0,
+            enemyDataParsed: "",
         };
     }
 
@@ -79,21 +92,39 @@ class GeneratorPageBase extends React.Component<Props, IState> {
         return (
             <React.Fragment>
                 <h2>Enemies</h2>
-                <Grid grid4x4x4>
-                    <Dropdown label="Genus" selectedKey={this.state.enemyGenus} onChange={this.onChangeEnemyGenus} options={genusOptions} />
-                    <Dropdown label="Species" selectedKey={this.state.enemySpecies} onChange={this.onChangeEnemySpecies} options={speciesOptions} />
-                    <PrimaryButton text="Create enemy" onClick={this.addEnemySpecies} />
+                <Grid grid6x6>
+                    <React.Fragment>
+                        <Grid grid4x4x4>
+                            <Dropdown label="Genus" selectedKey={this.state.enemyGenus} onChange={this.onChangeEnemyGenus} options={genusOptions} />
+                            <Dropdown label="Species" selectedKey={this.state.enemySpecies} onChange={this.onChangeEnemySpecies} options={speciesOptions} />
+                            <DivCreateEnemyWrapper>
+                                <PrimaryButton text="Create enemy" onClick={this.addEnemySpecies} />
+                            </DivCreateEnemyWrapper>
+                        </Grid>
+                        <UlNull>
+                            {this.state.enemies.map((enemy, index) => (
+                                <li key={index}>
+                                    <Enemy
+                                        {...enemy}
+                                    />
+                                    <ButtonTiny text="Edit" onClick={this.editEnemyData.bind(this, index)} />
+                                </li>
+                            ))}
+                        </UlNull>
+                    </React.Fragment>
+                    <React.Fragment>
+                        <TextField
+                            multiline
+                            rows={20}
+                            label="Enemy title data"
+                            value={this.state.enemyDataParsed}
+                            onChange={this.setEnemyData}
+                        />
+                        <DivGetTitleData>
+                            <DefaultButton text="Get title data" onClick={this.getEnemyData} />
+                        </DivGetTitleData>
+                    </React.Fragment>
                 </Grid>
-                <UlNull>
-                    {this.state.enemies.map((enemy, index) => (
-                        <li key={index}>
-                            <Enemy
-                                {...enemy}
-                            />
-                            <ButtonTiny text="Edit" onClick={this.editEnemyData.bind(this, index)} />
-                        </li>
-                    ))}
-                </UlNull>
                 <DialogWidthSmall
                     hidden={!this.state.shouldShowEnemyPopup}
                     onDismiss={this.closeEnemyData}
@@ -112,6 +143,7 @@ class GeneratorPageBase extends React.Component<Props, IState> {
                         <PrimaryButton onClick={this.closeEnemyData} text="Done" />
                     </DialogFooter>
                 </DialogWidthSmall>
+                
             </React.Fragment>
         );
     }
@@ -153,6 +185,7 @@ class GeneratorPageBase extends React.Component<Props, IState> {
         this.setState(prevState => ({
             ...prevState,
             shouldShowEnemyPopup: true,
+            enemyEditIndex: prevState.enemies.length,
             enemies: prevState.enemies.concat([{
                 attacks: [],
                 genus: this.state.enemyGenus,
@@ -176,6 +209,19 @@ class GeneratorPageBase extends React.Component<Props, IState> {
                         : e;
                 }),
         }));
+    }
+    
+    private setEnemyData = (_: any, newData: string): void => {
+        this.setState({
+            enemies: JSON.parse(newData),
+            enemyDataParsed: newData,
+        });
+    }
+
+    private getEnemyData = (): void => {
+        this.setState({
+            enemyDataParsed: JSON.stringify(this.state.enemies, null, 4)
+        });
     }
 }
 
