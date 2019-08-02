@@ -168,33 +168,33 @@ export interface IAttackType {
     reload: number; // in milliseconds
 }
 
-interface IDamageResistance {
+export interface IDamageResistance {
     flavor: DamageFlavor;
     resistance: number; // 0-1
 }
 
-enum DamageFlavor {
+export enum DamageFlavor {
     Kinetic = "Kinetic",
     Gamma = "Gamma",
     Neutron = "Neutron",
     Cosmic = "Cosmic"
 }
 
-enum WeaponCategory {
+export enum WeaponCategory {
     Rivulet = "Rivulet",
     Bight = "Bight",
     Mere = "Mere",
     Basin = "Basin"
 }
 
-enum ArmorSlot {
+export enum ArmorSlot {
     Head = "Head",
     Chest = "Chest",
     Legs = "Legs",
     Boots = "Boots"
 }
 
-enum WeaponRarity {
+export enum WeaponRarity {
     Uncommon = "Uncommon",
     Common = "Common",
     Rare = "Rare",

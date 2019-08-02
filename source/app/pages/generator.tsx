@@ -5,7 +5,7 @@ import { TextField } from "office-ui-fabric-react";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { IWithPageProps, withPage } from "../containers/with-page";
 import { Page } from "../components/page";
-import { ITitleDataLevel, IEnemyData, EnemyGenusSpeciesLink, EnemySpecies, EnemyGenus } from "../shared/types";
+import { ITitleDataLevel, IEnemyData, EnemyGenusSpeciesLink, EnemySpecies, EnemyGenus, IAttackType, DamageFlavor } from "../shared/types";
 import { Grid } from "../components/grid";
 import { BackLink } from "../components/back-link";
 import { routes } from "../routes";
@@ -243,8 +243,10 @@ class EnemyEditor extends React.Component<EnemyEditorProps, EnemyEditorState> {
             <React.Fragment>
                 <h3>{this.state.genus} {this.state.species}</h3>
                 <DivField>
-                    <TextField label="Base HP" value={this.state.hp.toString()} onChange={this.onChangeHP} />
-                    <TextField label="Unique name" value={this.state.name} onChange={this.onChangeName} />
+                    <TextField label="HP" value={this.props.hp.toString()} onChange={this.onChangeHP} />
+                    <TextField label="XP" value={this.props.xp.toString()} onChange={this.onChangeXP} />
+                    <TextField label="Unique name" value={this.props.name} onChange={this.onChangeName} />
+                    <TextField label="Speed" value={this.props.speed.toString()} onChange={this.onChangeSpeed} />
                 </DivField>
             </React.Fragment>
         );
@@ -262,8 +264,52 @@ class EnemyEditor extends React.Component<EnemyEditorProps, EnemyEditorState> {
         }, this.onChange);
     }
 
+    private onChangeXP = (_: any, xp: string): void => {
+        this.setState({
+            xp: parseInt(xp),
+        }, this.onChange);
+    }
+
+    private onChangeSpeed = (_: any, speed: string): void => {
+        this.setState({
+            speed: parseInt(speed),
+        }, this.onChange);
+    }
+
+    private onAddAttack = (): void => {
+        this.setState(prevState => ({
+            ...prevState,
+            attacks: prevState.attacks.concat([{
+                critical: 0,
+                flavor: DamageFlavor.Kinetic,
+                name: "",
+                power: 1,
+                probability: 1,
+                reload: 250,
+                variance: 1,
+            } as IAttackType])
+        }), this.onChange);
+    }
+
     private onChange = (): void => {
         this.props.onChange(this.state);
+    }
+}
+
+interface IAttackEditorOtherProps {
+    onChange: (enemy: IAttackType) => void;
+}
+
+type AttackEditorProps = IAttackType & IAttackEditorOtherProps;
+type AttackEditorState = IAttackType;
+
+class AttackEditor extends React.Component<AttackEditorProps, AttackEditorState> {
+    constructor(props: AttackEditorProps) {
+        super(props);
+
+        this.state = {
+            ...props,
+        };
     }
 }
 
