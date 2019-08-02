@@ -9,6 +9,7 @@ import styled, { DivConfirm, DivField } from "../styles";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { Grid } from "../components/grid";
 import { is } from "../shared/is";
+import { utilities } from "../shared/utilities";
 
 const TextFieldTitleId = styled(TextField)`
     max-width: 20em;
@@ -16,6 +17,7 @@ const TextFieldTitleId = styled(TextField)`
 
 interface IState {
     titleId: string;
+    cloud: string;
 }
 
 type Props = RouteComponentProps & IWithAppStateProps;
@@ -24,12 +26,17 @@ class IndexPageBase extends React.Component<Props, IState> {
     constructor(props: Props) {
         super(props);
 
+        const cloudParam = (props.match.params as any).cloud || null;
+
         this.state = {
             titleId: null,
+            cloud: cloudParam,
         }
     }
 
     public render(): React.ReactNode {
+        const shouldShowCloud = !is.null((this.props.match.params as any).cloud);
+
         return (
             <Page {...this.props} title="PlayFab Demo Game">
                 <Grid grid8x4>
@@ -41,6 +48,11 @@ class IndexPageBase extends React.Component<Props, IState> {
                         <DivField>
                             <TextFieldTitleId label="Title ID" onChange={this.onChangeTitleId} value={this.state.titleId} autoFocus />
                         </DivField>
+                        {shouldShowCloud && (
+                            <DivField>
+                                <TextField label="Cloud" onChange={this.onChangeCloud} value={this.state.cloud} />
+                            </DivField>
+                        )}
                         <DivConfirm>
                             <PrimaryButton text="Continue" onClick={this.continue} />
                         </DivConfirm>
@@ -65,12 +77,24 @@ class IndexPageBase extends React.Component<Props, IState> {
         });
     }
 
+    private onChangeCloud = (_: any, cloud: string): void => {
+        this.setState({
+            cloud: cloud.trim(),
+        });
+    }
+
     private continue = (e: React.SyntheticEvent<any>): void => {
         if(!is.null(e)) {
             e.preventDefault();
         }
 
         PlayFab.settings.titleId = this.state.titleId;
+        
+        if(!is.null(this.state.cloud))
+        {
+            utilities.setPrivateCloud(this.state.cloud);
+            (PlayFab as any)._internalSettings.productionServerUrl = `.${this.state.cloud}.playfabapi.com`;
+        }
         
         this.props.history.push(routes.MainMenu(this.state.titleId));
     }

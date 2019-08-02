@@ -11,7 +11,7 @@ function formatRoute(original: string, ...args: string[]): string {
         return "";
     }
 
-    const replaceRegEx = new RegExp("((?:\:)[a-z]+)");
+    const replaceRegEx = new RegExp("((?:\:)[a-z?]+)");
 
     let returnString = original;
 
@@ -23,7 +23,30 @@ function formatRoute(original: string, ...args: string[]): string {
 }
 
 function createPlayFabLink(titleId: string, uri: string, isReact: boolean): string {
-    return `https://developer.playfab.com/en-US/${isReact ? `r/t/` : ``}${titleId}/${uri}`;
+    const playFabMainProdUrl = ".playfabapi.com";
+
+    let urlRoot : string;
+
+    // TODO when cloud moves to URI, use that value instead of pulling from productionServerUrl
+    if(((PlayFab as any)._internalSettings.productionServerUrl === playFabMainProdUrl))
+    {
+        urlRoot = "https://developer.playfab.com";
+    }
+    else
+    {
+        const prodUrl = ((PlayFab as any)._internalSettings.productionServerUrl as string);
+        const cloudEndIndex = prodUrl.indexOf(playFabMainProdUrl);
+        const cloud = (PlayFab as any)._internalSettings.productionServerUrl.substring(1, cloudEndIndex);
+
+        urlRoot = `https://${cloud}.${cloud}.playfab.com`;
+    }
+
+    return `${urlRoot}/en-US/${isReact ? `r/t/` : ``}${titleId}/${uri}`;
+}
+
+
+function setPrivateCloud(cloud: string): void {
+    (PlayFab as any)._internalSettings.productionServerUrl = `.${cloud}.playfabapi.com`;
 }
 
 function htmlDecode(input: string): string {
@@ -50,6 +73,7 @@ export const utilities = {
     getRandomInteger,
     formatRoute,
     createPlayFabLink,
+    setPrivateCloud,
     htmlDecode,
     parseTitleNewsDate
 };
