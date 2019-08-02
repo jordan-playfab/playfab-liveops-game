@@ -19,13 +19,19 @@ const ButtonAdd = styled(ButtonTiny)`
 `;
 
 interface IEnemyEditorOtherProps {
-    onChange: (enemy: IEnemyData) => void;
+    index: number;
+    shouldHideTitle?: boolean;
+    onChange: (enemy: IEnemyData, index: number) => void;
 }
 
 type EnemyEditorProps = IEnemyData & IEnemyEditorOtherProps;
 type EnemyEditorState = IEnemyData;
 
 export class EnemyEditor extends React.Component<EnemyEditorProps, EnemyEditorState> {
+    public static defaultProps: Partial<EnemyEditorProps> = {
+        shouldHideTitle: false,
+    }
+
     constructor(props: EnemyEditorProps) {
         super(props);
 
@@ -37,7 +43,9 @@ export class EnemyEditor extends React.Component<EnemyEditorProps, EnemyEditorSt
     public render(): React.ReactNode {
         return (
             <DivEnemy>
-                <h3>{this.state.genus} {this.state.species}</h3>
+                {!this.props.shouldHideTitle && (
+                    <h2>{this.state.genus} {this.state.species}</h2>
+                )}
                 <DivField>
                     <TextField label="Unique name" value={this.props.name} onChange={this.onChangeName} />
                     <Grid grid4x4x4>
@@ -46,7 +54,7 @@ export class EnemyEditor extends React.Component<EnemyEditorProps, EnemyEditorSt
                         <TextField label="Speed" value={this.props.speed.toString()} onChange={this.onChangeSpeed} />
                     </Grid>
                     <DivAddArea>
-                        <h4>Attacks <ButtonAdd text="Add attack" onClick={this.onAddAttack} /></h4>
+                        <h3>Attacks <ButtonAdd text="Add attack" onClick={this.onAddAttack} /></h3>
                         {!is.null(this.props.attacks) && (
                             <UlAlternatingIndented>
                                 {this.props.attacks.map((a, index) => (
@@ -63,7 +71,7 @@ export class EnemyEditor extends React.Component<EnemyEditorProps, EnemyEditorSt
                         )}
                     </DivAddArea>
                     <DivAddArea>
-                        <h4>Resistances <ButtonAdd text="Add resistance" onClick={this.onAddResistance} /></h4>
+                        <h3>Resistances <ButtonAdd text="Add resistance" onClick={this.onAddResistance} /></h3>
                         {!is.null(this.props.resistances) && (
                             <UlAlternatingIndented>
                                 {this.props.resistances.map((r, index) => (
@@ -174,6 +182,6 @@ export class EnemyEditor extends React.Component<EnemyEditorProps, EnemyEditorSt
     }
 
     private onChange = (): void => {
-        this.props.onChange(this.state);
+        this.props.onChange(this.state, this.props.index);
     }
 }

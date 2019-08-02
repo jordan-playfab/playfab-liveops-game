@@ -39,7 +39,6 @@ export class AttackEditor extends React.PureComponent<AttackEditorProps, AttackE
         return (
             <DivAttackEditor>
                 <TextField label="Attack name" value={this.props.name} onChange={this.onChangeName} />
-                <ButtonRemove text="Remove" onClick={this.onRemove} />
                 <DivGridWrapper>
                     <Grid grid4x4x4>
                         <Dropdown label="Type" selectedKey={this.props.flavor} onChange={this.onChangeFlavor} options={flavorOptions} />
@@ -50,6 +49,7 @@ export class AttackEditor extends React.PureComponent<AttackEditorProps, AttackE
                         <TextField label="Reload speed" value={this.props.reload.toString()} onChange={this.onChangeReload} />
                     </Grid>
                 </DivGridWrapper>
+                <ButtonRemove text="Remove" onClick={this.onRemove} />
             </DivAttackEditor>
         );
     }

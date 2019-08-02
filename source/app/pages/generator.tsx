@@ -1,22 +1,26 @@
 import React from "react";
 import { RouteComponentProps } from "react-router";
-import { TextField } from "office-ui-fabric-react";
+import { IDropdownOption, Dropdown, PrimaryButton, Dialog, DialogType, DialogFooter } from "office-ui-fabric-react";
 
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { IWithPageProps, withPage } from "../containers/with-page";
 import { Page } from "../components/page";
-import { IEnemyData, EnemyGenusSpeciesLink } from "../shared/types";
+import { IEnemyData, EnemyGenusSpeciesLink, EnemyGenus } from "../shared/types";
 import { Grid } from "../components/grid";
 import { BackLink } from "../components/back-link";
 import { routes } from "../routes";
-import { DivField } from "../styles";
-import { is } from "../shared/is";
+import { UlNull, ButtonTiny, DialogWidthSmall } from "../styles";
 import { IGeneratorLevelProps, LevelEditor } from "../components/generator/level-editor";
 import { EnemyEditor } from "../components/generator/enemy-editor";
+import { Enemy } from "../components/enemy";
 
 interface IState {
     levels: IGeneratorLevelProps;
     enemies: IEnemyData[];
+    enemyGenus: string;
+    enemySpecies: string;
+    shouldShowEnemyPopup: boolean;
+    enemyEditIndex: number;
 }
 
 type Props = RouteComponentProps & IWithAppStateProps & IWithPageProps;
@@ -34,6 +38,10 @@ class GeneratorPageBase extends React.Component<Props, IState> {
                 hpPerLevelMultiplier: 5.75,
             },
             enemies: [],
+            enemyGenus: EnemyGenus.Ultracruiser,
+            enemySpecies: EnemyGenusSpeciesLink[EnemyGenus.Ultracruiser][0],
+            shouldShowEnemyPopup: false,
+            enemyEditIndex: 0,
         };
     }
 
@@ -54,79 +62,120 @@ class GeneratorPageBase extends React.Component<Props, IState> {
     }
 
     private renderEnemies(): React.ReactNode {
+        const genusOptions = Object.keys(EnemyGenus).map(f => ({
+            key: (EnemyGenus as any)[f],
+            text: (EnemyGenus as any)[f],
+        } as IDropdownOption));
+
+        const speciesOptions = EnemyGenusSpeciesLink[this.state.enemyGenus].map(species => ({
+            key: species,
+            text: species,
+        } as IDropdownOption));
+
+        const dialogTitle = this.state.enemies.length - 1 < this.state.enemyEditIndex
+            ? null
+            : `${this.state.enemies[this.state.enemyEditIndex].genus} ${this.state.enemies[this.state.enemyEditIndex].species}`;
+
         return (
             <React.Fragment>
                 <h2>Enemies</h2>
-                <Grid grid6x6>
-                    <React.Fragment>
-                        {Object.keys(EnemyGenusSpeciesLink).map((genus, genusIndex) => {
-                            const enemySpecies = EnemyGenusSpeciesLink[genus];
-
-                            return (
-                                <React.Fragment key={genusIndex}>
-                                    {enemySpecies.map((species, speciesIndex) => this.renderEnemySpecies(genus, species, speciesIndex))}
-                                </React.Fragment>
-                            );
-                        })}
-                    </React.Fragment>
-                    <DivField>
-                        <TextField
-                            multiline
-                            rows={20}
-                            label="Enemy title data"
-                            value={JSON.stringify(this.state.enemies, null, 4)}
-                            onChange={this.setEnemyData}
-                        />
-                    </DivField>
+                <Grid grid4x4x4>
+                    <Dropdown label="Genus" selectedKey={this.state.enemyGenus} onChange={this.onChangeEnemyGenus} options={genusOptions} />
+                    <Dropdown label="Species" selectedKey={this.state.enemySpecies} onChange={this.onChangeEnemySpecies} options={speciesOptions} />
+                    <PrimaryButton text="Create enemy" onClick={this.addEnemySpecies} />
                 </Grid>
+                <UlNull>
+                    {this.state.enemies.map((enemy, index) => (
+                        <li key={index}>
+                            <Enemy
+                                {...enemy}
+                            />
+                            <ButtonTiny text="Edit" onClick={this.editEnemyData.bind(this, index)} />
+                        </li>
+                    ))}
+                </UlNull>
+                <DialogWidthSmall
+                    hidden={!this.state.shouldShowEnemyPopup}
+                    onDismiss={this.closeEnemyData}
+                    dialogContentProps={{
+                        type: DialogType.largeHeader,
+                        title: dialogTitle,
+                      }}
+                >
+                    <EnemyEditor
+                        {...this.state.enemies[this.state.enemyEditIndex]}
+                        index={this.state.enemyEditIndex}
+                        onChange={this.onChangeEnemyData}
+                        shouldHideTitle
+                    />
+                    <DialogFooter>
+                        <PrimaryButton onClick={this.closeEnemyData} text="Done" />
+                    </DialogFooter>
+                </DialogWidthSmall>
             </React.Fragment>
         );
-    }
-
-    private setEnemyData = (_: any, newData: string): void => {
-        this.setState({
-            enemies: JSON.parse(newData),
-        });
-    }
-
-    private renderEnemySpecies(genus: string, speciesName: string, index: number): React.ReactNode {
-        let species = this.state.enemies.find(e => e.species === speciesName);
-
-        if(is.null(species)) {
-            species = {
-                attacks: [],
-                genus,
-                hp: 1,
-                name: "",
-                resistances: [],
-                species: speciesName,
-                speed: 1,
-                xp: 1,
-            };
-        }
-
-        return (
-            <EnemyEditor
-                {...species}
-                key={index}
-                onChange={this.onChangeEnemyData}
-            />
-        );
-    }
-
-    private onChangeEnemyData = (enemy: IEnemyData): void => {
-        this.setState(prevState => ({
-            ...prevState,
-            enemies: prevState.enemies
-                .filter(e => e.species !== enemy.species)
-                .concat([enemy])
-        }));
     }
 
     private onChangeLevelData = (data: IGeneratorLevelProps): void => {
         this.setState({
             levels: data,
         });
+    }
+
+    private onChangeEnemyGenus = (_: any, option: IDropdownOption): void => {
+        this.setState({
+            enemyGenus: option.key.toString(),
+            enemySpecies: EnemyGenusSpeciesLink[option.key.toString()][0]
+        });
+    }
+
+    private onChangeEnemySpecies = (_: any, option: IDropdownOption): void => {
+        this.setState({
+            enemySpecies: option.key.toString(),
+        });
+    }
+
+    private editEnemyData = (index: number): void => {
+        this.setState({
+            shouldShowEnemyPopup: true,
+            enemyEditIndex: index,
+        });
+    }
+
+    private closeEnemyData = (): void => {
+        this.setState({
+            shouldShowEnemyPopup: false,
+            enemyEditIndex: 0,
+        });
+    }
+
+    private addEnemySpecies = (): void => {
+        this.setState(prevState => ({
+            ...prevState,
+            shouldShowEnemyPopup: true,
+            enemies: prevState.enemies.concat([{
+                attacks: [],
+                genus: this.state.enemyGenus,
+                hp: 1,
+                name: "",
+                resistances: [],
+                species: this.state.enemySpecies,
+                speed: 1,
+                xp: 1,
+            }]),
+        }));
+    }
+
+    private onChangeEnemyData = (enemy: IEnemyData, index: number): void => {
+        this.setState(prevState => ({
+            ...prevState,
+            enemies: prevState.enemies
+                .map((e, eIndex) => {
+                    return index === eIndex
+                        ? enemy
+                        : e;
+                }),
+        }));
     }
 }
 

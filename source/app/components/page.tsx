@@ -63,7 +63,7 @@ class PageBase extends React.PureComponent<Props> {
 	private checkForURIParameters(): void {
 		if(this.props.match.params.titleid !== this.props.appState.titleId) {
             PlayFab.settings.titleId = this.props.match.params.titleid;
-			this.props.dispatch(actionSetTitleId(this.props.match.params.titleid));
+            this.props.dispatch(actionSetTitleId(this.props.match.params.titleid));
 		}
 	}
 
