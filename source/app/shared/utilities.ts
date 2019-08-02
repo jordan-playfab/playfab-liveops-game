@@ -11,7 +11,7 @@ function formatRoute(original: string, ...args: string[]): string {
         return "";
     }
 
-    const replaceRegEx = new RegExp("((?:\:)[a-z]+)");
+    const replaceRegEx = new RegExp("((?:\:)[a-z?]+)");
 
     let returnString = original;
 
@@ -23,7 +23,24 @@ function formatRoute(original: string, ...args: string[]): string {
 }
 
 function createPlayFabLink(titleId: string, uri: string, isReact: boolean): string {
-    return `https://developer.playfab.com/en-US/${isReact ? `r/t/` : ``}${titleId}/${uri}`;
+    const playFabMainProdUrl = ".playfabapi.com";
+
+    var urlRoot;
+
+    if(((PlayFab as any)._internalSettings.productionServerUrl === playFabMainProdUrl))
+    {
+        urlRoot = "https://developer.playfab.comm";
+    }
+    else
+    {
+        var prodUrl = ((PlayFab as any)._internalSettings.productionServerUrl as string);
+        var cloudEndIndex = prodUrl.indexOf(playFabMainProdUrl);
+        var cloud = (PlayFab as any)._internalSettings.productionServerUrl.substring(1, cloudEndIndex);
+
+        urlRoot = `https://${cloud}.${cloud}.playfab.com`;
+    }
+
+    return `${urlRoot}/en-US/${isReact ? `r/t/` : ``}${titleId}/${uri}`;
 }
 
 function htmlDecode(input: string): string {

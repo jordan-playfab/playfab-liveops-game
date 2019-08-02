@@ -25,11 +25,11 @@ class IndexPageBase extends React.Component<Props, IState> {
     constructor(props: Props) {
         super(props);
 
-        const cloud = (props.match.params as any).cloud || "";
+        const cloudParam = (props.match.params as any).cloud || "";
 
         this.state = {
             titleId: "",
-            cloud,
+            cloud: cloudParam,
         }
     }
 
@@ -84,8 +84,15 @@ class IndexPageBase extends React.Component<Props, IState> {
 <<<<<<< HEAD
 =======
     private saveTitleID = (): void => {
+<<<<<<< HEAD
         (PlayFab as any)._internalSettings.productionServerUrl = `.spi.playfabapi.com`
 >>>>>>> Works hardcoded cloud
+=======
+        if(this.state.cloud.length > 0)
+        {
+            (PlayFab as any)._internalSettings.productionServerUrl = `.${this.state.cloud}.playfabapi.com`
+        }
+>>>>>>> Add private cloud support
         PlayFab.settings.titleId = this.state.titleId;
         
         this.props.history.push(routes.MainMenu(this.state.titleId));

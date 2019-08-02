@@ -15,7 +15,7 @@ export const routeNames = {
 };
 
 export const routes = {
-    Index: () => routeNames.Index,
+    Index: (cloud: string) => utilities.formatRoute(routeNames.Index, cloud),
     MainMenu: (titleId: string) => utilities.formatRoute(routeNames.MainMenu, titleId),
     Login: (titleId: string) => utilities.formatRoute(routeNames.Login, titleId),
     Guide: (titleId: string) => utilities.formatRoute(routeNames.Guide, titleId),
