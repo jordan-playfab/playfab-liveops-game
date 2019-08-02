@@ -11,7 +11,6 @@ export const routeNames = {
     Download: "/:titleid/download",
     LevelCurve: "/:titleid/level-curve",
     Credits: "/:titleid/credits",
-    Webhook: "/:titleid/webhook",
 };
 
 export const routes = {
@@ -25,5 +24,4 @@ export const routes = {
     Download: (titleId: string) => utilities.formatRoute(routeNames.Download, titleId),
     LevelCurve: (titleId: string) => utilities.formatRoute(routeNames.LevelCurve, titleId),
     Credits: (titleId: string) => utilities.formatRoute(routeNames.Credits, titleId),
-    Webhook: (titleId: string) => utilities.formatRoute(routeNames.Webhook, titleId),
 };
