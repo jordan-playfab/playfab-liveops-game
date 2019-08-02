@@ -42,7 +42,7 @@ class FooterBase extends React.PureComponent<Props> {
     private resetTitleId = (): void => {
         PlayFab.settings.titleId = null;
         this.props.dispatch(actionSetTitleId(null));
-        this.props.history.push(routes.Index());
+        this.props.history.push(routes.Index(""));
     }
 }
 

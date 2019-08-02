@@ -1,7 +1,7 @@
 import { utilities } from "./shared/utilities";
 
 export const routeNames = {
-    Index: "/",
+    Index: "/:cloud?",
     MainMenu: "/:titleid/menu",
     Login: "/:titleid/login",
     Guide: "/:titleid/guide",
@@ -14,7 +14,7 @@ export const routeNames = {
 };
 
 export const routes = {
-    Index: () => routeNames.Index,
+    Index: (cloud: string) => utilities.formatRoute(routeNames.Index, cloud),
     MainMenu: (titleId: string) => utilities.formatRoute(routeNames.MainMenu, titleId),
     Login: (titleId: string) => utilities.formatRoute(routeNames.Login, titleId),
     Guide: (titleId: string) => utilities.formatRoute(routeNames.Guide, titleId),
