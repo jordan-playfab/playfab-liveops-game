@@ -7,6 +7,7 @@ import { actionSetTitleId } from "../store/actions";
 import { RouteComponentProps } from "react-router-dom";
 import { routes } from "../routes";
 import styled from "../styles";
+import { utilities } from "../shared/utilities";
 
 const FooterTag = styled.footer`
     margin-top: ${s => s.theme.size.spacer};
@@ -34,13 +35,14 @@ class FooterBase extends React.PureComponent<Props> {
 
         return (
             <FooterTag>
-                <p><strong>Title ID:</strong> {this.props.appState.titleId} <ButtonReset text="Reset" onClick={this.resetTitleId} /></p>
+                <p><strong>Title ID:</strong> {this.props.appState.titleId} <ButtonReset text="Reset" onClick={this.resetState} /></p>
             </FooterTag>
         );
     }
 
-    private resetTitleId = (): void => {
+    private resetState = (): void => {
         PlayFab.settings.titleId = null;
+        utilities.setCloud(null);
         this.props.dispatch(actionSetTitleId(null));
         this.props.history.push(routes.Index(""));
     }

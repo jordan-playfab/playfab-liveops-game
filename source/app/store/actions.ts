@@ -24,6 +24,7 @@ export const actionSetStoreNamesFromTitleData = (data: IStringDictionary, key: s
 };
 export const actionSetStoreNames = (names: string[]) => action(ActionTypes.SET_STORE_NAMES, names);
 export const actionSetTitleId = (titleId: string) => action(ActionTypes.SET_TITLE_ID, titleId);
+export const actionSetCloud = (cloud: string) => action(ActionTypes.SET_CLOUD, cloud);
 export const actionSubtractPlayerHP = (damage: number) => action(ActionTypes.SUBTRACT_PLAYER_HP, damage);
 export const actionSetEquipmentSingle = (item: PlayFabClientModels.ItemInstance, slot: EquipmentSlotTypes) => action(ActionTypes.SET_EQUIPMENT_SINGLE, {
     item,

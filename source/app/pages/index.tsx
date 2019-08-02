@@ -26,7 +26,7 @@ class IndexPageBase extends React.Component<Props, IState> {
     constructor(props: Props) {
         super(props);
 
-        const cloudParam = (props.match.params as any).cloud || null;
+        const cloudParam = (props.match.params as any).cloud || "main";
 
         this.state = {
             titleId: null,
@@ -87,16 +87,8 @@ class IndexPageBase extends React.Component<Props, IState> {
         if(!is.null(e)) {
             e.preventDefault();
         }
-
-        PlayFab.settings.titleId = this.state.titleId;
         
-        if(!is.null(this.state.cloud))
-        {
-            utilities.setPrivateCloud(this.state.cloud);
-            (PlayFab as any)._internalSettings.productionServerUrl = `.${this.state.cloud}.playfabapi.com`;
-        }
-        
-        this.props.history.push(routes.MainMenu(this.state.titleId));
+        this.props.history.push(routes.MainMenu(this.state.cloud, this.state.titleId));
     }
 }
 

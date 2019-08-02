@@ -58,7 +58,7 @@ class PlanetPageBase extends React.Component<Props, IState> {
         }
         
         if(!this.props.appState.hasPlayerId) {
-            return (<Redirect to={routes.MainMenu(this.props.appState.titleId)} />);
+            return (<Redirect to={routes.MainMenu((this.props.match.params as any).cloud, this.props.appState.titleId)} />);
         }
 
         return (
@@ -78,7 +78,7 @@ class PlanetPageBase extends React.Component<Props, IState> {
         if(is.null(this.state.areaName)) {
             return (
                 <React.Fragment>
-                    <BackLink to={routes.Guide(this.props.appState.titleId)} label="Back to guide" />
+                    <BackLink to={routes.Guide(this.props.appState.cloud, this.props.appState.titleId)} label="Back to guide" />
                     <h2>Welcome to {planet.name}</h2>
                     <p>Choose a region to fight in:</p>
                     <UlInline>
@@ -295,7 +295,7 @@ class PlanetPageBase extends React.Component<Props, IState> {
     }
 
     private onReturnToHeadquarters = (): void => {
-        this.props.history.push(routes.Headquarters(this.props.appState.titleId));
+        this.props.history.push(routes.Headquarters(this.props.appState.cloud, this.props.appState.titleId));
     }
 }
 
