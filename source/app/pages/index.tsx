@@ -9,6 +9,7 @@ import styled, { DivConfirm, DivField } from "../styles";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { Grid } from "../components/grid";
 import { is } from "../shared/is";
+import { utilities } from "../shared/utilities";
 
 const TextFieldTitleId = styled(TextField)`
     max-width: 20em;
@@ -89,9 +90,10 @@ class IndexPageBase extends React.Component<Props, IState> {
 
         PlayFab.settings.titleId = this.state.titleId;
         
-        if(this.state.cloud.length > 0)
+        if(!is.null(this.state.cloud))
         {
-            (PlayFab as any)._internalSettings.productionServerUrl = `.${this.state.cloud}.playfabapi.com`
+            utilities.setPrivateCloud(this.state.cloud);
+            (PlayFab as any)._internalSettings.productionServerUrl = `.${this.state.cloud}.playfabapi.com`;
         }
         
         this.props.history.push(routes.MainMenu(this.state.titleId));
