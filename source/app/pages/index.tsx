@@ -76,24 +76,23 @@ class IndexPageBase extends React.Component<Props, IState> {
         });
     }
 
+    private onChangeCloud = (_: any, cloud: string): void => {
+        this.setState({
+            cloud: cloud.trim(),
+        });
+    }
+
     private continue = (e: React.SyntheticEvent<any>): void => {
         if(!is.null(e)) {
             e.preventDefault();
         }
 
-<<<<<<< HEAD
-=======
-    private saveTitleID = (): void => {
-<<<<<<< HEAD
-        (PlayFab as any)._internalSettings.productionServerUrl = `.spi.playfabapi.com`
->>>>>>> Works hardcoded cloud
-=======
+        PlayFab.settings.titleId = this.state.titleId;
+        
         if(this.state.cloud.length > 0)
         {
             (PlayFab as any)._internalSettings.productionServerUrl = `.${this.state.cloud}.playfabapi.com`
         }
->>>>>>> Add private cloud support
-        PlayFab.settings.titleId = this.state.titleId;
         
         this.props.history.push(routes.MainMenu(this.state.titleId));
     }

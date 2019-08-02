@@ -166,7 +166,7 @@ class UploadPageBase extends React.Component<Props, IState> {
 
         return (
             <React.Fragment>
-                <h2>Upload in progress to {(PlayFab as any)._internalSettings.GetServerUrl()}</h2>
+                <h2>Upload in progress</h2>
                 {!is.null(this.props.pageError) && (
                     <MessageBar messageBarType={MessageBarType.error}>{this.props.pageError}</MessageBar>
                 )}
