@@ -22,6 +22,9 @@ interface IThemeColor {
 
     border200: string;
 
+    error100: string;
+    error500: string;
+
     text000: string;
     text700: string;
     text900: string;
@@ -80,7 +83,6 @@ const breakpoints: IThemeBreakpoint = {
 const colors = {
     white: "#fff",
 
-    grey050: "#f5f5f5",
     grey100: "#f5f5f5",
     grey150: "#eaeaea",
     grey200: "#d9d9d9",
@@ -144,6 +146,9 @@ const defaultTheme: ITheme = {
         backgroundPlayer500: colors.green500,
         
         border200: colors.grey200,
+
+        error100: colors.red150,
+        error500: colors.red500,
 
         text000: colors.white,
         text700: "rgb(96, 94, 92)",
@@ -309,6 +314,19 @@ const DialogWidthSmall = styled(Dialog)`
     }
 `;
 
+const UlAlternatingIndented = styled(UlNull)`
+    > li {
+        margin-top: ${s => s.theme.size.spacer};
+        margin-left: ${s => s.theme.size.spacerD2};
+        padding-left: ${s => s.theme.size.spacerD2};
+        border-left: 4px solid ${colors.grey200};
+
+        &:nth-child(even) {
+            border-left-color: ${colors.grey300};
+        }
+    }
+`;
+
 export {
     css,
     keyframes,
@@ -325,6 +343,7 @@ export {
     DivDocumentCardInterior,
     DlStats,
     ButtonTiny,
-    DialogWidthSmall
+    DialogWidthSmall,
+    UlAlternatingIndented
 };
 export default styled;

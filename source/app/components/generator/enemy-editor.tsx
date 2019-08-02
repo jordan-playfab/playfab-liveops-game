@@ -2,9 +2,21 @@ import React from "react";
 import { TextField } from "office-ui-fabric-react";
 
 import { IEnemyData, DamageFlavor, IAttackType, IResistanceType } from "../../shared/types";
-import { DivField, ButtonTiny } from "../../styles";
+import styled, { DivField, ButtonTiny, UlAlternatingIndented } from "../../styles";
 import { AttackEditor } from "./attack-editor";
 import { ResistanceEditor } from "./resistance-editor";
+import { Grid } from "../grid";
+import { is } from "../../shared/is";
+
+const DivEnemy = styled.div`
+    margin-top: ${s => s.theme.size.spacer};
+`;
+
+const DivAddArea = DivEnemy;
+
+const ButtonAdd = styled(ButtonTiny)`
+    float: right;
+`;
 
 interface IEnemyEditorOtherProps {
     onChange: (enemy: IEnemyData) => void;
@@ -24,33 +36,51 @@ export class EnemyEditor extends React.Component<EnemyEditorProps, EnemyEditorSt
 
     public render(): React.ReactNode {
         return (
-            <React.Fragment>
+            <DivEnemy>
                 <h3>{this.state.genus} {this.state.species}</h3>
                 <DivField>
-                    <TextField label="HP" value={this.props.hp.toString()} onChange={this.onChangeHP} />
-                    <TextField label="XP" value={this.props.xp.toString()} onChange={this.onChangeXP} />
                     <TextField label="Unique name" value={this.props.name} onChange={this.onChangeName} />
-                    <TextField label="Speed" value={this.props.speed.toString()} onChange={this.onChangeSpeed} />
-                    <h4>Attacks <ButtonTiny text="Add attack" onClick={this.onAddAttack} /></h4>
-                    {this.props.attacks.map((a, index) => (
-                        <AttackEditor
-                            {...a}
-                            key={index}
-                            index={index}
-                            onChange={this.onChangeAttack}
-                        />
-                    ))}
-                    <h4>Resistances <ButtonTiny text="Add resistance" onClick={this.onAddResistance} /></h4>
-                    {this.props.resistances.map((r, index) => (
-                        <ResistanceEditor
-                            {...r}
-                            key={index}
-                            index={index}
-                            onChange={this.onChangeResistance}
-                        />
-                    ))}
+                    <Grid grid4x4x4>
+                        <TextField label="HP" value={this.props.hp.toString()} onChange={this.onChangeHP} />
+                        <TextField label="XP" value={this.props.xp.toString()} onChange={this.onChangeXP} />
+                        <TextField label="Speed" value={this.props.speed.toString()} onChange={this.onChangeSpeed} />
+                    </Grid>
+                    <DivAddArea>
+                        <h4>Attacks <ButtonAdd text="Add attack" onClick={this.onAddAttack} /></h4>
+                        {!is.null(this.props.attacks) && (
+                            <UlAlternatingIndented>
+                                {this.props.attacks.map((a, index) => (
+                                    <li key={index}>
+                                        <AttackEditor
+                                            {...a}
+                                            index={index}
+                                            onChange={this.onChangeAttack}
+                                            onRemove={this.onRemoveAttack}
+                                        />
+                                    </li>
+                                ))}
+                            </UlAlternatingIndented>
+                        )}
+                    </DivAddArea>
+                    <DivAddArea>
+                        <h4>Resistances <ButtonAdd text="Add resistance" onClick={this.onAddResistance} /></h4>
+                        {!is.null(this.props.resistances) && (
+                            <UlAlternatingIndented>
+                                {this.props.resistances.map((r, index) => (
+                                    <li key={index}>
+                                        <ResistanceEditor
+                                            {...r}
+                                            index={index}
+                                            onChange={this.onChangeResistance}
+                                            onRemove={this.onRemoveResistance}
+                                        />
+                                    </li>
+                                ))}
+                            </UlAlternatingIndented>
+                        )}
+                    </DivAddArea>
                 </DivField>
-            </React.Fragment>
+            </DivEnemy>
         );
     }
 
@@ -124,6 +154,22 @@ export class EnemyEditor extends React.Component<EnemyEditorProps, EnemyEditorSt
                         ? resistance
                         : r;
                 })
+        }), this.onChange);
+    }
+
+    private onRemoveAttack = (index: number): void => {
+        this.setState(prevState => ({
+            ...prevState,
+            attacks: prevState.attacks
+                .filter((_, aIndex) => aIndex !== index)
+        }), this.onChange);
+    }
+
+    private onRemoveResistance = (index: number): void => {
+        this.setState(prevState => ({
+            ...prevState,
+            resistances: prevState.resistances
+                .filter((_, rIndex) => rIndex !== index)
         }), this.onChange);
     }
 

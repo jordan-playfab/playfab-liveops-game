@@ -3,10 +3,19 @@ import { IDropdownOption, TextField, Dropdown } from "office-ui-fabric-react";
 
 import { Grid } from "../grid";
 import { DamageFlavor, IAttackType } from "../../shared/types";
+import styled from "../../styles";
+import { ButtonRemove } from "./styles";
+
+const DivAttackEditor = styled.div`
+    margin-top: ${s => s.theme.size.spacer};
+`;
+
+const DivGridWrapper = DivAttackEditor;
 
 interface IAttackEditorOtherProps {
     index: number;
     onChange: (attack: IAttackType, index: number) => void;
+    onRemove: (index: number) => void;
 }
 
 type AttackEditorProps = IAttackType & IAttackEditorOtherProps;
@@ -28,17 +37,20 @@ export class AttackEditor extends React.PureComponent<AttackEditorProps, AttackE
         } as IDropdownOption));
 
         return (
-            <React.Fragment>
-                <Grid grid4x4x4>
-                    <TextField label="Name" value={this.props.name} onChange={this.onChangeName} />
-                    <Dropdown label="Type" selectedKey={this.props.flavor} onChange={this.onChangeFlavor} options={flavorOptions} />
-                    <TextField label="Damage" value={this.props.power.toString()} onChange={this.onChangePower} />
-                    <TextField label="Chance to hit" value={this.props.probability.toString()} onChange={this.onChangeProbability} />
-                    <TextField label="Variance" value={this.props.variance.toString()} onChange={this.onChangeVariance} />
-                    <TextField label="Critical chance" value={this.props.critical.toString()} onChange={this.onChangeCritical} />
-                    <TextField label="Reload speed" value={this.props.reload.toString()} onChange={this.onChangeReload} />
-                </Grid>
-            </React.Fragment>
+            <DivAttackEditor>
+                <TextField label="Attack name" value={this.props.name} onChange={this.onChangeName} />
+                <ButtonRemove text="Remove" onClick={this.onRemove} />
+                <DivGridWrapper>
+                    <Grid grid4x4x4>
+                        <Dropdown label="Type" selectedKey={this.props.flavor} onChange={this.onChangeFlavor} options={flavorOptions} />
+                        <TextField label="Damage" value={this.props.power.toString()} onChange={this.onChangePower} />
+                        <TextField label="Chance to hit" value={this.props.probability.toString()} onChange={this.onChangeProbability} />
+                        <TextField label="Variance" value={this.props.variance.toString()} onChange={this.onChangeVariance} />
+                        <TextField label="Critical chance" value={this.props.critical.toString()} onChange={this.onChangeCritical} />
+                        <TextField label="Reload speed" value={this.props.reload.toString()} onChange={this.onChangeReload} />
+                    </Grid>
+                </DivGridWrapper>
+            </DivAttackEditor>
         );
     }
 
@@ -86,5 +98,9 @@ export class AttackEditor extends React.PureComponent<AttackEditorProps, AttackE
 
     private onChange = (): void => {
         this.props.onChange(this.state, this.props.index);
+    }
+
+    private onRemove = (): void => {
+        this.props.onRemove(this.props.index);
     }
 }

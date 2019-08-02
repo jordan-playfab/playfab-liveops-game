@@ -3,10 +3,12 @@ import { IDropdownOption, TextField, Dropdown } from "office-ui-fabric-react";
 
 import { IResistanceType, DamageFlavor } from "../../shared/types";
 import { Grid } from "../grid";
+import { ButtonRemove } from "./styles";
 
 interface IResistanceEditorOtherProps {
     index: number;
     onChange: (resistance: IResistanceType, index: number) => void;
+    onRemove: (index: number) => void;
 }
 
 type ResistanceEditorProps = IResistanceType & IResistanceEditorOtherProps;
@@ -33,6 +35,7 @@ export class ResistanceEditor extends React.PureComponent<ResistanceEditorProps,
                     <TextField label="Amount" value={this.props.resistance.toString()} onChange={this.onChangeResistance} />
                     <Dropdown label="Type" selectedKey={this.props.flavor} onChange={this.onChangeFlavor} options={flavorOptions} />
                 </Grid>
+                <ButtonRemove text="Remove" onClick={this.onRemove} />
             </React.Fragment>
         );
     }
@@ -51,5 +54,9 @@ export class ResistanceEditor extends React.PureComponent<ResistanceEditorProps,
 
     private onChange = (): void => {
         this.props.onChange(this.state, this.props.index);
+    }
+
+    private onRemove = (): void => {
+        this.props.onRemove(this.props.index);
     }
 }
