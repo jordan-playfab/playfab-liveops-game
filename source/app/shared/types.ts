@@ -133,12 +133,13 @@ export const ARMOR_CUSTOM_DATA_STATS = "stats";
 
 export interface IEnemyData {
     name?: string;
-    genus: EnemyGenus;
-    species: EnemySpecies;
+    genus: string;
+    species: string;
     hp: number;
     attacks: IAttackType[];
     resistances: IDamageResistance[];
-    speed: number;
+    speed: number; // in milliseconds
+    xp: number;
 }
 
 interface IAnyItemData {
@@ -200,14 +201,14 @@ enum WeaponRarity {
     Legendary = "Legendary"
 }
 
-enum EnemyGenus {
+export enum EnemyGenus {
     Ultracruiser = "Ultracruiser",
     Cyberbird = "Cyberbird",
     MoonEater = "Moon Eater",
     ShroudedOne = "Shrouded One"
 }
 
-enum EnemySpecies {
+export enum EnemySpecies {
     // Ultracruiser
     Neophyte = "Neophyte",
     Switchling = "Switchling",
@@ -227,3 +228,14 @@ enum EnemySpecies {
     Hubbler = "Hubbler",
     Almagest = "Almagest",
 }
+
+interface IEnemyGenusSpeciesDictionary {
+    [key: string]: EnemySpecies[];
+}
+
+export const EnemyGenusSpeciesLink: IEnemyGenusSpeciesDictionary = {
+    [EnemyGenus.Ultracruiser]: [EnemySpecies.Neophyte, EnemySpecies.Switchling, EnemySpecies.Dreadrat, EnemySpecies.Capper],
+    [EnemyGenus.Cyberbird]: [EnemySpecies.Eggsbawks, EnemySpecies.Coolbirdnetbees, EnemySpecies.Intendodo],
+    [EnemyGenus.MoonEater]: [EnemySpecies.Crisium, EnemySpecies.Imbrium, EnemySpecies.Procellarum, EnemySpecies.Grimaldi],
+    [EnemyGenus.ShroudedOne]: [EnemySpecies.Slipher, EnemySpecies.Hubbler, EnemySpecies.Almagest]
+};

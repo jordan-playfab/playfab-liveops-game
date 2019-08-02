@@ -1,10 +1,11 @@
 import React from "react";
 import { RouteComponentProps } from "react-router";
+import { TextField } from "office-ui-fabric-react";
+
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { IWithPageProps, withPage } from "../containers/with-page";
 import { Page } from "../components/page";
-import { TextField } from "office-ui-fabric-react";
-import { ITitleDataLevel } from "../shared/types";
+import { ITitleDataLevel, IEnemyData, EnemyGenusSpeciesLink, EnemySpecies, EnemyGenus } from "../shared/types";
 import { Grid } from "../components/grid";
 import { BackLink } from "../components/back-link";
 import { routes } from "../routes";
@@ -18,7 +19,8 @@ interface IState {
         xpToLevelMax: number;
         xpPerLevelMultiplier: number;
         hpPerLevelMultiplier: number;
-    }
+    },
+    enemies: IEnemyData[],
 }
 
 type Props = RouteComponentProps & IWithAppStateProps & IWithPageProps;
@@ -27,7 +29,6 @@ class GeneratorPageBase extends React.Component<Props, IState> {
     constructor(props: Props) {
         super(props);
 
-        // TODO: Allow the user to tweak these values
         this.state = {
             levels: {
                 max: 50,
@@ -35,7 +36,8 @@ class GeneratorPageBase extends React.Component<Props, IState> {
                 xpToLevelMax: 10000,
                 xpPerLevelMultiplier: 1.15,
                 hpPerLevelMultiplier: 5.75,
-            }
+            },
+            enemies: [],
         };
     }
 
@@ -47,9 +49,12 @@ class GeneratorPageBase extends React.Component<Props, IState> {
             >
                 <BackLink to={routes.MainMenu(this.props.appState.titleId)} label="Back to main menu" />
                 {this.renderLevelCurve()}
+                {this.renderEnemies()}
             </Page>
         );
     }
+
+    // ----- Levels ----- //
 
     private renderLevelCurve(): React.ReactNode {
         const xpPerLevel: ITitleDataLevel[] = [];
@@ -74,21 +79,13 @@ class GeneratorPageBase extends React.Component<Props, IState> {
                 <h2>Level generator</h2>
                 <Grid grid6x6>
                     <React.Fragment>
-                        <DivField>
+                        <Grid grid6x6>
                             <TextField label="Maximum level" value={this.state.levels.max.toString()} onChange={this.onChangeLevelMax} />
-                        </DivField>
-                        <DivField>
                             <TextField label="XP to level 1" value={this.state.levels.xpToLevel1.toString()} onChange={this.onChangeLevelXPToLevel1} />
-                        </DivField>
-                        <DivField>
                             <TextField label="XP to level max" value={this.state.levels.xpToLevelMax.toString()} onChange={this.onChangeLevelXPToLevelMax} />
-                        </DivField>
-                        <DivField>
                             <TextField label="XP per level modifier" value={this.state.levels.xpPerLevelMultiplier.toString()} onChange={this.onChangeLevelXPPerLevelMultiplier} />
-                        </DivField>
-                        <DivField>
                             <TextField label="HP per level modifier" value={this.state.levels.hpPerLevelMultiplier.toString()} onChange={this.onChangeLevelHPPerLevelMultiplier} />
-                        </DivField>
+                        </Grid>
                     </React.Fragment>
                     <DivField>
                         <TextField
@@ -150,6 +147,123 @@ class GeneratorPageBase extends React.Component<Props, IState> {
         const scale = (maxv-minv) / (maxp-minp);
         
         return Math.exp(minv + scale*(position-minp));
+    }
+
+    // ----- Enemies ----- //
+
+    private renderEnemies(): React.ReactNode {
+        return (
+            <React.Fragment>
+                <h2>Enemies</h2>
+                <Grid grid6x6>
+                    <React.Fragment>
+                        {Object.keys(EnemyGenusSpeciesLink).map((genus, genusIndex) => {
+                            const enemySpecies = EnemyGenusSpeciesLink[genus];
+
+                            return (
+                                <React.Fragment key={genusIndex}>
+                                    {enemySpecies.map((species, speciesIndex) => this.renderEnemySpecies(genus, species, speciesIndex))}
+                                </React.Fragment>
+                            );
+                        })}
+                    </React.Fragment>
+                    <DivField>
+                        <TextField
+                            multiline
+                            rows={20}
+                            label="Enemy title data"
+                            value={JSON.stringify(this.state.enemies, null, 4)}
+                            onChange={this.setEnemyData}
+                        />
+                    </DivField>
+                </Grid>
+            </React.Fragment>
+        );
+    }
+
+    private setEnemyData = (_: any, newData: string): void => {
+        this.setState({
+            enemies: JSON.parse(newData),
+        });
+    }
+
+    private renderEnemySpecies(genus: string, speciesName: string, index: number): React.ReactNode {
+        let species = this.state.enemies.find(e => e.species === speciesName);
+
+        if(is.null(species)) {
+            species = {
+                attacks: [],
+                genus,
+                hp: 1,
+                name: "",
+                resistances: [],
+                species: speciesName,
+                speed: 1,
+                xp: 1,
+            };
+        }
+
+        return (
+            <EnemyEditor
+                {...species}
+                key={index}
+                onChange={this.onChangeEnemyData}
+            />
+        );
+    }
+
+    private onChangeEnemyData = (enemy: IEnemyData): void => {
+        this.setState(prevState => ({
+            ...prevState,
+            enemies: prevState.enemies
+                .filter(e => e.species !== enemy.species)
+                .concat([enemy])
+        }));
+    }
+}
+
+interface IEnemyEditorOtherProps {
+    onChange: (enemy: IEnemyData) => void;
+}
+
+type EnemyEditorProps = IEnemyData & IEnemyEditorOtherProps;
+type EnemyEditorState = IEnemyData;
+
+class EnemyEditor extends React.Component<EnemyEditorProps, EnemyEditorState> {
+    constructor(props: EnemyEditorProps) {
+        super(props);
+
+        this.state = {
+            ...props,
+        };
+    }
+
+    public render(): React.ReactNode {
+        return (
+            <React.Fragment>
+                <h3>{this.state.genus} {this.state.species}</h3>
+                <DivField>
+                    <TextField label="Base HP" value={this.state.hp.toString()} onChange={this.onChangeHP} />
+                    <TextField label="Unique name" value={this.state.name} onChange={this.onChangeName} />
+                </DivField>
+            </React.Fragment>
+        );
+    }
+
+    private onChangeName = (_: any, name: string): void => {
+        this.setState({
+            name,
+        }, this.onChange);
+    }
+
+    private onChangeHP = (_: any, hp: string): void => {
+        this.setState({
+            hp: parseInt(hp),
+        }, this.onChange);
+    }
+
+    private onChange = (): void => {
+        this.props.onChange(this.state);
     }
 }
 
