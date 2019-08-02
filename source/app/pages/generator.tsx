@@ -5,7 +5,7 @@ import { TextField, Dropdown, IDropdownOption } from "office-ui-fabric-react";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { IWithPageProps, withPage } from "../containers/with-page";
 import { Page } from "../components/page";
-import { ITitleDataLevel, IEnemyData, EnemyGenusSpeciesLink, EnemySpecies, EnemyGenus, IAttackType, DamageFlavor } from "../shared/types";
+import { ITitleDataLevel, IEnemyData, EnemyGenusSpeciesLink, EnemySpecies, EnemyGenus, IAttackType, DamageFlavor, IResistanceType } from "../shared/types";
 import { Grid } from "../components/grid";
 import { BackLink } from "../components/back-link";
 import { routes } from "../routes";
@@ -256,6 +256,15 @@ class EnemyEditor extends React.Component<EnemyEditorProps, EnemyEditorState> {
                             onChange={this.onChangeAttack}
                         />
                     ))}
+                    <h4>Resistances <ButtonTiny text="Add resistance" onClick={this.onAddResistance} /></h4>
+                    {this.props.resistances.map((r, index) => (
+                        <ResistanceEditor
+                            {...r}
+                            key={index}
+                            index={index}
+                            onChange={this.onChangeResistance}
+                        />
+                    ))}
                 </DivField>
             </React.Fragment>
         );
@@ -304,8 +313,33 @@ class EnemyEditor extends React.Component<EnemyEditorProps, EnemyEditorState> {
         this.setState(prevState => ({
             ...prevState,
             attacks: prevState.attacks
-                .filter((a, index) => index !== attackIndex)
-                .concat([attack])
+                .map((a, index) => {
+                    return index === attackIndex
+                        ? attack
+                        : a;
+                })
+        }), this.onChange);
+    }
+
+    private onAddResistance = (): void => {
+        this.setState(prevState => ({
+            ...prevState,
+            resistances: prevState.resistances.concat([{
+                resistance: 0.5,
+                flavor: DamageFlavor.Kinetic,
+            } as IResistanceType])
+        }), this.onChange);
+    }
+
+    private onChangeResistance = (resistance: IResistanceType, resistanceIndex: number): void => {
+        this.setState(prevState => ({
+            ...prevState,
+            resistances: prevState.resistances
+                .map((r, index) => {
+                    return index === resistanceIndex
+                        ? resistance
+                        : r;
+                })
         }), this.onChange);
     }
 
@@ -316,32 +350,38 @@ class EnemyEditor extends React.Component<EnemyEditorProps, EnemyEditorState> {
 
 interface IAttackEditorOtherProps {
     index: number;
-    onChange: (enemy: IAttackType, index: number) => void;
+    onChange: (attack: IAttackType, index: number) => void;
 }
 
 type AttackEditorProps = IAttackType & IAttackEditorOtherProps;
 type AttackEditorState = IAttackType;
 
-class AttackEditor extends React.Component<AttackEditorProps, AttackEditorState> {
+class AttackEditor extends React.PureComponent<AttackEditorProps, AttackEditorState> {
     constructor(props: AttackEditorProps) {
         super(props);
 
         this.state = {
-            ...props,
+            ...props
         };
     }
 
     public render(): React.ReactNode {
+        const flavorOptions = Object.keys(DamageFlavor).map(f => ({
+            key: f,
+            text: (DamageFlavor as any)[f],
+        } as IDropdownOption));
+
         return (
             <React.Fragment>
-                <DivField>
+                <Grid grid4x4x4>
                     <TextField label="Name" value={this.props.name} onChange={this.onChangeName} />
+                    <Dropdown label="Type" selectedKey={this.props.flavor} onChange={this.onChangeFlavor} options={flavorOptions} />
+                    <TextField label="Damage" value={this.props.power.toString()} onChange={this.onChangePower} />
                     <TextField label="Chance to hit" value={this.props.probability.toString()} onChange={this.onChangeProbability} />
-                    <Dropdown selectedKey={this.props.flavor} onChange={this.onChangeFlavor} options={Object.keys(DamageFlavor).map(f => ({
-                        key: f,
-                        text: (DamageFlavor as any)[f],
-                    } as IDropdownOption))} />
-                </DivField>
+                    <TextField label="Variance" value={this.props.variance.toString()} onChange={this.onChangeVariance} />
+                    <TextField label="Critical chance" value={this.props.critical.toString()} onChange={this.onChangeCritical} />
+                    <TextField label="Reload speed" value={this.props.reload.toString()} onChange={this.onChangeReload} />
+                </Grid>
             </React.Fragment>
         );
     }
@@ -355,6 +395,80 @@ class AttackEditor extends React.Component<AttackEditorProps, AttackEditorState>
     private onChangeProbability = (_: any, probability: string): void => {
         this.setState({
             probability: parseFloat(probability),
+        }, this.onChange);
+    }
+
+    private onChangeVariance = (_: any, variance: string): void => {
+        this.setState({
+            variance: parseFloat(variance),
+        }, this.onChange);
+    }
+
+    private onChangeCritical = (_: any, critical: string): void => {
+        this.setState({
+            critical: parseFloat(critical),
+        }, this.onChange);
+    }
+
+    private onChangeReload = (_: any, reload: string): void => {
+        this.setState({
+            reload: parseInt(reload),
+        }, this.onChange);
+    }
+
+    private onChangePower = (_: any, power: string): void => {
+        this.setState({
+            power: parseInt(power),
+        }, this.onChange);
+    }
+
+    private onChangeFlavor = (_: any, option: IDropdownOption): void => {
+        this.setState({
+            flavor: option.key.toString(),
+        }, this.onChange);
+    }
+
+    private onChange = (): void => {
+        this.props.onChange(this.state, this.props.index);
+    }
+}
+
+interface IResistanceEditorOtherProps {
+    index: number;
+    onChange: (resistance: IResistanceType, index: number) => void;
+}
+
+type ResistanceEditorProps = IResistanceType & IResistanceEditorOtherProps;
+type ResistanceEditorState = IResistanceType;
+
+class ResistanceEditor extends React.PureComponent<ResistanceEditorProps, ResistanceEditorState> {
+    constructor(props: ResistanceEditorProps) {
+        super(props);
+
+        this.state = {
+            ...props
+        };
+    }
+
+    public render(): React.ReactNode {
+        const flavorOptions = Object.keys(DamageFlavor).map(f => ({
+            key: f,
+            text: (DamageFlavor as any)[f],
+        } as IDropdownOption));
+
+        return (
+            <React.Fragment>
+                <Grid grid6x6>
+                    <TextField label="Amount" value={this.props.resistance.toString()} onChange={this.onChangeResistance} />
+                    <Dropdown label="Type" selectedKey={this.props.flavor} onChange={this.onChangeFlavor} options={flavorOptions} />
+                </Grid>
+            </React.Fragment>
+        );
+    }
+
+    private onChangeResistance = (_: any, resistance: string): void => {
+        this.setState({
+            resistance: parseFloat(resistance),
         }, this.onChange);
     }
 

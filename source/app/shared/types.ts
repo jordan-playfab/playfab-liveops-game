@@ -137,7 +137,7 @@ export interface IEnemyData {
     species: string;
     hp: number;
     attacks: IAttackType[];
-    resistances: IDamageResistance[];
+    resistances: IResistanceType[];
     speed: number; // in milliseconds
     xp: number;
 }
@@ -154,7 +154,7 @@ export interface IWeaponData extends IAnyItemData {
 }
 
 export interface IArmorData extends IAnyItemData {
-    resistances: IDamageResistance[];
+    resistances: IResistanceType[];
     slot: ArmorSlot;
 }
 
@@ -168,8 +168,8 @@ export interface IAttackType {
     reload: number; // in milliseconds
 }
 
-export interface IDamageResistance {
-    flavor: DamageFlavor;
+export interface IResistanceType {
+    flavor: string; // DamageFlavor
     resistance: number; // 0-1
 }
 
