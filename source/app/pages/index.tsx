@@ -25,10 +25,10 @@ class IndexPageBase extends React.Component<Props, IState> {
     constructor(props: Props) {
         super(props);
 
-        const cloudParam = (props.match.params as any).cloud || "";
+        const cloudParam = (props.match.params as any).cloud || null;
 
         this.state = {
-            titleId: "",
+            titleId: null,
             cloud: cloudParam,
         }
     }
