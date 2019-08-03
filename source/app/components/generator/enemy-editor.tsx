@@ -137,7 +137,15 @@ export class EnemyEditor extends React.Component<EnemyEditorProps, EnemyEditorSt
             attacks: prevState.attacks
                 .map((a, index) => {
                     return index === attackIndex
-                        ? attack
+                        ? {
+                            critical: attack.critical,
+                            flavor: attack.flavor,
+                            name: attack.name,
+                            power: attack.power,
+                            probability: attack.probability,
+                            reload: attack.reload,
+                            variance: attack.variance,
+                        } as IAttackType
                         : a;
                 })
         }), this.onChange);
@@ -159,7 +167,10 @@ export class EnemyEditor extends React.Component<EnemyEditorProps, EnemyEditorSt
             resistances: prevState.resistances
                 .map((r, index) => {
                     return index === resistanceIndex
-                        ? resistance
+                        ? {
+                            flavor: resistance.flavor,
+                            resistance: resistance.resistance,
+                        } as IResistanceType
                         : r;
                 })
         }), this.onChange);

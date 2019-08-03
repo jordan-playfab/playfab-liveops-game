@@ -9,7 +9,7 @@ import { IEnemyData, EnemyGenusSpeciesLink, EnemyGenus } from "../shared/types";
 import { Grid } from "../components/grid";
 import { BackLink } from "../components/back-link";
 import { routes } from "../routes";
-import styled, { UlNull, ButtonTiny, DialogWidthSmall, DivField } from "../styles";
+import styled, { UlNull, ButtonTiny, DialogWidthSmall } from "../styles";
 import { IGeneratorLevelProps, LevelEditor } from "../components/generator/level-editor";
 import { EnemyEditor } from "../components/generator/enemy-editor";
 import { Enemy } from "../components/enemy";
@@ -205,7 +205,16 @@ class GeneratorPageBase extends React.Component<Props, IState> {
             enemies: prevState.enemies
                 .map((e, eIndex) => {
                     return index === eIndex
-                        ? enemy
+                        ? {
+                            attacks: enemy.attacks,
+                            genus: enemy.genus,
+                            hp: enemy.hp,
+                            name: enemy.name,
+                            resistances: enemy.resistances,
+                            species: enemy.species,
+                            speed: enemy.speed,
+                            xp: enemy.xp,
+                        } as IEnemyData
                         : e;
                 }),
         }));
