@@ -51,7 +51,7 @@ export class LevelEditor extends React.PureComponent<GeneratorLevelProps, Genera
         return (
             <React.Fragment>
                 <h2>Level generator</h2>
-                <Grid grid6x6>
+                <Grid grid8x4>
                     <React.Fragment>
                         <Grid grid6x6>
                             <TextField label="Maximum level" value={this.props.max.toString()} onChange={this.onChangeLevelMax} />

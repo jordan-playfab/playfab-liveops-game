@@ -92,7 +92,7 @@ class GeneratorPageBase extends React.Component<Props, IState> {
         return (
             <React.Fragment>
                 <h2>Enemies</h2>
-                <Grid grid6x6>
+                <Grid grid8x4>
                     <React.Fragment>
                         <Grid grid4x4x4>
                             <Dropdown label="Genus" selectedKey={this.state.enemyGenus} onChange={this.onChangeEnemyGenus} options={genusOptions} />
