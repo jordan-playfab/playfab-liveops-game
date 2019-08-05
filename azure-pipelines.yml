@@ -27,9 +27,4 @@ steps:
       game\*
     TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
-- task: AzureCLI@1
-  displayName: 'AzureBlob File Copy'
-  inputs:
-    azureSubscription: 'Main subscription (76634aed-e403-4f92-b02d-9ebf155f2382)'
-    scriptLocation: 'inlineScript'
-    inlineScript: 'az storage blob upload-batch --destination "$web" --source "$(Build.ArtifactStagingDirectory)"'
+- task: PublishBuildArtifacts@1
