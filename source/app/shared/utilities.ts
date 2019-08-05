@@ -1,4 +1,5 @@
 import { is } from "./is";
+import { MAIN_CLOUD } from "../shared/types";
 
 function getRandomInteger(min: number, max: number): number {
     min = Math.ceil(min);
@@ -25,8 +26,7 @@ function formatRoute(original: string, ...args: string[]): string {
 function createPlayFabLink(cloud: string, titleId: string, uri: string, isReact: boolean): string {
     let urlRoot : string;
 
-    // TODO when cloud moves to URI, use that value instead of pulling from productionServerUrl
-    if(cloud === "main")
+    if(cloud === MAIN_CLOUD)
     {
         urlRoot = "https://developer.playfab.com";
     }
@@ -43,7 +43,7 @@ function setCloud(cloud: string): void {
     const playFabMainProdUrl = ".playfabapi.com";
 
     let prodUrl : string;
-    if(is.null(cloud) || cloud === "main")
+    if(is.null(cloud) || cloud === MAIN_CLOUD)
     {
         prodUrl = playFabMainProdUrl;
     }
@@ -51,6 +51,7 @@ function setCloud(cloud: string): void {
     {
         prodUrl = `.${cloud}${playFabMainProdUrl}`;
     }
+    
     (PlayFab as any)._internalSettings.productionServerUrl = prodUrl;
 }
 

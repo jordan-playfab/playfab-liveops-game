@@ -10,6 +10,7 @@ import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { Grid } from "../components/grid";
 import { is } from "../shared/is";
 import { utilities } from "../shared/utilities";
+import { MAIN_CLOUD } from "../shared/types";
 
 const TextFieldTitleId = styled(TextField)`
     max-width: 20em;
@@ -26,7 +27,7 @@ class IndexPageBase extends React.Component<Props, IState> {
     constructor(props: Props) {
         super(props);
 
-        const cloudParam = (props.match.params as any).cloud || "main";
+        const cloudParam = (props.match.params as any).cloud || MAIN_CLOUD;
 
         this.state = {
             titleId: null,

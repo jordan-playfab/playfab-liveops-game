@@ -3,7 +3,7 @@ import { DefaultButton } from "office-ui-fabric-react";
 
 import { is } from "../shared/is";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
-import { actionSetTitleId } from "../store/actions";
+import { actionSetTitleId, actionSetCloud } from "../store/actions";
 import { RouteComponentProps } from "react-router-dom";
 import { routes } from "../routes";
 import styled from "../styles";
@@ -44,6 +44,7 @@ class FooterBase extends React.PureComponent<Props> {
         PlayFab.settings.titleId = null;
         utilities.setCloud(null);
         this.props.dispatch(actionSetTitleId(null));
+        this.props.dispatch(actionSetCloud(null));
         this.props.history.push(routes.Index(""));
     }
 }
