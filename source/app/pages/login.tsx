@@ -45,7 +45,7 @@ class LoginPageBase extends React.Component<Props, IState> {
                     <MessageBar messageBarType={MessageBarType.error}>{this.props.pageError}</MessageBar>
                 )}
                 <form onSubmit={this.login}>
-                    <BackLink to={routes.MainMenu(this.props.appState.titleId)} label="Back to main menu" />
+                    <BackLink to={routes.MainMenu(this.props.appState.cloud, this.props.appState.titleId)} label="Back to main menu" />
                     <h2>Login</h2>
                     <p>Enter your name to play. This will create a new player using <a href="https://api.playfab.com/documentation/client/method/LoginWithCustomID">Custom ID</a> or log you in with an existing account. In a real game you wouldn't want to use a Custom ID which the player can enter, as that allows players to log in as each other. Custom IDs are case sensitive.</p>
                     <DivField>
@@ -153,7 +153,7 @@ class LoginPageBase extends React.Component<Props, IState> {
         this.setState({
             isLoggingIn: false,
         }, () => {
-            this.props.history.push(routes.Guide(this.props.appState.titleId));
+            this.props.history.push(routes.Guide(this.props.appState.cloud, this.props.appState.titleId));
         });
     }
 

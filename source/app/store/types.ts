@@ -1,6 +1,7 @@
 import { IPlanetData, ITitleDataEnemies, ITEM_CLASS_WEAPON, ITEM_CLASS_ARMOR } from "../shared/types";
 
 export enum ActionTypes {
+    SET_CLOUD = "SET_CLOUD",
     SET_TITLE_ID = "SET_TITLE_ID",
     SET_PLAYER_ID = "SET_PLAYER_ID",
     SET_PLAYER_NAME = "SET_PLAYER_NAME",
@@ -21,6 +22,7 @@ export enum ActionTypes {
 }
 
 export interface IApplicationState {
+    cloud: string;
     titleId: string;
     hasTitleId: boolean;
     playerId: string;

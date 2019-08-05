@@ -125,3 +125,4 @@ export const ITEM_CLASS_ARMOR = "armor";
 export const STATISTIC_KILLS = "kills";
 export const STATISTIC_LEVEL = "level";
 export const STATISTIC_XP = "xp";
+export const MAIN_CLOUD = "main";

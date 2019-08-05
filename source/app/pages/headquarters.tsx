@@ -84,7 +84,7 @@ class HeadquartersPageBase extends React.Component<Props, IState> {
         }
         
         if(!this.props.appState.hasPlayerId) {
-            return (<Redirect to={routes.MainMenu(this.props.appState.titleId)} />);
+            return (<Redirect to={routes.MainMenu(this.props.appState.cloud, this.props.appState.titleId)} />);
         }
 
         const store = this.getStore();
@@ -106,7 +106,7 @@ class HeadquartersPageBase extends React.Component<Props, IState> {
         if(is.null(this.state.selectedStore)) {
             return (
                 <React.Fragment>
-                    <BackLink to={routes.Guide(this.props.appState.titleId)} label="Back to guide" />
+                    <BackLink to={routes.Guide(this.props.appState.cloud, this.props.appState.titleId)} label="Back to guide" />
                     <Grid grid4x8>
                         <React.Fragment>
                             <h2>Welcome</h2>
@@ -186,7 +186,7 @@ class HeadquartersPageBase extends React.Component<Props, IState> {
                 <DivNewsAndLeaderboardWrapper>
                     <Grid grid6x6>
                         {leaderboardNames.map(boardName => (
-                            <Leaderboard titleId={this.props.appState.titleId} key={boardName} name={boardName} leaderboard={this.state.leaderboards[boardName]} />
+                            <Leaderboard cloud={this.props.appState.cloud} titleId={this.props.appState.titleId} key={boardName} name={boardName} leaderboard={this.state.leaderboards[boardName]} />
                         ))}
                     </Grid>
                 </DivNewsAndLeaderboardWrapper>

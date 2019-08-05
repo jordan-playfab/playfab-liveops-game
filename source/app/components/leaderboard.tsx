@@ -52,6 +52,7 @@ const ThTag = styled.th<IThTagProps>`
 
 interface IProps {
     name: string;
+    cloud: string;
     titleId: string;
     leaderboard: PlayFabClientModels.PlayerLeaderboardEntry[];
 }
@@ -81,7 +82,7 @@ export const Leaderboard = React.memo((props: IProps): React.ReactElement => {
                         <tr key={entry.Position}>
                             <td>{entry.Position + 1}</td>
                             <td>{entry.StatValue}</td>
-                            <td><a href={utilities.createPlayFabLink(props.titleId, `players/${entry.PlayFabId}/overview`, false)} target="_blank">{entry.DisplayName || entry.PlayFabId}</a></td>
+                            <td><a href={utilities.createPlayFabLink(props.cloud, props.titleId, `players/${entry.PlayFabId}/overview`, false)} target="_blank">{entry.DisplayName || entry.PlayFabId}</a></td>
                         </tr>
                     ))}
                 </tbody>

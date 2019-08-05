@@ -4,9 +4,11 @@ import { Header } from "./header";
 import { Player } from "./player";
 import { RouteComponentProps } from "react-router";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
-import { actionSetTitleId, actionPlayerLogOut } from "../store/actions";
+import { actionSetTitleId, actionPlayerLogOut, actionSetCloud } from "../store/actions";
 import { Footer } from "./footer";
 import { routes } from "../routes";
+import { utilities } from "../shared/utilities";
+import { is } from "../shared/is";
 
 const MainTag = styled.main`
     background: ${s => s.theme.color.background000};
@@ -64,12 +66,17 @@ class PageBase extends React.PureComponent<Props> {
 		if(this.props.match.params.titleid !== this.props.appState.titleId) {
             PlayFab.settings.titleId = this.props.match.params.titleid;
 			this.props.dispatch(actionSetTitleId(this.props.match.params.titleid));
+        }
+        
+		if(this.props.match.params.cloud !== this.props.appState.cloud) {
+            utilities.setCloud(this.props.match.params.cloud);
+			this.props.dispatch(actionSetCloud(this.props.match.params.cloud));
 		}
 	}
 
     private logOut = (): void => {
         this.props.dispatch(actionPlayerLogOut());
-        this.props.history.push(routes.Login(this.props.appState.titleId));
+        this.props.history.push(routes.Login(this.props.appState.cloud, this.props.appState.titleId));
     }
 }
 
