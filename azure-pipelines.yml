@@ -27,13 +27,11 @@ steps:
       game\*
     TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
-- task: PublishBuildArtifacts@1
-
-- task: AzureFileCopy@2
+- task: AzureFileCopy@3
   displayName: 'AzureBlob File Copy'
   inputs:
-    SourcePath: '$(System.DefaultWorkingDirectory)/game'
+    sourcePath: '$(Build.ArtifactStagingDirectory)'
     azureSubscription: 'Main subscription (76634aed-e403-4f92-b02d-9ebf155f2382)'
-    Destination: AzureBlob
+    destination: AzureBlob
     storage: vanguardoutriderstorage
-    ContainerName: '$web'
+    containerName: '$web'
