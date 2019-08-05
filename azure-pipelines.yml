@@ -27,11 +27,9 @@ steps:
       game\*
     TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
-- task: AzureFileCopy@3
+- task: AzureCLI@1
   displayName: 'AzureBlob File Copy'
   inputs:
-    sourcePath: '$(Build.ArtifactStagingDirectory)'
     azureSubscription: 'Main subscription (76634aed-e403-4f92-b02d-9ebf155f2382)'
-    destination: AzureBlob
-    storage: vanguardoutriderstorage
-    containerName: '$web'
+    scriptLocation: 'inlineScript'
+    inlineScript: 'az storage blob upload-batch --destination "$web" --source "$(Build.ArtifactStagingDirectory)"'
