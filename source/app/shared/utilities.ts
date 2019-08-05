@@ -1,4 +1,5 @@
 import { is } from "./is";
+import { MAIN_CLOUD } from "../shared/types";
 
 function getRandomInteger(min: number, max: number): number {
     min = Math.ceil(min);
@@ -22,22 +23,15 @@ function formatRoute(original: string, ...args: string[]): string {
     return returnString;
 }
 
-function createPlayFabLink(titleId: string, uri: string, isReact: boolean): string {
-    const playFabMainProdUrl = ".playfabapi.com";
-
+function createPlayFabLink(cloud: string, titleId: string, uri: string, isReact: boolean): string {
     let urlRoot : string;
 
-    // TODO when cloud moves to URI, use that value instead of pulling from productionServerUrl
-    if(((PlayFab as any)._internalSettings.productionServerUrl === playFabMainProdUrl))
+    if(cloud === MAIN_CLOUD)
     {
         urlRoot = "https://developer.playfab.com";
     }
     else
     {
-        const prodUrl = ((PlayFab as any)._internalSettings.productionServerUrl as string);
-        const cloudEndIndex = prodUrl.indexOf(playFabMainProdUrl);
-        const cloud = (PlayFab as any)._internalSettings.productionServerUrl.substring(1, cloudEndIndex);
-
         urlRoot = `https://${cloud}.${cloud}.playfab.com`;
     }
 
@@ -45,8 +39,20 @@ function createPlayFabLink(titleId: string, uri: string, isReact: boolean): stri
 }
 
 
-function setPrivateCloud(cloud: string): void {
-    (PlayFab as any)._internalSettings.productionServerUrl = `.${cloud}.playfabapi.com`;
+function setCloud(cloud: string): void {
+    const playFabMainProdUrl = ".playfabapi.com";
+
+    let prodUrl : string;
+    if(is.null(cloud) || cloud === MAIN_CLOUD)
+    {
+        prodUrl = playFabMainProdUrl;
+    }
+    else
+    {
+        prodUrl = `.${cloud}${playFabMainProdUrl}`;
+    }
+    
+    (PlayFab as any)._internalSettings.productionServerUrl = prodUrl;
 }
 
 function htmlDecode(input: string): string {
@@ -73,7 +79,7 @@ export const utilities = {
     getRandomInteger,
     formatRoute,
     createPlayFabLink,
-    setPrivateCloud,
+    setCloud,
     htmlDecode,
     parseTitleNewsDate
 };

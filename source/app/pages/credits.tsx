@@ -13,7 +13,7 @@ class CreditsPageBase extends React.Component<Props> {
     public render(): React.ReactNode {
         return (
             <Page {...this.props} title="Credits">
-                <BackLink to={routes.MainMenu(this.props.appState.titleId)} label="Back to main menu" />
+                <BackLink to={routes.MainMenu(this.props.appState.cloud, this.props.appState.titleId)} label="Back to main menu" />
                 <h2>Credits</h2>
                 <p>This game was created at the 2019 Microsoft Hackathon.</p>
                 <DlStats>

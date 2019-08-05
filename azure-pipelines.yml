@@ -18,20 +18,18 @@ steps:
 - script: |
     npm install
     npm run production
-  displayName: 'npm install and build'
+  displayName: 'NPM install and build'
 
-- task: ArchiveFiles@2
+- task: CopyFiles@2
+  displayName: 'Copy files'
   inputs:
-    rootFolderOrFile: './game'
-    includeRootFolder: false
-    archiveType: 'zip'
-    archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
-    replaceExistingArchive: true
+    SourceFolder: '$(System.DefaultWorkingDirectory)'
+    Contents: |
+      game/**
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
-- task: AzureWebApp@1
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish files'
   inputs:
-    azureSubscription: '$(azureSubscription)'
-    appType: 'webApp'
-    appName: 'playfabhack'
-    package: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
-    deploymentMethod: 'auto'
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'

@@ -64,7 +64,7 @@ class GeneratorPageBase extends React.Component<Props, IState> {
                 {...this.props}
                 title="Generator"
             >
-                <BackLink to={routes.MainMenu(this.props.appState.titleId)} label="Back to main menu" />
+                <BackLink to={routes.MainMenu(this.props.appState.cloud, this.props.appState.titleId)} label="Back to main menu" />
                 <LevelEditor
                     {...this.state.levels}
                     onChange={this.onChangeLevelData}

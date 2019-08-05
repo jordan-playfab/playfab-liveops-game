@@ -34,14 +34,14 @@ class MainMenuPageBase extends React.Component<Props> {
                         <h2>First time</h2>
                         <p>To play the game, you must <strong>upload game data</strong>. This will make your title ready to play.</p>
                         <DivButton>
-                            <DefaultButton text="Upload data" onClick={this.goToPage.bind(this, routes.Upload(titleId))} />
+                            <DefaultButton text="Upload data" onClick={this.goToPage.bind(this, routes.Upload(this.props.appState.cloud, titleId))} />
                         </DivButton>
                     </React.Fragment>
                     <React.Fragment>
                         <h2>Ready to play</h2>
                         <p>If your title has data, select <strong>play game</strong> to create a new player or sign in as an existing player.</p>
                         <DivButton>
-                            <PrimaryButton text="Play game" onClick={this.goToPage.bind(this, routes.Login(titleId))} />
+                            <PrimaryButton text="Play game" onClick={this.goToPage.bind(this, routes.Login(this.props.appState.cloud, titleId))} />
                         </DivButton>
                     </React.Fragment>
                 </Grid>
@@ -57,16 +57,16 @@ class MainMenuPageBase extends React.Component<Props> {
                             </ul>
                         </React.Fragment>
                         <React.Fragment>
-                            <p><strong>In PlayFab:</strong> Keep the <a href={utilities.createPlayFabLink(this.props.appState.titleId, "dashboard/monitoring/playstream", false)} target="_blank">Dashboard &gt; PlayStream Monitor</a> page open to see all game activity as it happens.</p>
+                            <p><strong>In PlayFab:</strong> Keep the <a href={utilities.createPlayFabLink(this.props.appState.cloud, this.props.appState.titleId, "dashboard/monitoring/playstream", false)} target="_blank">Dashboard &gt; PlayStream Monitor</a> page open to see all game activity as it happens.</p>
                         </React.Fragment>
                     </Grid>
                 </DivPlayFab>
                 <DivAdvanced>
                     <h3>Advanced</h3>
                     <UlInline>
-                        <li><DefaultButton text="Download data" onClick={this.goToPage.bind(this, routes.Download(titleId))} /></li>
-                        <li><DefaultButton text="Credits" onClick={this.goToPage.bind(this, routes.Credits(titleId))} /></li>
-                        <li><DefaultButton text="Data generator" onClick={this.goToPage.bind(this, routes.Generator(titleId))} /></li>
+                        <li><DefaultButton text="Download data" onClick={this.goToPage.bind(this, routes.Download(this.props.appState.cloud, titleId))} /></li>
+                        <li><DefaultButton text="Credits" onClick={this.goToPage.bind(this, routes.Credits(this.props.appState.cloud, titleId))} /></li>
+                        <li><DefaultButton text="Data generator" onClick={this.goToPage.bind(this, routes.Generator(this.props.appState.cloud, titleId))} /></li>
                     </UlInline>
                 </DivAdvanced>
             </Page>

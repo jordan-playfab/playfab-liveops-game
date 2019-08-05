@@ -77,19 +77,19 @@ class UploadPageBase extends React.Component<Props, IState> {
                     <React.Fragment>
                         <h2>What this creates</h2>
                         <ul>
-                            <li><a href={utilities.createPlayFabLink(titleId, "economy/currency", true)} target="_blank">Currencies</a></li>
-                            <li><a href={utilities.createPlayFabLink(titleId, "economy/catalogs/TWFpbg%3d%3d/items", false)} target="_blank">Catalog items</a></li>
-                            <li><a href={utilities.createPlayFabLink(titleId, "economy/catalogs/TWFpbg%3d%3d/drop-tables", false)} target="_blank">Drop tables</a></li>
-                            <li><a href={utilities.createPlayFabLink(titleId, "economy/catalogs/TWFpbg%3d%3d/stores", false)} target="_blank">Stores</a></li>
-                            <li><a href={utilities.createPlayFabLink(titleId, "content/title-data", true)} target="_blank">Title data</a></li>
-                            <li><a href={utilities.createPlayFabLink(titleId, "automation/cloud-script/revisions", true)} target="_blank">Cloud Script</a></li>
+                            <li><a href={utilities.createPlayFabLink(this.props.appState.cloud, titleId, "economy/currency", true)} target="_blank">Currencies</a></li>
+                            <li><a href={utilities.createPlayFabLink(this.props.appState.cloud, titleId, "economy/catalogs/TWFpbg%3d%3d/items", false)} target="_blank">Catalog items</a></li>
+                            <li><a href={utilities.createPlayFabLink(this.props.appState.cloud, titleId, "economy/catalogs/TWFpbg%3d%3d/drop-tables", false)} target="_blank">Drop tables</a></li>
+                            <li><a href={utilities.createPlayFabLink(this.props.appState.cloud, titleId, "economy/catalogs/TWFpbg%3d%3d/stores", false)} target="_blank">Stores</a></li>
+                            <li><a href={utilities.createPlayFabLink(this.props.appState.cloud, titleId, "content/title-data", true)} target="_blank">Title data</a></li>
+                            <li><a href={utilities.createPlayFabLink(this.props.appState.cloud, titleId, "automation/cloud-script/revisions", true)} target="_blank">Cloud Script</a></li>
                         </ul>
                         <h2>Title news</h2>
                         <p>This page can't upload title news automatically. Here's how to get started:</p>
                         <ol>
-                            <li>Go to <a href={utilities.createPlayFabLink(this.props.appState.titleId, "settings/general", true)} target="_blank">Settings &gt; General</a></li>
+                            <li>Go to <a href={utilities.createPlayFabLink(this.props.appState.cloud, this.props.appState.titleId, "settings/general", true)} target="_blank">Settings &gt; General</a></li>
                             <li>Set your <strong>default language</strong> and click <strong>Save</strong></li>
-                            <li>Go to <a href={utilities.createPlayFabLink(this.props.appState.titleId, "content/news", true)} target="_blank">Content &gt; Title News</a></li>
+                            <li>Go to <a href={utilities.createPlayFabLink(this.props.appState.cloud, this.props.appState.titleId, "content/news", true)} target="_blank">Content &gt; Title News</a></li>
                             <li>Click <strong>New title news</strong></li>
                             <li>The <strong>body</strong> field should be JSON with <a href="https://stackoverflow.com/a/7382028" target="_blank">escaped HTML</a> in this format:</li>
                         </ol>
@@ -124,10 +124,10 @@ class UploadPageBase extends React.Component<Props, IState> {
     private renderForm(): React.ReactNode {
         return (
             <React.Fragment>
-                <BackLink to={routes.MainMenu(this.props.appState.titleId)} label="Back to main menu" />
+                <BackLink to={routes.MainMenu(this.props.appState.cloud, this.props.appState.titleId)} label="Back to main menu" />
                 <h2>Upload Data</h2>
                 <p>This page will populate your title with everything you need to play.</p>
-                <p>Get the secret key for your title from <a href={utilities.createPlayFabLink(this.props.appState.titleId, "settings/secret-keys", true)} target="_blank">Settings &gt; Secret Keys</a>.</p>
+                <p>Get the secret key for your title from <a href={utilities.createPlayFabLink(this.props.appState.cloud, this.props.appState.titleId, "settings/secret-keys", true)} target="_blank">Settings &gt; Secret Keys</a>.</p>
                 <p>This page does not store nor transmit your secret key to anyone except PlayFab.</p>
                 <form onSubmit={this.startUpload}>
                     <DivField>
@@ -145,10 +145,10 @@ class UploadPageBase extends React.Component<Props, IState> {
         if(this.state.uploadProgress >= PROGRESS_STAGES.length - 1) {
             return (
                 <React.Fragment>
-                    <BackLink to={routes.MainMenu(this.props.appState.titleId)} label="Back to main menu" />
+                    <BackLink to={routes.MainMenu(this.props.appState.cloud, this.props.appState.titleId)} label="Back to main menu" />
                     <h2>Upload complete</h2>
                     <DivUploadComplete>
-                        <PrimaryButton text="Play game" onClick={this.goToPage.bind(this, routes.Login(this.props.appState.titleId))} />
+                        <PrimaryButton text="Play game" onClick={this.goToPage.bind(this, routes.Login(this.props.appState.cloud, this.props.appState.titleId))} />
                     </DivUploadComplete>
                 </React.Fragment>
             );

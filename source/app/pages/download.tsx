@@ -78,10 +78,10 @@ class DownloadPageBase extends React.PureComponent<Props, IState> {
     private renderSecretKey(): React.ReactNode {
         return (
             <form onSubmit={this.startDownload}>
-                <BackLink to={routes.MainMenu(this.props.appState.titleId)} label="Back to main menu" />
+                <BackLink to={routes.MainMenu(this.props.appState.cloud, this.props.appState.titleId)} label="Back to main menu" />
                 <h2>Download</h2>
                 <p>This page will download data from your title to make it easier to re-upload using our <a href="https://github.com/jordan-playfab/playfab-liveops-game/">GitHub repository</a>.</p>
-                <p>Get the secret key for your title from <a href={utilities.createPlayFabLink(this.props.appState.titleId, "settings/secret-keys", true)} target="_blank">Settings &gt; Secret Keys</a>.</p>
+                <p>Get the secret key for your title from <a href={utilities.createPlayFabLink(this.props.appState.cloud, this.props.appState.titleId, "settings/secret-keys", true)} target="_blank">Settings &gt; Secret Keys</a>.</p>
                 <p>This page does not store nor transmit your secret key to anyone except PlayFab.</p>
                 <DivField>
                     <TextField type="password" label="Secret key" value={this.state.secretKey} onChange={this.onChangeSecretKey} autoFocus />
@@ -102,7 +102,7 @@ class DownloadPageBase extends React.PureComponent<Props, IState> {
 
         return (
             <React.Fragment>
-                <BackLink to={routes.MainMenu(this.props.appState.titleId)} label="Back to main menu" />
+                <BackLink to={routes.MainMenu(this.props.appState.cloud, this.props.appState.titleId)} label="Back to main menu" />
                 <h2>{title}</h2>
                 {percentComplete < 1
                 ? (

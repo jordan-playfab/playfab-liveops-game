@@ -17,7 +17,7 @@ class GuidePageBase extends React.Component<Props> {
         }
 
         if(!this.props.appState.hasPlayerId) {
-            return (<Redirect to={routes.MainMenu(this.props.appState.titleId)} />);
+            return (<Redirect to={routes.MainMenu(this.props.appState.cloud, this.props.appState.titleId)} />);
         }
 
         return (
@@ -63,11 +63,11 @@ class GuidePageBase extends React.Component<Props> {
     }
 
     private sendToHeadquarters = (): void => {
-        this.props.history.push(routes.Headquarters(this.props.appState.titleId));
+        this.props.history.push(routes.Headquarters(this.props.appState.cloud, this.props.appState.titleId));
     }
 
     private sendToPlanet = (name: string): void => {
-        this.props.history.push(routes.Planet(this.props.appState.titleId, name));
+        this.props.history.push(routes.Planet(this.props.appState.cloud, this.props.appState.titleId, name));
     }
 }
 

@@ -15,6 +15,7 @@ const initialState: IApplicationState = {
     playerXP: 0,
     stores: null,
     titleId: undefined,
+    cloud: undefined,
     hasPlayerId: false,
     hasTitleId: false,
     storeNames: null,
@@ -69,6 +70,11 @@ export const mainReducer: Reducer<IApplicationState, IAction<any>> = (state = in
                 ...state,
                 titleId: action.payload as string,
                 hasTitleId: !is.null(action.payload),
+            };
+        case ActionTypes.SET_CLOUD:
+            return {
+                ...state,
+                cloud: action.payload as string,
             };
         case ActionTypes.SET_PLAYER_HP:
             return {
