@@ -42,7 +42,7 @@ export class ResistanceEditor extends React.PureComponent<ResistanceEditorProps,
 
     private onChangeResistance = (_: any, resistance: string): void => {
         this.setState({
-            resistance: parseFloat(resistance),
+            resistance: resistance as any,
         }, this.onChange);
     }
 
