@@ -41,6 +41,9 @@ interface IThemeFontSize {
     h1: string;
     h2: string;
     h3: string;
+    h4: string;
+    h5: string;
+    h6: string;
 }
 
 interface IThemeSize {
@@ -163,7 +166,10 @@ const defaultTheme: ITheme = {
     fontSize: {
         h1: "48px", // FontSizes.mega was too big
         h2: FontSizes.xxLargePlus,
-        h3: FontSizes.xLarge
+        h3: FontSizes.xLarge,
+        h4: FontSizes.large,
+        h5: FontSizes.mediumPlus,
+        h6: FontSizes.mediumPlus,
     },
     size: {
         spacerD6: `${spacer / 6 + unit}`,
@@ -235,6 +241,18 @@ const GlobalStyle = createGlobalStyle`
 
     h3 {
         font-size: ${s => s.theme.fontSize.h3};
+    }
+
+    h4 {
+        font-size: ${s => s.theme.fontSize.h4};
+    }
+
+    h5 {
+        font-size: ${s => s.theme.fontSize.h5};
+    }
+
+    h6 {
+        font-size: ${s => s.theme.fontSize.h6};
     }
 
     form {
@@ -327,6 +345,10 @@ const UlAlternatingIndented = styled(UlNull)`
     }
 `;
 
+const PNone = styled.p`
+    font-style: italic;
+`;
+
 export {
     css,
     keyframes,
@@ -344,6 +366,7 @@ export {
     DlStats,
     ButtonTiny,
     DialogWidthSmall,
-    UlAlternatingIndented
+    UlAlternatingIndented,
+    PNone
 };
 export default styled;

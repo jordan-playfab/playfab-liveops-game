@@ -24,6 +24,8 @@ const DivGetTitleData = styled.div`
     margin-top: ${s => s.theme.size.spacer};
 `;
 
+const DivEnemyWrapper = DivGetTitleData;
+
 interface IState {
     levels: IGeneratorLevelProps;
 
@@ -101,16 +103,17 @@ class GeneratorPageBase extends React.Component<Props, IState> {
                                 <PrimaryButton text="Create enemy" onClick={this.addEnemySpecies} />
                             </DivCreateEnemyWrapper>
                         </Grid>
-                        <UlNull>
-                            {this.state.enemies.map((enemy, index) => (
-                                <li key={index}>
+                        <DivEnemyWrapper>
+                            <Grid grid6x6>
+                                {this.state.enemies.map((enemy, index) => (
                                     <Enemy
                                         {...enemy}
+                                        key={index}
+                                        buttons={[<ButtonTiny text="Edit" onClick={this.editEnemyData.bind(this, index)} />]}
                                     />
-                                    <ButtonTiny text="Edit" onClick={this.editEnemyData.bind(this, index)} />
-                                </li>
-                            ))}
-                        </UlNull>
+                                ))}
+                            </Grid>
+                        </DivEnemyWrapper>
                     </React.Fragment>
                     <React.Fragment>
                         <TextField
