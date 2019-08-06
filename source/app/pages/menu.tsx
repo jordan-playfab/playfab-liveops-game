@@ -46,7 +46,7 @@ class MainMenuPageBase extends React.Component<Props> {
                         <li><DefaultButton text="Download data" onClick={this.goToPage.bind(this, routes.Download(this.props.appState.cloud, titleId))} /></li>
                         <li><DefaultButton text="Watch PlayFab work" onClick={this.goToPage.bind(this, routes.Watch(this.props.appState.cloud, titleId))} /></li>
                         <li><DefaultButton text="Credits" onClick={this.goToPage.bind(this, routes.Credits(this.props.appState.cloud, titleId))} /></li>
-                        <li><DefaultButton text="Data generator" onClick={this.goToPage.bind(this, routes.Generator(this.props.appState.cloud, titleId))} /></li>
+                        {/*<li><DefaultButton text="Data generator" onClick={this.goToPage.bind(this, routes.Generator(this.props.appState.cloud, titleId))} /></li>*/}
                     </UlInline>
                 </DivAdvanced>
             </Page>
