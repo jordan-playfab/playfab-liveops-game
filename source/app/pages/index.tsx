@@ -88,6 +88,10 @@ class IndexPageBase extends React.Component<Props, IState> {
         if(!is.null(e)) {
             e.preventDefault();
         }
+
+        if(is.null(this.state.titleId)) {
+            return;
+        }
         
         this.props.history.push(routes.MainMenu(this.state.cloud, this.state.titleId));
     }
