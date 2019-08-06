@@ -3,7 +3,7 @@
         {
             "ItemId": "Handgun",
             "ItemClass": "weapon",
-            "CatalogVersion": "Main",
+            "CatalogVersion": "1",
             "DisplayName": "Handgun",
             "VirtualCurrencyPrices": {
                 "CR": 50
@@ -20,7 +20,7 @@
         {
             "ItemId": "AssaultRifle",
             "ItemClass": "weapon",
-            "CatalogVersion": "Main",
+            "CatalogVersion": "1",
             "DisplayName": "Assault Rifle",
             "VirtualCurrencyPrices": {
                 "CR": 130
@@ -37,7 +37,7 @@
         {
             "ItemId": "RocketLauncher",
             "ItemClass": "weapon",
-            "CatalogVersion": "Main",
+            "CatalogVersion": "1",
             "DisplayName": "Rocket Launcher",
             "VirtualCurrencyPrices": {
                 "CR": 500
@@ -54,7 +54,7 @@
         {
             "ItemId": "HealthPotion",
             "ItemClass": "consumable",
-            "CatalogVersion": "Main",
+            "CatalogVersion": "1",
             "DisplayName": "Health Potion",
             "Description": "Grants the player health",
             "VirtualCurrencyPrices": {
@@ -73,7 +73,7 @@
         {
             "ItemId": "CommonArmor",
             "ItemClass": "armor",
-            "CatalogVersion": "Main",
+            "CatalogVersion": "1",
             "DisplayName": "Armor",
             "VirtualCurrencyPrices": {
                 "CR": 150
@@ -90,7 +90,7 @@
         {
             "ItemId": "RareArmor",
             "ItemClass": "armor",
-            "CatalogVersion": "Main",
+            "CatalogVersion": "1",
             "DisplayName": "Rare Armor",
             "VirtualCurrencyPrices": {
                 "CR": 275
@@ -107,7 +107,7 @@
         {
             "ItemId": "LegendaryArmor",
             "ItemClass": "armor",
-            "CatalogVersion": "Main",
+            "CatalogVersion": "1",
             "DisplayName": "Legendary Armor",
             "VirtualCurrencyPrices": {
                 "CR": 500
@@ -124,7 +124,7 @@
         {
             "ItemId": "CreditPack",
             "ItemClass": "unpack",
-            "CatalogVersion": "Main",
+            "CatalogVersion": "1",
             "DisplayName": "Pack of credits",
             "VirtualCurrencyPrices": {},
             "Tags": [],
@@ -147,7 +147,7 @@
         {
             "ItemId": "BigCreditPack",
             "ItemClass": "unpack",
-            "CatalogVersion": "Main",
+            "CatalogVersion": "1",
             "DisplayName": "Big credit pack",
             "VirtualCurrencyPrices": {},
             "Tags": [],
@@ -170,7 +170,7 @@
         {
             "ItemId": "HugeCreditPack",
             "ItemClass": "unpack",
-            "CatalogVersion": "Main",
+            "CatalogVersion": "1",
             "DisplayName": "Huge credit pack",
             "VirtualCurrencyPrices": {},
             "Tags": [],

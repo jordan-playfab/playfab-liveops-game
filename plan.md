@@ -56,3 +56,20 @@
 - [ ] Guide page: rotating carousel with large art for each planet
 - [ ] Planet page: smaller region graphics
 - [ ] Combat component: graphical combat UI
+
+# Further plans
+
+What else would there be to entice users to keep playing?
+
+## Game loop
+- [ ] Monsters drop loot in addition to money
+- [ ] Loot can be kept, sold for money, or recycled into component parts
+- [ ] Component parts can be combined to make upgrades for weapons (also requires money)
+- [ ] Health potions can be bought with money
+- [ ] Health potions restore HP and let you stay in the field longer
+- [ ] Staying in the field longer builds up a luck multiplier so you can find better weapons
+
+## Enhancements
+- [ ] Different star systems
+- [ ] Abilities granted at level up would be cool
+- [ ] Allow transformation to USS

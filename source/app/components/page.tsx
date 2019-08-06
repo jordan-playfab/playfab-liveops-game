@@ -24,7 +24,6 @@ const MainTag = styled.main`
 const DivPageContent = styled.div`
     border-top: 1px solid ${s => s.theme.color.border200};
     padding: ${s => s.theme.size.spacer};
-    margin-top: ${s => s.theme.size.spacer};
 `;
 
 interface IProps {

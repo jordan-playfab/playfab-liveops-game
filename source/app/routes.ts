@@ -11,6 +11,8 @@ export const routeNames = {
     Download: "/:cloud/:titleid/download",
     LevelCurve: "/:cloud/:titleid/level-curve",
     Credits: "/:cloud/:titleid/credits",
+    Generator: "/:cloud/:titleid/generator",
+    Watch: "/:cloud/:titleid/watch",
 };
 
 export const routes = {
@@ -24,4 +26,6 @@ export const routes = {
     Download: (cloud: string, titleId: string) => utilities.formatRoute(routeNames.Download, cloud, titleId),
     LevelCurve: (cloud: string, titleId: string) => utilities.formatRoute(routeNames.LevelCurve, cloud, titleId),
     Credits: (cloud: string, titleId: string) => utilities.formatRoute(routeNames.Credits, cloud, titleId),
+    Generator: (cloud: string, titleId: string) => utilities.formatRoute(routeNames.Generator, cloud, titleId),
+    Watch: (cloud: string, titleId: string) => utilities.formatRoute(routeNames.Watch, cloud, titleId),
 };

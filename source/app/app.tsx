@@ -8,6 +8,8 @@ import { reduxStore } from "./store/store";
 import { AppStateContainer } from "./containers/app-state-container";
 
 require("../../static/favicon.ico");
+require("../../static/img/logo-ios.png");
+require("../../static/img/logo-open-graph.png");
 
 interface IProps {
     store: Store;
