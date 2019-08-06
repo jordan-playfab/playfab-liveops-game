@@ -100,19 +100,19 @@ export class EnemyEditor extends React.Component<EnemyEditorProps, EnemyEditorSt
 
     private onChangeHP = (_: any, hp: string): void => {
         this.setState({
-            hp: parseInt(hp),
+            hp: hp as any,
         }, this.onChange);
     }
 
     private onChangeXP = (_: any, xp: string): void => {
         this.setState({
-            xp: parseInt(xp),
+            xp: xp as any,
         }, this.onChange);
     }
 
     private onChangeSpeed = (_: any, speed: string): void => {
         this.setState({
-            speed: parseInt(speed),
+            speed: speed as any,
         }, this.onChange);
     }
 

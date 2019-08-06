@@ -5,7 +5,7 @@ import { IDropdownOption, Dropdown, PrimaryButton, DialogType, DialogFooter, Tex
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { IWithPageProps, withPage } from "../containers/with-page";
 import { Page } from "../components/page";
-import { IEnemyData, EnemyGenusSpeciesLink, EnemyGenus } from "../shared/types";
+import { IEnemyData, EnemyGenusSpeciesLink, EnemyGenus, IAttackType, IResistanceType } from "../shared/types";
 import { Grid } from "../components/grid";
 import { BackLink } from "../components/back-link";
 import { routes } from "../routes";
@@ -229,8 +229,31 @@ class GeneratorPageBase extends React.Component<Props, IState> {
 
     private getEnemyData = (): void => {
         this.setState({
-            enemyDataParsed: JSON.stringify(this.state.enemies, null, 4)
+            enemyDataParsed: JSON.stringify(this.getProcessedEnemyData(), null, 4)
         });
+    }
+
+    private getProcessedEnemyData(): IEnemyData[] {
+        // Typing in floats and stuff is impossible without heavier-duty HOCs and components,
+        // so this function cleans up our data to be actual numbers.
+        return this.state.enemies.map(enemy => ({
+            ...enemy,
+            hp: parseInt(enemy.hp as any),
+            speed: parseInt(enemy.speed as any),
+            xp: parseInt(enemy.xp as any),
+            attacks: enemy.attacks.map(attack => ({
+                ...attack,
+                critical: parseFloat(attack.critical as any),
+                power: parseInt(attack.power as any),
+                probability: parseFloat(attack.probability as any),
+                reload: parseInt(attack.reload as any),
+                variance: parseFloat(attack.variance as any),
+            } as IAttackType)),
+            resistances: enemy.resistances.map(resistance => ({
+                ...resistance,
+                resistance: parseFloat(resistance.resistance as any),
+            } as IResistanceType))
+        } as IEnemyData))
     }
 }
 

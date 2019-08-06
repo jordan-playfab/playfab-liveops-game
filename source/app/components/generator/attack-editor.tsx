@@ -62,31 +62,31 @@ export class AttackEditor extends React.PureComponent<AttackEditorProps, AttackE
 
     private onChangeProbability = (_: any, probability: string): void => {
         this.setState({
-            probability: parseFloat(probability),
+            probability: probability as any,
         }, this.onChange);
     }
 
     private onChangeVariance = (_: any, variance: string): void => {
         this.setState({
-            variance: parseFloat(variance),
+            variance: variance as any,
         }, this.onChange);
     }
 
     private onChangeCritical = (_: any, critical: string): void => {
         this.setState({
-            critical: parseFloat(critical),
+            critical: critical as any,
         }, this.onChange);
     }
 
     private onChangeReload = (_: any, reload: string): void => {
         this.setState({
-            reload: parseInt(reload),
+            reload: reload as any,
         }, this.onChange);
     }
 
     private onChangePower = (_: any, power: string): void => {
         this.setState({
-            power: parseInt(power),
+            power: power as any,
         }, this.onChange);
     }
 
