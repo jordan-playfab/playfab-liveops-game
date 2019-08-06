@@ -22,7 +22,7 @@
                 }
             ],
             "Source": "Admin",
-            "CatalogVersion": "1",
+            "CatalogVersion": "Main",
             "StoreId": "Weapons",
             "MarketingData": {
                 "DisplayName": "Guns, Bullets, and Beyond"
@@ -50,7 +50,7 @@
                 }
             ],
             "Source": "Admin",
-            "CatalogVersion": "1",
+            "CatalogVersion": "Main",
             "StoreId": "Armor",
             "MarketingData": {
                 "DisplayName": "Amy's Armor Shoppe",
