@@ -67,6 +67,10 @@ class LoginPageBase extends React.Component<Props, IState> {
             e.preventDefault();
         }
 
+        if(is.null(this.state.playerName.trim())) {
+            return;
+        }
+
         this.props.onPageClearError();
 
         this.setState({
