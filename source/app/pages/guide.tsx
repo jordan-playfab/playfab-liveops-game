@@ -39,7 +39,7 @@ class GuidePageBase extends React.Component<Props> {
         if(is.null(this.props.appState.equipment) || is.null(this.props.appState.equipment.weapon)) {
             return (
                 <React.Fragment>
-                    <h2>Guide</h2>
+                    <h2>Destinations</h2>
                     <p>Welcome to the field, soldier.</p>
                     <p>You can't go into space without a weapon. Buy one at headquarters.</p>
                     <UlInline>
@@ -51,7 +51,7 @@ class GuidePageBase extends React.Component<Props> {
 
         return (
             <React.Fragment>
-                <h2>Guide</h2>
+                <h2>Destinations</h2>
                 <UlInline>
                     <li key={"homebase"}><DefaultButton text="Headquarters" onClick={this.sendToHeadquarters} /></li>
                     {this.props.appState.planets.map((planet) => (

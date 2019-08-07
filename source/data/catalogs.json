@@ -1,10 +1,10 @@
 {
     "Catalog": [
         {
-            "ItemId": "Handgun",
+            "ItemId": "LaserSword",
             "ItemClass": "weapon",
             "CatalogVersion": "Main",
-            "DisplayName": "Handgun",
+            "DisplayName": "Laser Sword",
             "VirtualCurrencyPrices": {
                 "CR": 50
             },
@@ -18,10 +18,10 @@
             "InitialLimitedEditionCount": 0
         },
         {
-            "ItemId": "AssaultRifle",
+            "ItemId": "PlasmaRifle",
             "ItemClass": "weapon",
             "CatalogVersion": "Main",
-            "DisplayName": "Assault Rifle",
+            "DisplayName": "Plasma Rifle",
             "VirtualCurrencyPrices": {
                 "CR": 130
             },
@@ -35,10 +35,10 @@
             "InitialLimitedEditionCount": 0
         },
         {
-            "ItemId": "RocketLauncher",
+            "ItemId": "Railgun",
             "ItemClass": "weapon",
             "CatalogVersion": "Main",
-            "DisplayName": "Rocket Launcher",
+            "DisplayName": "Railgun",
             "VirtualCurrencyPrices": {
                 "CR": 500
             },

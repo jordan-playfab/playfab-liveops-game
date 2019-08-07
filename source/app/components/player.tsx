@@ -6,7 +6,7 @@ import { VC_CREDITS, ITEM_CLASS_WEAPON, ITEM_CLASS_ARMOR } from "../shared/types
 import styled, { UlNull, ButtonTiny, DialogWidthSmall } from "../styles";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { IWithPageProps, withPage } from "../containers/with-page";
-import { actionSetEquipmentSingle, actionSetPlayerId } from "../store/actions";
+import { actionSetEquipmentSingle } from "../store/actions";
 import { getSlotTypeFromItemClass } from "../store/types";
 import { CloudScriptHelper } from "../shared/cloud-script";
 import { utilities } from "../shared/utilities";
@@ -17,21 +17,20 @@ const DivPlayerWrapper = styled.div`
     flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
-    padding: 0 ${s => s.theme.size.spacer};
+    padding: ${s => s.theme.size.spacerD2} ${s => s.theme.size.spacer};
+`;
+
+const DivCreditsWrapper = styled.div`
+    padding: ${s => s.theme.size.spacerD2} 0;
+    text-align: right;
+
+    @media ${s => s.theme.breakpoint.small} {
+        padding: 0;
+    }
 `;
 
 const DivPlayerName = styled.div`
     flex-grow: 1;
-`;
-
-const DivPlayerInventory = styled.div`
-    padding: 0 0.5em;
-    flex-basis: 10em;
-    text-align: right;
-`;
-
-const ButtonInventory = styled(ButtonTiny)`
-    margin-top: ${s => s.theme.size.spacerD4};
 `;
 
 const UlInventory = styled(UlNull)`
@@ -62,6 +61,19 @@ const ButtonLogOut = styled(ButtonTiny)`
     margin-top: ${s => s.theme.size.spacerD4};
 `;
 
+const UlCredits = styled(UlNull)`
+    display: inline-block;
+
+    > li {
+        margin-left: ${s => s.theme.size.spacer};
+        display: inline-block;
+
+        &:first-child {
+            margin-left: 0;
+        }
+    }
+`;
+
 interface IProps {
     logOut: () => void;
 }
@@ -73,8 +85,6 @@ interface IState {
 type Props = IWithAppStateProps & IWithPageProps & IProps;
 
 class PlayerBase extends React.Component<Props, IState> {
-    private menuButtonElement = React.createRef<HTMLDivElement>();
-
     constructor(props: Props) {
         super(props);
 
@@ -88,6 +98,12 @@ class PlayerBase extends React.Component<Props, IState> {
             return null;
         }
 
+        let credits = 0;
+
+        if(!is.null(this.props.appState.inventory) && !is.null(this.props.appState.inventory.VirtualCurrency)) {
+            credits = this.props.appState.inventory.VirtualCurrency[VC_CREDITS] || 0;
+        }
+
         return (
             <DivPlayerWrapper>
                 <DivPlayerName>
@@ -96,21 +112,15 @@ class PlayerBase extends React.Component<Props, IState> {
                         <ButtonLogOut text="Log out" onClick={this.props.logOut} />
                     </h3>
                 </DivPlayerName>
-                {this.renderCredits()}
-                {this.renderInventory()}
+                <DivCreditsWrapper>
+                    <UlCredits>
+                        <li>Credits: <strong>{credits}</strong></li>
+                        <li>Level: <strong>{this.props.appState.playerLevel}</strong></li>
+                        <li>XP: <strong>{this.props.appState.playerXP}</strong></li>
+                    </UlCredits>
+                    {this.renderInventory()}
+                </DivCreditsWrapper>
             </DivPlayerWrapper>
-        );
-    }
-
-    private renderCredits(): React.ReactNode {
-        let credits = 0;
-
-        if(!is.null(this.props.appState.inventory) && !is.null(this.props.appState.inventory.VirtualCurrency)) {
-            credits = this.props.appState.inventory.VirtualCurrency[VC_CREDITS] || 0;
-        }
-
-        return (
-            <div>Credits: <strong>{credits}</strong> &middot; Level: <strong>{this.props.appState.playerLevel}</strong> &middot; XP: {this.props.appState.playerXP}</div>
         );
     }
 
@@ -128,24 +138,24 @@ class PlayerBase extends React.Component<Props, IState> {
             : this.showInventory;
 
         const equippedItemInstanceIds = is.null(this.props.appState.equipment)
-                ? []
-                : Object.keys(this.props.appState.equipment).map(key => {
-                        // Ensure the instance ID actually exists
-                        const equipmentItem = this.props.appState.equipment[key];
+            ? []
+            : Object.keys(this.props.appState.equipment).map(key => {
+                // Ensure the instance ID actually exists
+                const equipmentItem = this.props.appState.equipment[key];
 
-                        if(is.null(equipmentItem)) {
-                            return "";
-                        }
-                        
-                        return this.props.appState.equipment[key].ItemInstanceId;
-                });
+                if(is.null(equipmentItem)) {
+                    return "";
+                }
+                
+                return this.props.appState.equipment[key].ItemInstanceId;
+            });
 
         const weapons = this.props.appState.inventory.Inventory.filter(i => !is.null(i.ItemClass) && i.ItemClass.indexOf(ITEM_CLASS_WEAPON) !== -1);
         const armor = this.props.appState.inventory.Inventory.filter(i => !is.null(i.ItemClass) && i.ItemClass.indexOf(ITEM_CLASS_ARMOR) !== -1);
 
         return (
-            <DivPlayerInventory ref={this.menuButtonElement}>
-                <ButtonInventory text={buttonText} onClick={buttonEvent} />
+            <React.Fragment>
+                <ButtonTiny text={buttonText} onClick={buttonEvent} />
                 <DialogWidthSmall
                     hidden={!this.state.isInventoryVisible}
                     onDismiss={this.hideInventory}
@@ -165,7 +175,7 @@ class PlayerBase extends React.Component<Props, IState> {
                         </React.Fragment>
                     </Grid>
                 </DialogWidthSmall>
-            </DivPlayerInventory>
+            </React.Fragment>
         );
     }
 

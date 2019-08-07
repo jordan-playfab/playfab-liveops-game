@@ -125,7 +125,7 @@ class UploadPageBase extends React.Component<Props, IState> {
         return (
             <React.Fragment>
                 <BackLink to={routes.MainMenu(this.props.appState.cloud, this.props.appState.titleId)} label="Back to main menu" />
-                <h2>Upload Data</h2>
+                <h2>About</h2>
                 <p>This page will populate your title with everything you need to play.</p>
                 <p>Get the secret key for your title from <a href={utilities.createPlayFabLink(this.props.appState.cloud, this.props.appState.titleId, "settings/secret-keys", true)} target="_blank">Settings &gt; Secret Keys</a>.</p>
                 <p>This page does not store nor transmit your secret key to anyone except PlayFab.</p>

@@ -10,6 +10,11 @@ import { AppStateContainer } from "./containers/app-state-container";
 require("../../static/favicon.ico");
 require("../../static/img/logo-ios.png");
 require("../../static/img/logo-open-graph.png");
+require("../../static/img/logo-launch-1242x2688.png");
+require("../../static/img/logo-launch-828x1792.png");
+require("../../static/img/logo-launch-1125x2436.png");
+require("../../static/img/logo-launch-1242x2208.png");
+require("../../static/img/logo-launch-750x1334.png");
 
 interface IProps {
     store: Store;
