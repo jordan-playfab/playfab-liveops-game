@@ -217,7 +217,11 @@ const GlobalStyle = createGlobalStyle`
         font-family: ${s => s.theme.font.normal};
         margin: 0;
         padding: 0;
-        background: ${s => s.theme.color.background100};
+        background: ${colors.white};
+
+        @media ${s => s.theme.breakpoint.small} {
+            background: ${s => s.theme.color.background100};
+        }
     }
 
     body {
