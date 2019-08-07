@@ -3,19 +3,19 @@
         {
             "Store": [
                 {
-                    "ItemId": "Handgun",
+                    "ItemId": "LaserSword",
                     "VirtualCurrencyPrices": {
                         "CR": 50
                     }
                 },
                 {
-                    "ItemId": "AssaultRifle",
+                    "ItemId": "PlasmaRifle",
                     "VirtualCurrencyPrices": {
                         "CR": 130
                     }
                 },
                 {
-                    "ItemId": "RocketLauncher",
+                    "ItemId": "Railgun",
                     "VirtualCurrencyPrices": {
                         "CR": 500
                     }
@@ -25,7 +25,7 @@
             "CatalogVersion": "Main",
             "StoreId": "Weapons",
             "MarketingData": {
-                "DisplayName": "Guns, Bullets, and Beyond"
+                "DisplayName": "Weapons for Warriors"
             }
         },
         {

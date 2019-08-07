@@ -220,6 +220,11 @@ const GlobalStyle = createGlobalStyle`
         background: ${s => s.theme.color.background100};
     }
 
+    body {
+        margin: 0;
+        padding: 0;
+    }
+
     h1, h2, h3, h4, h5, h6 {
         margin: 0;
         font-weight: normal;
@@ -327,8 +332,10 @@ const ButtonTiny = styled(DefaultButton)`
 
 const DialogWidthSmall = styled(Dialog)`
     .ms-Dialog-main {
-        min-width: ${s => s.theme.breakpointUnits.small};
-        max-width: ${s => s.theme.breakpointUnits.small};
+        @media ${s => s.theme.breakpoint.small} {
+            min-width: ${s => s.theme.breakpointUnits.small};
+            max-width: ${s => s.theme.breakpointUnits.small};
+        }
     }
 `;
 

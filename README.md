@@ -1,6 +1,6 @@
 # Vanguard Outrider
 
-A clicker simplification of a looter shooter similar to Destiny. Designed to be used to populate an empty [PlayFab title](https://playfab.com) and experiment with LiveOps techniques.
+A clicker simplification of a looter shooter similar to Destiny, Warframe, or The Division. Designed to be used to populate an empty [PlayFab title](https://playfab.com) and experiment with LiveOps techniques.
 
 # Live demo
 

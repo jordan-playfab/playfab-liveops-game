@@ -79,7 +79,7 @@ class DownloadPageBase extends React.PureComponent<Props, IState> {
         return (
             <form onSubmit={this.startDownload}>
                 <BackLink to={routes.MainMenu(this.props.appState.cloud, this.props.appState.titleId)} label="Back to main menu" />
-                <h2>Download</h2>
+                <h2>About</h2>
                 <p>This page will download data from your title to make it easier to re-upload using our <a href="https://github.com/jordan-playfab/playfab-liveops-game/">GitHub repository</a>.</p>
                 <p>Get the secret key for your title from <a href={utilities.createPlayFabLink(this.props.appState.cloud, this.props.appState.titleId, "settings/secret-keys", true)} target="_blank">Settings &gt; Secret Keys</a>.</p>
                 <p>This page does not store nor transmit your secret key to anyone except PlayFab.</p>

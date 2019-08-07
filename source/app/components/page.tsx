@@ -1,20 +1,23 @@
 import React from "react";
+import { RouteComponentProps } from "react-router";
+
 import styled from "../styles";
 import { Header } from "./header";
 import { Player } from "./player";
-import { RouteComponentProps } from "react-router";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { actionSetTitleId, actionPlayerLogOut, actionSetCloud } from "../store/actions";
 import { Footer } from "./footer";
 import { routes } from "../routes";
 import { utilities } from "../shared/utilities";
-import { is } from "../shared/is";
 
 const MainTag = styled.main`
     background: ${s => s.theme.color.background000};
-    margin: ${s => s.theme.size.spacer2} auto;
-    box-shadow: 0 1.6px 3.6px 0 rgba(0,0,0,0.132),0 0.3px 0.9px 0 rgba(0,0,0,0.108);
-    max-width: 90%;
+    
+    @media ${s => s.theme.breakpoint.small} {
+        margin: ${s => s.theme.size.spacer2} auto;
+        box-shadow: 0 1.6px 3.6px 0 rgba(0,0,0,0.132),0 0.3px 0.9px 0 rgba(0,0,0,0.108);
+        max-width: 90%;
+    }
 
     @media ${s => s.theme.breakpoint.large} {
         max-width: ${s => s.theme.breakpointUnits.large};
