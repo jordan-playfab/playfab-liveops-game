@@ -113,12 +113,10 @@ class HeadquartersPageBase extends React.Component<Props, IState> {
                             {this.state.isRestoringHealth
                                 ? <SpinnerLeft label="Restoring health..." labelPosition="right" />
                                 : <p>Your health has been restored.</p>}
+                            {this.renderNews()}
                         </React.Fragment>
-                        <React.Fragment>
-                            {this.renderStores()}
-                        </React.Fragment>
+                        {this.renderStores()}
                     </Grid>
-                    {this.renderNews()}
                     {this.renderLeaderboards()}
                 </React.Fragment>
                 
