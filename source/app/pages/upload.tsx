@@ -19,6 +19,7 @@ import { IWithPageProps, withPage } from "../containers/with-page";
 import { Grid } from "../components/grid";
 import { BackLink } from "../components/back-link";
 import { utilities } from "../shared/utilities";
+import { Link } from "react-router-dom";
 
 const DivUploadComplete = styled.div`
     margin-top: ${s => s.theme.size.spacer};
@@ -91,7 +92,7 @@ class UploadPageBase extends React.Component<Props, IState> {
                             <li>Set your <strong>default language</strong> and click <strong>Save</strong></li>
                             <li>Go to <a href={utilities.createPlayFabLink(this.props.appState.cloud, this.props.appState.titleId, "content/news", true)} target="_blank">Content &gt; Title News</a></li>
                             <li>Click <strong>New title news</strong></li>
-                            <li>The <strong>body</strong> field should be JSON with <a href="https://stackoverflow.com/a/7382028" target="_blank">escaped HTML</a> in this format:</li>
+                            <li>The <strong>body</strong> field should be JSON with <Link to={routes.Generator(this.props.appState.cloud, this.props.appState.titleId)}>escaped HTML</Link> in this format:</li>
                         </ol>
                         <ButtonTiny text="Show title news format" onClick={this.showTitleNewsSample} />
                         <DialogWidthSmall

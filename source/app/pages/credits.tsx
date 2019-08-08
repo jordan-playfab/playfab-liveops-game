@@ -20,7 +20,7 @@ class CreditsPageBase extends React.Component<Props> {
                     <dt>Development</dt>
                     <dd><a href="mailto:jordan.roher@microsoft.com">Jordan Roher</a></dd>
                 
-                    <dt>Art &amp; Design</dt>
+                    <dt>Logo</dt>
                     <dd><a href="https://www.linkedin.com/in/jasmineaye">Jasmine Aye</a></dd>
                     
                     <dt>Azure build</dt>

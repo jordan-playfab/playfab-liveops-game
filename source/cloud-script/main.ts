@@ -80,6 +80,12 @@ const App = {
             Keys: keys,
         });
     },
+    GetUserInternalData(playerId: string, keys: string[]): PlayFabServerModels.GetUserDataResult {
+        return server.GetUserInternalData({
+            PlayFabId: playerId,
+            Keys: keys,
+        });
+    },
     UpdateUserData(playerId: string, data: IStringDictionary, keysToRemove: string[], isPublic = false): PlayFabServerModels.UpdateUserDataResult {
         return server.UpdateUserData({
             PlayFabId: playerId,
@@ -90,27 +96,15 @@ const App = {
                 : App.Config.PermissionPrivate
         });
     },
-    UpdateUserDataExisting(dictionary: IStringDictionary, isPublic: boolean): PlayFabServerModels.UpdateUserDataResult {
-        const userData = App.GetUserData(currentPlayerId, Object.keys(dictionary));
-    
-        Object.keys(dictionary).forEach(key => {
-            userData.Data[key] = {
-                Value: dictionary[key],
-                LastUpdated: new Date().toString(),
-                Permission: isPublic
-                    ? App.Config.PermissionPublic
-                    : App.Config.PermissionPrivate
-            };
+    UpdateUserInternalData(playerId: string, data: IStringDictionary, keysToRemove: string[], isPublic = false): PlayFabServerModels.UpdateUserDataResult {
+        return server.UpdateUserInternalData({
+            PlayFabId: playerId,
+            Data: data,
+            KeysToRemove: keysToRemove,
+            Permission: isPublic
+                ? App.Config.PermissionPublic
+                : App.Config.PermissionPrivate
         });
-    
-        // Turn this UserDataRecordDictionary into a plain IStringDictionary
-        const userDataStringDictionary = Object.keys(userData.Data).reduce((dictionary: IStringDictionary, key: string) => {
-            dictionary[key] = userData.Data[key].Value;
-    
-            return dictionary;
-        }, {} as IStringDictionary);
-    
-        return App.UpdateUserData(currentPlayerId, userDataStringDictionary, null, true);
     },
     WritePlayerEvent(playerId: string, eventName: string, body: IAnyDictionary): void {
         // Event name only allows characters and underscores
@@ -191,7 +185,7 @@ handlers.killedEnemyGroup = function(args: IKilledEnemyGroupRequest, context: an
     const titleData = App.GetTitleData([App.TitleData.Planets, App.TitleData.Enemies, App.TitleData.Levels], true);
     const planetData = (titleData[App.TitleData.Planets] as ITitleDataPlanets).planets;
     const enemyData = (titleData[App.TitleData.Enemies] as ITitleDataEnemies);
-    const userData = App.GetUserData(currentPlayerId, [App.UserData.MaxHP]).Data;
+    const userData = App.GetUserInternalData(currentPlayerId, [App.UserData.MaxHP]).Data;
     const statistics = App.GetPlayerStatistics(currentPlayerId, [App.Statistics.Kills, App.Statistics.XP, App.Statistics.Level]);
 
     // STEP 1: Ensure the data submitted is valid
@@ -292,7 +286,7 @@ handlers.killedEnemyGroup = function(args: IKilledEnemyGroupRequest, context: an
 
     // STEP 5: Do both updates
     App.UpdatePlayerStatistics(currentPlayerId, statisticUpdates);
-    App.UpdateUserDataExisting(userDataUpdates, true);
+    App.UpdateUserInternalData(currentPlayerId, userDataUpdates, null, false);
 
     // STEP 6: Grant items
     if(!App.IsNull(fullEnemyGroup.droptable)) {
@@ -319,7 +313,6 @@ export interface IPlayerLoginResponse {
 }
 
 handlers.playerLogin = function(args: any, context: any): IPlayerLoginResponse {
-    // If you're a new player with no money nor items, give you some cash and set your HP
     const response: IPlayerLoginResponse = {
         playerHP: 0,
         equipment: {},
@@ -337,14 +330,38 @@ handlers.playerLogin = function(args: any, context: any): IPlayerLoginResponse {
         VirtualCurrencyRechargeTimes: inventory.VirtualCurrencyRechargeTimes
     };
 
-    // Give new players some HP using title data
-    const userData = App.GetUserData(currentPlayerId, [App.UserData.HP, App.UserData.Equipment]);
+    // Give new players some stats using user internal data
+    const userDataRecords = [App.UserData.HP, App.UserData.Equipment, App.UserData.MaxHP];
+    let userData = App.GetUserData(currentPlayerId, userDataRecords);
+    const userInternalData = App.GetUserInternalData(currentPlayerId, userDataRecords);
+    
+    // Hey, I borked this up when I first made this game. User data is writable by the client.
+    // Whoops! Super insecure. Now I have these 15 lines to convert user data to internal data.
+    
+    // Check to see if you are a user whose private stats should be in internal data
+    const isUserDataNull = App.IsNull(userData.Data) || App.IsNull(Object.keys(userData.Data));
+    const isUserDataInternalNull = App.IsNull(userInternalData.Data) || App.IsNull(Object.keys(userInternalData.Data));
 
+    if(isUserDataNull && isUserDataInternalNull) {
+        // You're an utterly new player. Use internal data.
+    }
+    else if(!isUserDataNull && isUserDataInternalNull) {
+        // You're an old player that hasn't been migrated yet.
+        // Set your internal data with what's new and clear out your regular user data
+        App.UpdateUserInternalData(currentPlayerId, convertUserDataResultToStringDictionary(userData.Data), null, false);
+        App.UpdateUserData(currentPlayerId, null, userDataRecords);
+    }
+    else if(isUserDataNull && !isUserDataInternalNull) {
+        // You've been converted. Swap your user data for the results of the internal data call.
+        userData = userInternalData;
+    }
+
+    // Done checking for that
     if(App.IsNull(userData.Data[App.UserData.HP])) {
-        App.UpdateUserDataExisting({
+        App.UpdateUserInternalData(currentPlayerId, {
             [App.UserData.HP]: App.Config.StartingHP.toString(),
             [App.UserData.MaxHP]: App.Config.StartingHP.toString(),
-        }, true);
+        }, null, false);
         response.playerHP = App.Config.StartingHP;
     }
     else {
@@ -376,7 +393,7 @@ export interface IReturnToHomeBaseResponse {
 }
 
 handlers.returnToHomeBase = function(args: any, context: any): IReturnToHomeBaseResponse {
-    const hpAndMaxHP = App.GetUserData(currentPlayerId, [App.UserData.HP, App.UserData.MaxHP]);
+    const hpAndMaxHP = App.GetUserInternalData(currentPlayerId, [App.UserData.HP, App.UserData.MaxHP]);
 
     const maxHP = parseInt(hpAndMaxHP.Data[App.UserData.MaxHP].Value);
     App.WritePlayerEvent(currentPlayerId, "travel_to_home_base", null);
@@ -387,9 +404,9 @@ handlers.returnToHomeBase = function(args: any, context: any): IReturnToHomeBase
         };
     }
 
-    App.UpdateUserData(currentPlayerId, {
+    App.UpdateUserInternalData(currentPlayerId, {
         [App.UserData.HP]: hpAndMaxHP.Data[App.UserData.MaxHP].Value,
-    }, null, true);
+    }, null, false);
 
     return {
         maxHP
@@ -407,7 +424,7 @@ export interface IEquipItemInstanceRequest {
 }
 
 handlers.equipItem = function(args: IEquipItemRequest, context: any): PlayFabServerModels.UpdateUserDataResult {
-    const currentEquipment = App.GetUserData(currentPlayerId, [App.UserData.Equipment]).Data;
+    const currentEquipment = App.GetUserInternalData(currentPlayerId, [App.UserData.Equipment]).Data;
 
     let returnResult: PlayFabServerModels.UpdateUserDataResult = null;
 
@@ -419,12 +436,12 @@ handlers.equipItem = function(args: IEquipItemRequest, context: any): PlayFabSer
         }, {} as IStringDictionary);
 
     if(App.IsNull(currentEquipment[App.UserData.Equipment])) {
-        returnResult = App.UpdateUserData(currentPlayerId, {
+        returnResult = App.UpdateUserInternalData(currentPlayerId, {
             [App.UserData.Equipment]: JSON.stringify(equipmentDictionary)
         }, null, true);
     }
     else {
-        returnResult = App.UpdateUserData(currentPlayerId, {
+        returnResult = App.UpdateUserInternalData(currentPlayerId, {
             [App.UserData.Equipment]: JSON.stringify({
                 ...JSON.parse(currentEquipment[App.UserData.Equipment].Value),
                 ...equipmentDictionary,
@@ -476,4 +493,20 @@ function levelPlayer(titleDataLevels: ITitleDataLevel[], yourLevel: number, your
     }
 
     return null;
+}
+
+interface IUserDataDictionary {
+    [key: string]: PlayFabClientModels.UserDataRecord;
+}
+
+function convertUserDataResultToStringDictionary(userData: IUserDataDictionary): IStringDictionary {
+    if(App.IsNull(userData)) {
+        return {};
+    }
+
+    return Object.keys(userData).reduce((dictionary: IStringDictionary, key: string) => {
+        dictionary[key] = userData[key].Value;
+
+        return dictionary;
+    }, {} as IStringDictionary);
 }

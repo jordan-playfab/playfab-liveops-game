@@ -32,44 +32,22 @@
 - [x] Credits page (S)
 - [ ] List of non-existent features (S)
 - [x] More information on Login page, about case sensitivity (S)
-- [ ] Improve player bar (M)
+- [x] Improve player bar (M)
 - [ ] Global box showing PlayFab API activity (L)
 - [ ] Grant items on level ups (S)
-- [ ] Rename weapons and enemies to something more benign (M)
+- [x] Rename weapons and enemies to something more benign (M)
 - [ ] Actual loot in looter shooter (M)
 - [ ] More graphical combat (M)
-- [ ] Explanation of store segmentation (M)
+- [x] Explanation of store segmentation (M)
 - [ ] Add consumable health potions (M)
 - [ ] Clean up all page code, reduce hackiness (XL)
-- [ ] Full tutorial of how to use this game and PlayFab (XL)
+- [x] Full tutorial of how to use this game and PlayFab (XL)
     - Changing planet names and enemy stats in title data
     - Custom data on catalog items
     - Adding more stores
     - Adding title news
     - Other features one could add (A/B tests, containers as engrams, friends)
-- [ ] Finish level curve page (M)
+- [x] Finish level curve page (M)
 - [ ] Talk about actual timeline for this game (S)
 - [ ] Add internationalization (L)
 - [ ] Convert to new entity and other APIs (XXL)
-
-## Design upgrades
-- [ ] Guide page: rotating carousel with large art for each planet
-- [ ] Planet page: smaller region graphics
-- [ ] Combat component: graphical combat UI
-
-# Further plans
-
-What else would there be to entice users to keep playing?
-
-## Game loop
-- [ ] Monsters drop loot in addition to money
-- [ ] Loot can be kept, sold for money, or recycled into component parts
-- [ ] Component parts can be combined to make upgrades for weapons (also requires money)
-- [ ] Health potions can be bought with money
-- [ ] Health potions restore HP and let you stay in the field longer
-- [ ] Staying in the field longer builds up a luck multiplier so you can find better weapons
-
-## Enhancements
-- [ ] Different star systems
-- [ ] Abilities granted at level up would be cool
-- [ ] Allow transformation to USS
