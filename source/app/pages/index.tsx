@@ -59,7 +59,6 @@ class IndexPageBase extends React.Component<Props, IState> {
                             <li><a href="https://community.playfab.com/index.html">PlayFab Forums</a></li>
                             <li><a href="https://playfab.com/support/contact/">Contact PlayFab</a></li>
                             <li><a href="https://github.com/jordan-playfab/playfab-liveops-game/">Source code on GitHub</a></li>
-                            <li><a href="#" onClick={this.reload}>Reload this page</a></li>
                         </ul>
                     </div>
                 </Grid>
@@ -89,10 +88,6 @@ class IndexPageBase extends React.Component<Props, IState> {
         }
         
         this.props.history.push(routes.MainMenu(this.state.cloud, this.state.titleId));
-    }
-
-    private reload = (): void => {
-        window.location.reload();
     }
 }
 
