@@ -1,6 +1,6 @@
 import React from "react";
 import { Redirect, RouteComponentProps } from "react-router";
-import { PrimaryButton, Dialog, Link, DialogType, DialogFooter, DefaultButton } from "office-ui-fabric-react";
+import { PrimaryButton, Link, DialogType, DialogFooter, DefaultButton } from "office-ui-fabric-react";
 
 import { is } from "../shared/is";
 import { routes } from "../routes";
@@ -107,7 +107,7 @@ class HeadquartersPageBase extends React.Component<Props, IState> {
             return (
                 <React.Fragment>
                     <BackLink to={routes.Guide(this.props.appState.cloud, this.props.appState.titleId)} label="Back to guide" />
-                    <Grid grid4x8>
+                    <Grid grid6x6>
                         <React.Fragment>
                             <h2>Welcome</h2>
                             {this.state.isRestoringHealth

@@ -67,6 +67,12 @@ const App = {
             Keys: keys,
         });
     },
+    GetUserInternalData(playerId, keys) {
+        return server.GetUserInternalData({
+            PlayFabId: playerId,
+            Keys: keys,
+        });
+    },
     UpdateUserData(playerId, data, keysToRemove, isPublic = false) {
         return server.UpdateUserData({
             PlayFabId: playerId,
@@ -77,23 +83,15 @@ const App = {
                 : App.Config.PermissionPrivate
         });
     },
-    UpdateUserDataExisting(dictionary, isPublic) {
-        const userData = App.GetUserData(currentPlayerId, Object.keys(dictionary));
-        Object.keys(dictionary).forEach(key => {
-            userData.Data[key] = {
-                Value: dictionary[key],
-                LastUpdated: new Date().toString(),
-                Permission: isPublic
-                    ? App.Config.PermissionPublic
-                    : App.Config.PermissionPrivate
-            };
+    UpdateUserInternalData(playerId, data, keysToRemove, isPublic = false) {
+        return server.UpdateUserInternalData({
+            PlayFabId: playerId,
+            Data: data,
+            KeysToRemove: keysToRemove,
+            Permission: isPublic
+                ? App.Config.PermissionPublic
+                : App.Config.PermissionPrivate
         });
-        // Turn this UserDataRecordDictionary into a plain IStringDictionary
-        const userDataStringDictionary = Object.keys(userData.Data).reduce((dictionary, key) => {
-            dictionary[key] = userData.Data[key].Value;
-            return dictionary;
-        }, {});
-        return App.UpdateUserData(currentPlayerId, userDataStringDictionary, null, true);
     },
     WritePlayerEvent(playerId, eventName, body) {
         // Event name only allows characters and underscores
@@ -153,7 +151,7 @@ handlers.killedEnemyGroup = function (args, context) {
     const titleData = App.GetTitleData([App.TitleData.Planets, App.TitleData.Enemies, App.TitleData.Levels], true);
     const planetData = titleData[App.TitleData.Planets].planets;
     const enemyData = titleData[App.TitleData.Enemies];
-    const userData = App.GetUserData(currentPlayerId, [App.UserData.MaxHP]).Data;
+    const userData = App.GetUserInternalData(currentPlayerId, [App.UserData.MaxHP]).Data;
     const statistics = App.GetPlayerStatistics(currentPlayerId, [App.Statistics.Kills, App.Statistics.XP, App.Statistics.Level]);
     // STEP 1: Ensure the data submitted is valid
     const errorMessage = isKilledEnemyGroupValid(args, planetData, enemyData);
@@ -231,7 +229,7 @@ handlers.killedEnemyGroup = function (args, context) {
     }
     // STEP 5: Do both updates
     App.UpdatePlayerStatistics(currentPlayerId, statisticUpdates);
-    App.UpdateUserDataExisting(userDataUpdates, true);
+    App.UpdateUserInternalData(currentPlayerId, userDataUpdates, null, false);
     // STEP 6: Grant items
     if (!App.IsNull(fullEnemyGroup.droptable)) {
         const itemGranted = App.EvaluateRandomResultTable(null, fullEnemyGroup.droptable);
@@ -243,7 +241,6 @@ handlers.killedEnemyGroup = function (args, context) {
     return response;
 };
 handlers.playerLogin = function (args, context) {
-    // If you're a new player with no money nor items, give you some cash and set your HP
     const response = {
         playerHP: 0,
         equipment: {},
@@ -258,13 +255,34 @@ handlers.playerLogin = function (args, context) {
         VirtualCurrency: inventory.VirtualCurrency,
         VirtualCurrencyRechargeTimes: inventory.VirtualCurrencyRechargeTimes
     };
-    // Give new players some HP using title data
-    const userData = App.GetUserData(currentPlayerId, [App.UserData.HP, App.UserData.Equipment]);
+    // Give new players some stats using user internal data
+    const userDataRecords = [App.UserData.HP, App.UserData.Equipment, App.UserData.MaxHP];
+    let userData = App.GetUserData(currentPlayerId, userDataRecords);
+    const userInternalData = App.GetUserInternalData(currentPlayerId, userDataRecords);
+    // Hey, I borked this up when I first made this game. User data is writable by the client.
+    // Whoops! Super insecure. Now I have these 15 lines to convert user data to internal data.
+    // Check to see if you are a user whose private stats should be in internal data
+    const isUserDataNull = App.IsNull(userData.Data) || App.IsNull(Object.keys(userData.Data));
+    const isUserDataInternalNull = App.IsNull(userInternalData.Data) || App.IsNull(Object.keys(userInternalData.Data));
+    if (isUserDataNull && isUserDataInternalNull) {
+        // You're an utterly new player. Use internal data.
+    }
+    else if (!isUserDataNull && isUserDataInternalNull) {
+        // You're an old player that hasn't been migrated yet.
+        // Set your internal data with what's new and clear out your regular user data
+        App.UpdateUserInternalData(currentPlayerId, convertUserDataResultToStringDictionary(userData.Data), null, false);
+        App.UpdateUserData(currentPlayerId, null, userDataRecords);
+    }
+    else if (isUserDataNull && !isUserDataInternalNull) {
+        // You've been converted. Swap your user data for the results of the internal data call.
+        userData = userInternalData;
+    }
+    // Done checking for that
     if (App.IsNull(userData.Data[App.UserData.HP])) {
-        App.UpdateUserDataExisting({
+        App.UpdateUserInternalData(currentPlayerId, {
             [App.UserData.HP]: App.Config.StartingHP.toString(),
             [App.UserData.MaxHP]: App.Config.StartingHP.toString(),
-        }, true);
+        }, null, false);
         response.playerHP = App.Config.StartingHP;
     }
     else {
@@ -287,7 +305,7 @@ handlers.playerLogin = function (args, context) {
     return response;
 };
 handlers.returnToHomeBase = function (args, context) {
-    const hpAndMaxHP = App.GetUserData(currentPlayerId, [App.UserData.HP, App.UserData.MaxHP]);
+    const hpAndMaxHP = App.GetUserInternalData(currentPlayerId, [App.UserData.HP, App.UserData.MaxHP]);
     const maxHP = parseInt(hpAndMaxHP.Data[App.UserData.MaxHP].Value);
     App.WritePlayerEvent(currentPlayerId, "travel_to_home_base", null);
     if (hpAndMaxHP.Data[App.UserData.HP].Value === hpAndMaxHP.Data[App.UserData.MaxHP].Value) {
@@ -295,15 +313,15 @@ handlers.returnToHomeBase = function (args, context) {
             maxHP
         };
     }
-    App.UpdateUserData(currentPlayerId, {
+    App.UpdateUserInternalData(currentPlayerId, {
         [App.UserData.HP]: hpAndMaxHP.Data[App.UserData.MaxHP].Value,
-    }, null, true);
+    }, null, false);
     return {
         maxHP
     };
 };
 handlers.equipItem = function (args, context) {
-    const currentEquipment = App.GetUserData(currentPlayerId, [App.UserData.Equipment]).Data;
+    const currentEquipment = App.GetUserInternalData(currentPlayerId, [App.UserData.Equipment]).Data;
     let returnResult = null;
     const equipmentDictionary = App.IsNull(args.multiple)
         ? { [args.single.slot]: args.single.itemInstanceId }
@@ -312,12 +330,12 @@ handlers.equipItem = function (args, context) {
             return dictionary;
         }, {});
     if (App.IsNull(currentEquipment[App.UserData.Equipment])) {
-        returnResult = App.UpdateUserData(currentPlayerId, {
+        returnResult = App.UpdateUserInternalData(currentPlayerId, {
             [App.UserData.Equipment]: JSON.stringify(equipmentDictionary)
         }, null, true);
     }
     else {
-        returnResult = App.UpdateUserData(currentPlayerId, {
+        returnResult = App.UpdateUserInternalData(currentPlayerId, {
             [App.UserData.Equipment]: JSON.stringify(Object.assign({}, JSON.parse(currentEquipment[App.UserData.Equipment].Value), equipmentDictionary))
         }, null, true);
     }
@@ -352,4 +370,13 @@ function levelPlayer(titleDataLevels, yourLevel, yourXP) {
         return nextLevel;
     }
     return null;
+}
+function convertUserDataResultToStringDictionary(userData) {
+    if (App.IsNull(userData)) {
+        return {};
+    }
+    return Object.keys(userData).reduce((dictionary, key) => {
+        dictionary[key] = userData[key].Value;
+        return dictionary;
+    }, {});
 }

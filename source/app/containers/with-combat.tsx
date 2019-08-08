@@ -94,7 +94,7 @@ export const withCombat = <P extends IWithCombatProps>(Component: React.Componen
         private onEnemyAttack = (): void => {
             // Pick someone to attack
             const attackingEnemyIndex = utilities.getRandomInteger(0, this.state.enemies.length - 1);
-            let damage = utilities.getRandomInteger(0, this.state.enemies[attackingEnemyIndex].damage);
+            let damage = utilities.getRandomInteger(Math.ceil(this.state.enemies[attackingEnemyIndex].damage / 3), this.state.enemies[attackingEnemyIndex].damage);
             const armorData = this.state.playerArmorData;
 
             if(damage < armorData.block) {

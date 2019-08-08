@@ -13,6 +13,7 @@ export const routeNames = {
     Credits: "/:cloud/:titleid/credits",
     Generator: "/:cloud/:titleid/generator",
     Watch: "/:cloud/:titleid/watch",
+    Tips: "/:cloud/:titleid/tips",
 };
 
 export const routes = {
@@ -28,4 +29,5 @@ export const routes = {
     Credits: (cloud: string, titleId: string) => utilities.formatRoute(routeNames.Credits, cloud, titleId),
     Generator: (cloud: string, titleId: string) => utilities.formatRoute(routeNames.Generator, cloud, titleId),
     Watch: (cloud: string, titleId: string) => utilities.formatRoute(routeNames.Watch, cloud, titleId),
+    Tips: (cloud: string, titleId: string) => utilities.formatRoute(routeNames.Tips, cloud, titleId),
 };
