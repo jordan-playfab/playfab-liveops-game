@@ -66,7 +66,7 @@ class TipsPageBase extends React.Component<Props> {
                     <Grid grid6x6>
                         <DlStats>
                             <dt>Player logs in</dt>
-                            <dd>1. Happens in <a href="https://github.com/jordan-playfab/playfab-liveops-game/blob/master/source/app/pages/login.tsx#82">login.tsx</a></dd>
+                            <dd>1. Happens in <a href="https://github.com/jordan-playfab/playfab-liveops-game/blob/master/source/app/pages/login.tsx#L83">login.tsx</a></dd>
                             <dd>2. Calls <a href="https://api.playfab.com/documentation/client/method/LoginWithCustomID">LoginWithCustomID</a></dd>
                             <dd>3. If a new player, calls <a href="https://api.playfab.com/documentation/Client/method/UpdateUserTitleDisplayName">UpdateUserTitleDisplayName</a></dd>
                             <dd>4. Runs <a href="https://github.com/jordan-playfab/playfab-liveops-game/blob/master/source/cloud-script/main.ts#L315">playerLogin</a> Cloud Script function, which returns player HP, XP, level, inventory, and equipped items</dd>
@@ -74,7 +74,7 @@ class TipsPageBase extends React.Component<Props> {
                             <dd>6. Calls <a href="https://api.playfab.com/documentation/Client/method/GetCatalogItems">GetCatalogItems</a> to load all items in the catalog, necessary for determining weapon and armor stats</dd> 
 
                             <dt>Equip an item</dt>
-                            <dd>1. Happens in <a href="https://github.com/jordan-playfab/playfab-liveops-game/blob/master/source/app/components/player.tsx#L216">player.tsx</a> and <a href="https://github.com/jordan-playfab/playfab-liveops-game/blob/master/source/app/pages/headquarters.tsx#L309">headquarters.tsx</a></dd>
+                            <dd>1. Happens in <a href="https://github.com/jordan-playfab/playfab-liveops-game/blob/master/source/app/components/player.tsx#L216">player.tsx</a> and <a href="https://github.com/jordan-playfab/playfab-liveops-game/blob/master/source/app/pages/headquarters.tsx#L307">headquarters.tsx</a></dd>
                             <dd>2. Runs <a href="https://github.com/jordan-playfab/playfab-liveops-game/blob/master/source/cloud-script/main.ts#L426">equipItem</a> Cloud Script function</dd>
 
                             <dt>Goes to Headquarters</dt>
@@ -86,7 +86,7 @@ class TipsPageBase extends React.Component<Props> {
                         </DlStats>
                         <DlStats>
                             <dt>Buys an item from a store</dt>
-                            <dd>1. Happens in <a href="https://github.com/jordan-playfab/playfab-liveops-game/blob/master/source/app/pages/headquarters.tsx#L283">headquarters.tsx</a></dd>
+                            <dd>1. Happens in <a href="https://github.com/jordan-playfab/playfab-liveops-game/blob/master/source/app/pages/headquarters.tsx#L281">headquarters.tsx</a></dd>
                             <dd>2. Calls <a href="https://api.playfab.com/documentation/Client/method/PurchaseItem">PurchaseItem</a> to buy the item using the Credits virtual currency at the store price</dd>
                             <dd>3. If successful, calls <a href="https://api.playfab.com/documentation/Client/method/GetUserInventory">GetUserInventory</a></dd>
                             <dd>4. Attempts to equip the weapon or armor if it's the only weapon or armor the player owns</dd>
