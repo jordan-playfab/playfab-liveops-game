@@ -4,7 +4,8 @@ import styled from "../styles";
 import logo from "../../../static/img/logo.png";
 import { is } from "../shared/is";
 
-const logoSize = "256px";
+const logoWidth = "256px";
+const logoHeight = "101px";
 
 const DivHeaderWrapper = styled.div`
     display: flex;
@@ -14,7 +15,7 @@ const DivHeaderWrapper = styled.div`
 
 const DivLogo = styled.div`
     padding: ${s => s.theme.size.spacer};
-    flex-basis: ${logoSize};
+    flex-basis: ${logoWidth};
 `;
 
 const DivTitle = styled.div`
@@ -36,7 +37,8 @@ const H1Title = styled.h1`
 `;
 
 const ImgLogo = styled.img`
-    width: ${logoSize};
+    width: ${logoWidth};
+    height: ${logoHeight};
 `;
 
 interface IProps {

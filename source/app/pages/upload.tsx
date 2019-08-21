@@ -32,6 +32,7 @@ interface IState {
     storeCounter: number;
     titleDataCounter: number;
     shouldShowTitleNewsFormat: boolean;
+    hasTrackedUpload: boolean;
 }
 
 type Props = RouteComponentProps & IWithAppStateProps & IWithPageProps;
@@ -49,6 +50,7 @@ class UploadPageBase extends React.Component<Props, IState> {
             storeCounter: 0,
             titleDataCounter: 0,
             shouldShowTitleNewsFormat: false,
+            hasTrackedUpload: false,
         };
     }
 
@@ -57,8 +59,12 @@ class UploadPageBase extends React.Component<Props, IState> {
             this.runUpload();
         }
 
-        if(is.analyticsEnabled() && !is.null(appInsights) && this.state.uploadProgress >= PROGRESS_STAGES.length - 1) {
+        if(is.analyticsEnabled() && !is.null(appInsights) && this.state.uploadProgress >= PROGRESS_STAGES.length - 1 && !this.state.hasTrackedUpload) {
             appInsights.trackEvent("Data uploaded", { TitleId: this.props.appState.titleId });
+
+            this.setState({
+                hasTrackedUpload: true
+            });
         }
     }
 
