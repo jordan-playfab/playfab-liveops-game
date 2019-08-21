@@ -73,7 +73,7 @@ class IndexPageBase extends React.Component<Props, IState> {
                     }}
                 >
                     <p>This site uses <a href="https://docs.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview">Azure Application Insights</a> to track usage. In addition to browser information, it sends an event when a user uploads data into their title, and when a new player logs in for the first time.</p>
-                    <p>Information gathered via this method is only used to determine whether this website is being used.</p>
+                    <p>Information gathered via this method is only used to determine whether this website is being used. The title secret key is not tracked or stored.</p>
                     <p>If you do not wish to be tracked, <a href="https://github.com/jordan-playfab/playfab-liveops-game/">build this game from its source code</a> and run it locally. The <a href="https://github.com/jordan-playfab/playfab-liveops-game/blob/master/source/app/shared/is.ts#L144">IsAnalyticsEnabled()</a> function determines whether the tracking code activates. The tracking code is only enabled on the secure domain <code>vanguardoutrider.com</code>.</p>
                     {!is.analyticsEnabled() && (
                         <p><strong>Analytics has been disabled on this site.</strong></p>
