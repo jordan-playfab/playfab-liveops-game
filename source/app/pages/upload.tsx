@@ -56,6 +56,10 @@ class UploadPageBase extends React.Component<Props, IState> {
         if(this.state.uploadProgress !== prevState.uploadProgress) {
             this.runUpload();
         }
+
+        if(is.analyticsEnabled() && !is.null(appInsights) && this.state.uploadProgress >= PROGRESS_STAGES.length - 1) {
+            appInsights.trackEvent("Data uploaded", { TitleId: this.props.appState.titleId });
+        }
     }
 
     public render(): React.ReactNode {

@@ -3,3 +3,6 @@
 declare module "*.png";
 declare module "*.jpg";
 declare module "*.ico";
+declare var appInsights: {
+    trackEvent(name: string, details?: any): void;
+};

@@ -29,7 +29,7 @@ class LoginPageBase extends React.Component<Props, IState> {
         super(props);
 
         this.state = {
-            playerName: null,
+            playerName: "",
             isLoggingIn: false,
         };
     }
@@ -86,6 +86,10 @@ class LoginPageBase extends React.Component<Props, IState> {
 
         if(player.NewlyCreated) {
             PlayFabHelper.UpdateUserTitleDisplayName(this.state.playerName, this.props.onPageNothing, this.props.onPageError);
+
+            if(is.analyticsEnabled() && !is.null(appInsights)) {
+                appInsights.trackEvent("New player created", { TitleId: this.props.appState.titleId });
+            }
         }
 
         CloudScriptHelper.login((response) => {

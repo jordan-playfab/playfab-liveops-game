@@ -141,6 +141,10 @@ const IsAnythingDifferent = (props: any, nextProps: any, ...keys: string[]): boo
     });
 };
 
+const IsAnalyticsEnabled = (): boolean => {
+    return window.location.href.toLowerCase().indexOf("https://www.vanguardoutrider.com") !== -1;
+}
+
 export const is = {
     array: IsArray,
     arrayDifferent: IsArrayDifferent,
@@ -156,4 +160,5 @@ export const is = {
     inArray: IsInArray,
     shallowEqual: IsShallowEqual,
     anythingDifferent: IsAnythingDifferent,
+    analyticsEnabled: IsAnalyticsEnabled
 };
