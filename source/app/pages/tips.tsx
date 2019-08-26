@@ -21,45 +21,68 @@ class TipsPageBase extends React.Component<Props> {
         return (
             <Page {...this.props} title="LiveOps Tips">
                 <BackLink to={routes.MainMenu(this.props.appState.cloud, this.props.appState.titleId)} label="Back to main menu" />
-                <h2>Data locations</h2>
-                <p>Where to find the data that drives this game. Any changes to title data, catalogs, or store names will require the user to login again.</p>
+                <h2>Use of CustomID</h2>
                 <Grid grid6x6>
-                    <DlStats>
-                        <dt>Planets and areas</dt>
-                        <dd><a href={utilities.createPlayFabLink(cloud, titleId, "content/title-data", true)}>Title data</a> under the "Planets" key</dd>
-                        
-                        <dt>Enemies</dt>
-                        <dd><a href={utilities.createPlayFabLink(cloud, titleId, "content/title-data", true)}>Title data</a> under the "Enemies" key</dd>
-                        
-                        <dt>Weapons and armor</dt>
-                        <dd><a href={utilities.createPlayFabLink(cloud, titleId, "economy/catalogs/TWFpbg%3d%3d/items", false)}>Main catalog &gt; Items</a></dd>
-                        
-                        <dt>Weapons and armor prices</dt>
-                        <dd><a href={utilities.createPlayFabLink(cloud, titleId, "economy/catalogs/TWFpbg%3d%3d/stores", false)}>Main catalog &gt; Stores</a> can be used to set prices for each item in each store</dd>
-                        
-                        <dt>Available stores</dt>
-                        <dd>Creating a store in the catalog doesn't make it visible. Add its ID to <a href={utilities.createPlayFabLink(cloud, titleId, "content/title-data", true)}>title data</a> under the "Stores" key, for it to show up in the list at Headquarters.</dd>
-                        
-                        <dt>Combat reward item chances</dt>
-                        <dd><a href={utilities.createPlayFabLink(cloud, titleId, "economy/catalogs/TWFpbg%3d%3d/drop-tables", false)}>Main catalog &gt; Drop tables</a>, whose table IDs will match the "droptable" field in a planet area</dd>
-                    </DlStats>
-                    <DlStats>
-                        <dt>Combat reward credit amounts</dt>
-                        <dd><a href={utilities.createPlayFabLink(cloud, titleId, "economy/catalogs/TWFpbg%3d%3d/bundles", false)}>Main catalog &gt; Bundles</a>, where you can adjust the quantity of credits given out in each pack</dd>
-                        
-                        <dt>Starting credits</dt>
-                        <dd><a href={utilities.createPlayFabLink(cloud, titleId, "economy/currency", true)}>Currencies</a>, the "initial deposit" field</dd>
-                        
-                        <dt>News articles</dt>
-                        <dd><a href={utilities.createPlayFabLink(cloud, titleId, "content/news", true)}>Title news</a>, use the <Link to={routes.Generator(cloud, titleId)}>generator</Link> to make valid news entries</dd>
-                        
-                        <dt>Level curve</dt>
-                        <dd>Use the level editor on the <Link to={routes.Generator(cloud, titleId)}>generator</Link> page or edit the JSON directly and place it in <a href={utilities.createPlayFabLink(cloud, titleId, "content/title-data", true)}>title data</a> under the "Levels" key</dd>
-                        
-                        <dt>Login event, combat finished event, return to Headquarters event</dt>
-                        <dd><a href={utilities.createPlayFabLink(cloud, titleId, "automation/cloud-script/revisions", true)}>Cloud Script</a>, though you should try and <a href="https://github.com/jordan-playfab/playfab-liveops-game/blob/master/source/cloud-script/main.ts">build the original source</a> rather than editing JavaScript directly</dd>
-                    </DlStats>
+                    <React.Fragment>
+                        <p>This game uses <a href="https://api.playfab.com/documentation/client/method/LoginWithCustomID">LoginWithCustomID</a> for its authentication, where players can type the CustomID they want to use to login. This allows anyone to login as anyone else! It's not a secure way to do logins on the web.</p>
+                        <p>As you make a real game with PlayFab, you should consider our alternate methods. We have a <a href="https://api.playfab.com/documentation/client#Authentication">wide range of authentication options</a> for all console and mobile platforms.</p>
+                        <p>We recommend using the console or mobile-specific login native to the player's device so you get the full suite of data when they login.</p>
+                    </React.Fragment>
+                    <React.Fragment>
+                        <h3>Platform-specific authentication options</h3>
+                        <ul>
+                            <li><a href="https://api.playfab.com/documentation/client/method/LoginWithAndroidDeviceID">LoginWithAndroidDeviceID</a></li>
+                            <li><a href="https://api.playfab.com/documentation/client/method/LoginWithIOSDeviceID">LoginWithIOSDeviceID</a></li>
+                            <li><a href="https://api.playfab.com/documentation/client/method/LoginWithNintendoSwitchDeviceId">LoginWithNintendoSwitchDeviceId</a></li>
+                            <li><a href="https://api.playfab.com/documentation/client/method/LoginWithPSN">LoginWithPSN</a></li>
+                            <li><a href="https://api.playfab.com/documentation/client/method/LoginWithSteam">LoginWithSteam</a></li>
+                            <li><a href="https://api.playfab.com/documentation/client/method/LoginWithWindowsHello">LoginWithWindowsHello</a></li>
+                            <li><a href="https://api.playfab.com/documentation/client/method/LoginWithXbox">LoginWithXbox</a></li>
+                            <li><a href="https://api.playfab.com/documentation/client#Authentication"><strong>All authentication options &raquo;</strong></a></li>
+                        </ul>
+                    </React.Fragment>
                 </Grid>
+                <DivWrapper>
+                    <h2>Data locations</h2>
+                    <p>Where to find the data that drives this game. Any changes to title data, catalogs, or store names will require the user to login again.</p>
+                    <Grid grid6x6>
+                        <DlStats>
+                            <dt>Planets and areas</dt>
+                            <dd><a href={utilities.createPlayFabLink(cloud, titleId, "content/title-data", true)}>Title data</a> under the "Planets" key</dd>
+                            
+                            <dt>Enemies</dt>
+                            <dd><a href={utilities.createPlayFabLink(cloud, titleId, "content/title-data", true)}>Title data</a> under the "Enemies" key</dd>
+                            
+                            <dt>Weapons and armor</dt>
+                            <dd><a href={utilities.createPlayFabLink(cloud, titleId, "economy/catalogs/TWFpbg%3d%3d/items", false)}>Main catalog &gt; Items</a></dd>
+                            
+                            <dt>Weapons and armor prices</dt>
+                            <dd><a href={utilities.createPlayFabLink(cloud, titleId, "economy/catalogs/TWFpbg%3d%3d/stores", false)}>Main catalog &gt; Stores</a> can be used to set prices for each item in each store</dd>
+                            
+                            <dt>Available stores</dt>
+                            <dd>Creating a store in the catalog doesn't make it visible. Add its ID to <a href={utilities.createPlayFabLink(cloud, titleId, "content/title-data", true)}>title data</a> under the "Stores" key, for it to show up in the list at Headquarters.</dd>
+                            
+                            <dt>Combat reward item chances</dt>
+                            <dd><a href={utilities.createPlayFabLink(cloud, titleId, "economy/catalogs/TWFpbg%3d%3d/drop-tables", false)}>Main catalog &gt; Drop tables</a>, whose table IDs will match the "droptable" field in a planet area</dd>
+                        </DlStats>
+                        <DlStats>
+                            <dt>Combat reward credit amounts</dt>
+                            <dd><a href={utilities.createPlayFabLink(cloud, titleId, "economy/catalogs/TWFpbg%3d%3d/bundles", false)}>Main catalog &gt; Bundles</a>, where you can adjust the quantity of credits given out in each pack</dd>
+                            
+                            <dt>Starting credits</dt>
+                            <dd><a href={utilities.createPlayFabLink(cloud, titleId, "economy/currency", true)}>Currencies</a>, the "initial deposit" field</dd>
+                            
+                            <dt>News articles</dt>
+                            <dd><a href={utilities.createPlayFabLink(cloud, titleId, "content/news", true)}>Title news</a>, use the <Link to={routes.Generator(cloud, titleId)}>generator</Link> to make valid news entries</dd>
+                            
+                            <dt>Level curve</dt>
+                            <dd>Use the level editor on the <Link to={routes.Generator(cloud, titleId)}>generator</Link> page or edit the JSON directly and place it in <a href={utilities.createPlayFabLink(cloud, titleId, "content/title-data", true)}>title data</a> under the "Levels" key</dd>
+                            
+                            <dt>Login event, combat finished event, return to Headquarters event</dt>
+                            <dd><a href={utilities.createPlayFabLink(cloud, titleId, "automation/cloud-script/revisions", true)}>Cloud Script</a>, though you should try and <a href="https://github.com/jordan-playfab/playfab-liveops-game/blob/master/source/cloud-script/main.ts">build the original source</a> rather than editing JavaScript directly. See the readme.md file for <a href="https://github.com/jordan-playfab/playfab-liveops-game/blob/master/README.md">instructions on how to build Cloud Script from this repository</a>.</dd>
+                        </DlStats>
+                    </Grid>
+                </DivWrapper>
                 <DivWrapper>
                     <h2>What happens when</h2>
                     <p>These are the events which cause data to be sent to PlayFab.</p>
