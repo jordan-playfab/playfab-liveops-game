@@ -31,8 +31,8 @@ class TipsPageBase extends React.Component<Props> {
                     <React.Fragment>
                         <h3>Platform-specific authentication options</h3>
                         <ul>
-                            <li><a href="https://api.playfab.com/documentation/client/method/LoginWithAndroidDeviceID">LoginWithAndroidDeviceID</a></li>
-                            <li><a href="https://api.playfab.com/documentation/client/method/LoginWithIOSDeviceID">LoginWithIOSDeviceID</a></li>
+                            <li><a href="https://api.playfab.com/documentation/client/method/LoginWithGoogleAccount">LoginWithGoogleAccount</a> (Android)</li>
+                            <li><a href="https://api.playfab.com/documentation/client/method/LoginWithGameCenter">LoginWithGameCenter</a> (iOS)</li>
                             <li><a href="https://api.playfab.com/documentation/client/method/LoginWithNintendoSwitchDeviceId">LoginWithNintendoSwitchDeviceId</a></li>
                             <li><a href="https://api.playfab.com/documentation/client/method/LoginWithPSN">LoginWithPSN</a></li>
                             <li><a href="https://api.playfab.com/documentation/client/method/LoginWithSteam">LoginWithSteam</a></li>
