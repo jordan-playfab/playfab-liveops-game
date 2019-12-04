@@ -101,7 +101,7 @@ export const withCombat = <P extends IWithCombatProps>(Component: React.Componen
                 damage = 0;
             }
             else if(armorData.reduce > 0) {
-                damage = Math.floor(damage * (armorData.reduce / 100));
+                damage = Math.floor(damage * ((100 - armorData.reduce) / 100));
             }
 
             const playerHP = this.state.playerHP - damage;
