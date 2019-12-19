@@ -38,7 +38,7 @@ interface IState {
 type Props = RouteComponentProps & IWithAppStateProps & IWithPageProps;
 
 class UploadPageBase extends React.Component<Props, IState> {
-    private readonly uploadDelayMilliseconds = 500;
+    private readonly uploadDelayMilliseconds = 1000;
 
     constructor(props: Props) {
         super(props);

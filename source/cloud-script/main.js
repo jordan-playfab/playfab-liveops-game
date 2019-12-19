@@ -307,7 +307,7 @@ handlers.playerLogin = function (args, context) {
 handlers.returnToHomeBase = function (args, context) {
     const hpAndMaxHP = App.GetUserInternalData(currentPlayerId, [App.UserData.HP, App.UserData.MaxHP]);
     const maxHP = parseInt(hpAndMaxHP.Data[App.UserData.MaxHP].Value);
-    App.WritePlayerEvent(currentPlayerId, "travel_to_home_base", null);
+    App.WritePlayerEvent(currentPlayerId, "travel_to_headquarters", null);
     if (hpAndMaxHP.Data[App.UserData.HP].Value === hpAndMaxHP.Data[App.UserData.MaxHP].Value) {
         return {
             maxHP

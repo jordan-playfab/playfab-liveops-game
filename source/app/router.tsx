@@ -17,6 +17,7 @@ import { GuidePage } from "./pages/guide";
 import { CreditsPage } from "./pages/credits";
 import { WatchPage } from "./pages/watch";
 import { TipsPage } from "./pages/tips";
+import { InstructionsPage } from "./pages/instructions";
 
 type Props = IWithAppStateProps;
 
@@ -37,6 +38,7 @@ class RouterBase extends React.Component<Props> {
 					<Route exact path={routeNames.Credits} component={CreditsPage} />
 					<Route exact path={routeNames.Watch} component={WatchPage} />
 					<Route exact path={routeNames.Tips} component={TipsPage} />
+					<Route exact path={routeNames.Instructions} component={InstructionsPage} />
 					<Route component={NotFoundPage} />
 				</Switch>
 			</HashRouter>

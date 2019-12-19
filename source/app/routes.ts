@@ -14,10 +14,11 @@ export const routeNames = {
     Generator: "/:cloud/:titleid/generator",
     Watch: "/:cloud/:titleid/watch",
     Tips: "/:cloud/:titleid/tips",
+    Instructions: "/:cloud/instructions"
 };
 
 export const routes = {
-    Index: (cloud: string) => utilities.formatRoute(routeNames.Index, cloud),
+    Index: (cloud?: string) => utilities.formatRoute(routeNames.Index, cloud),
     MainMenu: (cloud: string, titleId: string) => utilities.formatRoute(routeNames.MainMenu, cloud, titleId),
     Login: (cloud: string, titleId: string) => utilities.formatRoute(routeNames.Login, cloud, titleId),
     Guide: (cloud: string, titleId: string) => utilities.formatRoute(routeNames.Guide, cloud, titleId),
@@ -30,4 +31,5 @@ export const routes = {
     Generator: (cloud: string, titleId: string) => utilities.formatRoute(routeNames.Generator, cloud, titleId),
     Watch: (cloud: string, titleId: string) => utilities.formatRoute(routeNames.Watch, cloud, titleId),
     Tips: (cloud: string, titleId: string) => utilities.formatRoute(routeNames.Tips, cloud, titleId),
+    Instructions: (cloud: string,) => utilities.formatRoute(routeNames.Instructions, cloud),
 };

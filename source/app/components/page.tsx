@@ -1,6 +1,5 @@
 import React from "react";
 import { RouteComponentProps } from "react-router";
-import { Helmet } from "react-helmet";
 
 import styled from "../styles";
 import { Header } from "./header";
@@ -10,7 +9,6 @@ import { actionSetTitleId, actionPlayerLogOut, actionSetCloud } from "../store/a
 import { Footer } from "./footer";
 import { routes } from "../routes";
 import { utilities } from "../shared/utilities";
-import { is } from "../shared/is";
 
 const MainTag = styled.main`
     background: ${s => s.theme.color.background000};
@@ -36,6 +34,13 @@ interface IProps {
     shouldShowPlayerInfo?: boolean;
 }
 
+interface IMicrosoftCookieResponse {
+	Css: string[];
+	IsConsentRequired: boolean;
+	Js: string[];
+	Markup: string;
+}
+
 type Props = IProps & RouteComponentProps<any> & IWithAppStateProps;
 
 class PageBase extends React.PureComponent<Props> {
@@ -44,7 +49,7 @@ class PageBase extends React.PureComponent<Props> {
     }
 
 	public componentDidMount(): void {
-		this.checkForURIParameters();
+        this.checkForURIParameters();
 	}
 
 	public componentDidUpdate(): void {
@@ -54,7 +59,6 @@ class PageBase extends React.PureComponent<Props> {
     public render(): React.ReactNode {
         return (
             <MainTag>
-                {this.getHelmet()}
                 <Header title={this.props.title} />
                 {this.props.shouldShowPlayerInfo && (
                     <Player logOut={this.logOut} />
@@ -82,20 +86,6 @@ class PageBase extends React.PureComponent<Props> {
     private logOut = (): void => {
         this.props.dispatch(actionPlayerLogOut());
         this.props.history.push(routes.Login(this.props.appState.cloud, this.props.appState.titleId));
-    }
-
-    private getHelmet(): React.ReactNode {
-        if(!is.analyticsEnabled()) {
-            return null;
-        }
-
-        const azureInsightsCode = `var appInsights=window.appInsights||function(a){ function b(a){c[a]=function(){var b=arguments;c.queue.push(function(){c[a].apply(c,b)})}}var c={config:a},d=document,e=window;setTimeout(function(){var b=d.createElement("script");b.src=a.url||"https://az416426.vo.msecnd.net/scripts/a/ai.0.js",d.getElementsByTagName("script")[0].parentNode.appendChild(b)});try{c.cookie=d.cookie}catch(a){}c.queue=[];for(var f=["Event","Exception","Metric","PageView","Trace","Dependency"];f.length;)b("track"+f.pop());if(b("setAuthenticatedUserContext"),b("clearAuthenticatedUserContext"),b("startTrackEvent"),b("stopTrackEvent"),b("startTrackPage"),b("stopTrackPage"),b("flush"),!a.disableExceptionTracking){f="onerror",b("_"+f);var g=e[f];e[f]=function(a,b,d,e,h){var i=g&&g(a,b,d,e,h);return!0!==i&&c["_"+f](a,b,d,e,h),i}}return c }({ instrumentationKey:"5e380edb-9854-4389-aaf5-3942e06c2048" }); window.appInsights=appInsights,appInsights.queue&&0===appInsights.queue.length&&appInsights.trackPageView();`;
-
-        return (
-            <Helmet>
-                <script type="text/javascript">{azureInsightsCode}</script>
-            </Helmet>
-        );
     }
 }
 
