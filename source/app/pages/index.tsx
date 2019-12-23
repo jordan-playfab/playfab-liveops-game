@@ -45,7 +45,7 @@ class IndexPageBase extends React.Component<Props, IState> {
                     <form onSubmit={this.continue}>
                         <h2>About</h2>
                         <p>This is a demo game to show how <a href="https://playfab.com/">PlayFab</a> can be used to run live games.</p>
-                        <p>Read our <Link to={routes.Instructions(this.state.cloud)}>instructions to learn how to use this website</Link>.</p>
+                        <p>Read our <Link to={routes.Instructions(this.state.cloud)}>instructions on how to use this website</Link>.</p>
                         <DivField>
                             <Grid grid6x6>
                                 <TextField label="Your game's title ID" onChange={this.onChangeTitleId} value={this.state.titleId} autoFocus />
@@ -59,13 +59,13 @@ class IndexPageBase extends React.Component<Props, IState> {
                         </DivConfirm>
                     </form>
                     <div>
-                        <h2>PlayFab Support</h2>
+                        <h2>PlayFab support</h2>
                         <ul>
                             <li><a href="https://api.playfab.com/">PlayFab Documentation</a></li>
                             <li><a href="https://community.playfab.com/index.html">PlayFab Forums</a></li>
                             <li><a href="https://playfab.com/support/contact/">Contact PlayFab</a></li>
                         </ul>
-                        <h2>Source &amp; Analytics</h2>
+                        <h2>Source code</h2>
                         <ul>
                             <li><a href="https://github.com/jordan-playfab/playfab-liveops-game/">Source code on GitHub</a></li>
                             <li><ButtonAnalytics text="Analytics on this site" onClick={this.showAnalyticsPopup} /></li>
