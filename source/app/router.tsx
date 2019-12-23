@@ -18,6 +18,7 @@ import { CreditsPage } from "./pages/credits";
 import { WatchPage } from "./pages/watch";
 import { TipsPage } from "./pages/tips";
 import { InstructionsPage } from "./pages/instructions";
+import { CookieBanner } from "./components/cookie-banner";
 
 type Props = IWithAppStateProps;
 
@@ -25,6 +26,7 @@ class RouterBase extends React.Component<Props> {
 	public render(): React.ReactNode {
 		return (
 			<HashRouter>
+				<CookieBanner />
 				<Switch>
 					<Route exact path={routeNames.Index} component={IndexPage} />
 					<Route exact path={routeNames.MainMenu} component={MainMenuPage} />

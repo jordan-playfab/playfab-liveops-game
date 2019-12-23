@@ -29,9 +29,13 @@
         <link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3)" href="img/logo-launch-1242x2208.png"> 
         <!-- iPhone 8, 7, 6s, 6 (750px x 1334px) --> 
         <link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2)" href="img/logo-launch-750x1334.png">  
+
+        <link rel="stylesheet" href="<%= htmlWebpackPlugin.options.msccStyle %>">
     </head>
     <body>
         <noscript>This game uses JavaScript. Please enable JavaScript to play this game.</noscript>
+        <%= htmlWebpackPlugin.options.msccMarkup %>
         <div id="app"></div>
+        <script src="<%= htmlWebpackPlugin.options.msccScript %>"></script>
     </body>
 </html>

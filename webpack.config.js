@@ -1,6 +1,19 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
+let cookiebanner;
+
+try {
+	cookiebanner = require(`./source/cookie-banner/en-us.cookiebanner.json`);
+}
+catch {
+	cookiebanner = {
+		Js: [""],
+		Css: [""],
+		Markup: ""
+	};
+}
+
 const sourceFolder = "./source",
 	sourcePath = path.resolve(__dirname, sourceFolder),
 	destinationPath = path.resolve(__dirname, "game");
@@ -18,7 +31,10 @@ module.exports = {
 	plugins: [
 		new HtmlWebpackPlugin({
 			inject: true,
-			template: `${sourceFolder}/index.html`
+			template: `${sourceFolder}/index.html`,
+			msccScript: cookiebanner.Js[0],
+            msccStyle: cookiebanner.Css[0],
+            msccMarkup: cookiebanner.Markup,
 		}),
 	],
 	resolve: {

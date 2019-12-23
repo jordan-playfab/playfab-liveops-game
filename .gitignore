@@ -2,3 +2,4 @@ node_modules
 game
 **/.DS_Store
 source/shared/types.js
+source/cookie-banner

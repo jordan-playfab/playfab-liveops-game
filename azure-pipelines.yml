@@ -17,8 +17,8 @@ steps:
 
 - script: |
     npm install
-    npm run production
-  displayName: 'NPM install and build'
+    grunt --gruntfile gruntfile.js
+  displayName: 'NPM install and grunt build'
 
 - task: CopyFiles@2
   displayName: 'Copy files'

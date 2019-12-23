@@ -1,19 +1,15 @@
 import React from "react";
 import { TextField } from 'office-ui-fabric-react/lib/TextField';
-import { PrimaryButton, DialogType, DialogFooter } from "office-ui-fabric-react";
+import { PrimaryButton } from "office-ui-fabric-react";
 import { RouteComponentProps, Link } from "react-router-dom";
 
 import { routes } from "../routes";
 import { Page } from "../components/page";
-import styled, { DivConfirm, DivField, DialogWidthSmall, ButtonTiny } from "../styles";
+import styled, { DivConfirm, DivField, ButtonTiny } from "../styles";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { Grid } from "../components/grid";
 import { is } from "../shared/is";
 import { MAIN_CLOUD } from "../shared/types";
-
-const ButtonAnalytics = styled(ButtonTiny)`
-    margin-left: 0;
-`;
 
 interface IState {
     titleId: string;
@@ -68,26 +64,9 @@ class IndexPageBase extends React.Component<Props, IState> {
                         <h2>Source code</h2>
                         <ul>
                             <li><a href="https://github.com/jordan-playfab/playfab-liveops-game/">Source code on GitHub</a></li>
-                            <li><ButtonAnalytics text="Analytics on this site" onClick={this.showAnalyticsPopup} /></li>
                         </ul>
                     </div>
                 </Grid>
-                <DialogWidthSmall hidden={!this.state.isAnalyticsVisible} onDismiss={this.hideAnalyticsPopup}
-                    dialogContentProps={{
-                        type: DialogType.largeHeader,
-                        title: "About analytics on this site",
-                    }}
-                >
-                    <p>This site uses <a href="https://docs.microsoft.com/en-us/azure/azure-monitor/app/app-insights-overview">Azure Application Insights</a> to track usage. In addition to browser information, it sends an event when a user uploads data into their title, and when a new player logs in for the first time.</p>
-                    <p>Information gathered via this method is only used to determine whether this website is being used. The title secret key is not tracked or stored.</p>
-                    <p>If you do not wish to be tracked, <a href="https://github.com/jordan-playfab/playfab-liveops-game/">build this game from its source code</a> and run it locally. The <a href="https://github.com/jordan-playfab/playfab-liveops-game/blob/master/source/app/shared/is.ts#L144">IsAnalyticsEnabled()</a> function determines whether the tracking code activates. The tracking code is only enabled on the secure domain <code>vanguardoutrider.com</code>.</p>
-                    {!is.analyticsEnabled() && (
-                        <p><strong>Analytics has been disabled on this site.</strong></p>
-                    )}
-                    <DialogFooter>
-                        <PrimaryButton onClick={this.hideAnalyticsPopup} text="Close" />
-                    </DialogFooter>
-                </DialogWidthSmall>
             </Page>
         );
     }
