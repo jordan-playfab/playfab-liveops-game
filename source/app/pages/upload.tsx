@@ -2,7 +2,7 @@ import React from "react";
 import { RouteComponentProps } from "react-router";
 import { Page } from "../components/page";
 import { is } from "../shared/is";
-import { MessageBar, MessageBarType, TextField, PrimaryButton, ProgressIndicator, Dialog, DialogType, DefaultButton } from "office-ui-fabric-react";
+import { MessageBar, MessageBarType, TextField, PrimaryButton, ProgressIndicator } from "office-ui-fabric-react";
 import styled, { DivConfirm, DivField, SpinnerLeft, DialogWidthSmall, ButtonTiny } from "../styles";
 import { PlayFabHelper } from "../shared/playfab";
 import { routes } from "../routes";
@@ -32,7 +32,6 @@ interface IState {
     storeCounter: number;
     titleDataCounter: number;
     shouldShowTitleNewsFormat: boolean;
-    hasTrackedUpload: boolean;
 }
 
 type Props = RouteComponentProps & IWithAppStateProps & IWithPageProps;
@@ -50,21 +49,12 @@ class UploadPageBase extends React.Component<Props, IState> {
             storeCounter: 0,
             titleDataCounter: 0,
             shouldShowTitleNewsFormat: false,
-            hasTrackedUpload: false,
         };
     }
 
     public componentDidUpdate(_: Props, prevState: IState): void {
         if(this.state.uploadProgress !== prevState.uploadProgress) {
             this.runUpload();
-        }
-
-        if(is.analyticsEnabled() && !is.null(appInsights) && this.state.uploadProgress >= PROGRESS_STAGES.length - 1 && !this.state.hasTrackedUpload) {
-            appInsights.trackEvent("Data uploaded", { TitleId: this.props.appState.titleId });
-
-            this.setState({
-                hasTrackedUpload: true
-            });
         }
     }
 

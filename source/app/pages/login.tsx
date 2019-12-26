@@ -7,7 +7,7 @@ import { is } from "../shared/is";
 import { routes } from "../routes";
 import { PlayFabHelper } from "../shared/playfab";
 import { Page } from "../components/page";
-import styled, { DivConfirm, DivField, SpinnerLeft } from "../styles";
+import { DivConfirm, DivField, SpinnerLeft } from "../styles";
 import { IWithAppStateProps, withAppState } from "../containers/with-app-state";
 import { TITLE_DATA_PLANETS, CATALOG_VERSION, TITLE_DATA_STORES, TITLE_DATA_ENEMIES } from "../shared/types";
 import { IWithPageProps, withPage } from "../containers/with-page";
@@ -86,10 +86,6 @@ class LoginPageBase extends React.Component<Props, IState> {
 
         if(player.NewlyCreated) {
             PlayFabHelper.UpdateUserTitleDisplayName(this.state.playerName, this.props.onPageNothing, this.props.onPageError);
-
-            if(is.analyticsEnabled() && !is.null(appInsights)) {
-                appInsights.trackEvent("New player created", { TitleId: this.props.appState.titleId });
-            }
         }
 
         CloudScriptHelper.login((response) => {
