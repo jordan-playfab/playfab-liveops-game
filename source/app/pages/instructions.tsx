@@ -162,6 +162,7 @@ class InstructionsPageBase extends React.Component<Props> {
                             <React.Fragment>
                                 <h3>6. Wait while the title is populated with data</h3>
                                 <p>It should take less than 10 seconds to populate your title.</p>
+                                <p>If you encounter an error, reload the page and try again. It's safe to run the upload multiple times.</p>
                                 <p>When it's done, click the <strong>Play game</strong> button.</p>
                             </React.Fragment>
                             <React.Fragment>
